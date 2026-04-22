@@ -1,11 +1,11 @@
 using UnityEngine;
 
-public class Character : MonoBehaviour
+public class Player : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        //new GameObject("Hitbox").AddComponent<BoxCollider>();
+        
     }
 
     // Update is called once per frame

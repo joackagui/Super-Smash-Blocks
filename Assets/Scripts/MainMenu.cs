@@ -1,16 +1,25 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
+
 
 public class MainMenu : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        if (MusicManager.Instance != null)
+            MusicManager.Instance.PlayMusic(MusicManager.Instance.mainMenuMusic);
     }
 
-    // Update is called once per frame
-    void Update()
+    public void Play()
     {
-        
+        if (MusicManager.Instance != null)
+            MusicManager.Instance.StopMusic();
+
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+    }
+
+    public void Quit()
+    {
+        Application.Quit();
     }
 }
