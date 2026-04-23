@@ -149,12 +149,9 @@ public class CharacterSelection : MonoBehaviour
 
     private void OnPlayer1SelectPerformed(InputAction.CallbackContext context)
     {
-        if (player1Selected)
-        {
-            return;
-        }
-
+        if (player1Selected) return;
         player1Selected = true;
+        MusicManager.Instance?.PlayMenuSelect();
         RegisterSelection();
         Debug.Log($"Player1 selection: {GetCharacterName(player1Position)}");
         TryLoadNextScene();
@@ -162,12 +159,9 @@ public class CharacterSelection : MonoBehaviour
 
     private void OnPlayer2SelectPerformed(InputAction.CallbackContext context)
     {
-        if (player2Selected)
-        {
-            return;
-        }
-
+        if (player2Selected) return;
         player2Selected = true;
+        MusicManager.Instance?.PlayMenuSelect();
         RegisterSelection();
         Debug.Log($"Player2 selection: {GetCharacterName(player2Position)}");
         TryLoadNextScene();
@@ -175,72 +169,48 @@ public class CharacterSelection : MonoBehaviour
 
     private void OnPlayer1DeselectPerformed(InputAction.CallbackContext context)
     {
-        if (!player1Selected)
-        {
-            return;
-        }
-
+        if (!player1Selected) return;
         player1Selected = false;
+        MusicManager.Instance?.PlayMenuBack();
         RegisterSelection();
         Debug.Log("Player1 selection: None");
     }
 
     private void OnPlayer2DeselectPerformed(InputAction.CallbackContext context)
     {
-        if (!player2Selected)
-        {
-            return;
-        }
-
+        if (!player2Selected) return;
         player2Selected = false;
+        MusicManager.Instance?.PlayMenuBack();
         RegisterSelection();
         Debug.Log("Player2 selection: None");
     }
 
     private void OnBackPerformed(InputAction.CallbackContext context)
     {
-        if (isTransitioning)
-        {
-            return;
-        }
+        if (isTransitioning) return;
+        MusicManager.Instance?.PlayMenuBack();
 
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.ClearSelections();
-        }
+        if (GameManager.Instance != null) GameManager.Instance.ClearSelections();
 
         isTransitioning = true;
         int previousSceneIndex = SceneManager.GetActiveScene().buildIndex - 1;
         if (previousSceneIndex >= 0)
-        {
             SceneManager.LoadScene(previousSceneIndex);
-        }
         else
-        {
             isTransitioning = false;
-        }
     }
 
     private void MovePlayer(ref Vector2Int currentPosition, Vector2Int otherPlayerPosition, bool isSelected, Vector2Int delta)
     {
-        if (isSelected)
-        {
-            return;
-        }
+        if (isSelected) return;
 
         Vector2Int nextPosition = currentPosition + delta;
 
-        if (nextPosition.x < 0 || nextPosition.x > 1 || nextPosition.y < 0 || nextPosition.y > 1)
-        {
-            return;
-        }
-
-        if (nextPosition == otherPlayerPosition)
-        {
-            return;
-        }
+        if (nextPosition.x < 0 || nextPosition.x > 1 || nextPosition.y < 0 || nextPosition.y > 1) return;
+        if (nextPosition == otherPlayerPosition) return;
 
         currentPosition = nextPosition;
+        MusicManager.Instance?.PlayMenuMove();
         RefreshMarkers();
     }
 

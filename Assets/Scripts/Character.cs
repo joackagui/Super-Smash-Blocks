@@ -1,8 +1,17 @@
 using UnityEngine;
 
-public class Character : MonoBehaviour
+public class Character
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    public int damageReceived;
+    public int damageDealt;
+    public int lives;
+    private bool isJumping;
+    private bool isAttacking;
+
+    public virtual void OnMovement()
+    {
+        // Handle movement logic here
+    }
     void Start()
     {
         //new GameObject("Hitbox").AddComponent<BoxCollider>();

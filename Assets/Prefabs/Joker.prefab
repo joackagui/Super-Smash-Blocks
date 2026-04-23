@@ -197,9 +197,6 @@ PrefabInstance:
       addedObject: {fileID: -2616008274244746110}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 21061566351c349509464ec1e221f60b, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 4871636101156734661}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 21061566351c349509464ec1e221f60b, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 3293154551544962224}
     - targetCorrespondingSourceObject: {fileID: 276565589563686403, guid: 21061566351c349509464ec1e221f60b, type: 3}
       insertIndex: -1
@@ -341,22 +338,10 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &4871636101156734661
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2815446942085080182}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 163cb725d4fa845319b5d0b8a6ef38d3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Joker
 --- !u!65 &3293154551544962224
 BoxCollider:
   m_ObjectHideFlags: 0

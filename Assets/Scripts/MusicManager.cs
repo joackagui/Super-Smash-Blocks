@@ -5,14 +5,20 @@ public class MusicManager : MonoBehaviour
 {
     public static MusicManager Instance;
 
+    [Header("Music Clips")]
     public AudioClip mainMenuMusic;
-
     public AudioClip fightMusic;
-
     public AudioClip victoryMusic;
-
     public AudioClip selectionMusic;
-    private AudioSource audioSource;
+
+    [Header("SFX Clips")]
+    public AudioClip menuMoveClip;
+    public AudioClip menuSelectClip;
+    public AudioClip menuBackClip;
+
+    // Sin [SerializeField] — se crean por código
+    private AudioSource musicSource;
+    private AudioSource sfxSource;
 
     private void Awake()
     {
@@ -27,10 +33,18 @@ public class MusicManager : MonoBehaviour
             return;
         }
 
-        audioSource = gameObject.AddComponent<AudioSource>();
-        audioSource.loop = true;
-        audioSource.playOnAwake = false;
+        // Se crean en el mismo GameObject que sobrevive entre escenas
+        musicSource = gameObject.AddComponent<AudioSource>();
+        musicSource.loop = true;
+        musicSource.playOnAwake = false;
+
+        sfxSource = gameObject.AddComponent<AudioSource>();
+        sfxSource.loop = false;
+        sfxSource.playOnAwake = false;
     }
+
+    private void OnEnable()  { SceneManager.sceneLoaded += OnSceneLoaded; }
+    private void OnDisable() { SceneManager.sceneLoaded -= OnSceneLoaded; }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
@@ -39,33 +53,45 @@ public class MusicManager : MonoBehaviour
             case "MainMenuScene":
                 PlayMusic(mainMenuMusic);
                 break;
-
             case "CharacterSelectionScene":
                 PlayMusic(selectionMusic);
                 break;
-
-            case "StageSelectionScene":
-                PlayMusic(selectionMusic);
-                break;
-
-            case "Stage1Scene":
+            case "FightScene":
                 PlayMusic(fightMusic);
                 break;
-
-            case "Stage2Scene":
-                PlayMusic(fightMusic);
+            case "VictoryScene":
+                PlayMusic(victoryMusic);
                 break;
         }
     }
+
     public void PlayMusic(AudioClip clip)
     {
-        if (audioSource.clip == clip && audioSource.isPlaying) return;
-        audioSource.clip = clip;
-        audioSource.Play();
+        if (musicSource.clip == clip && musicSource.isPlaying) return;
+        musicSource.clip = clip;
+        musicSource.Play();
     }
 
     public void StopMusic()
     {
-        audioSource.Stop();
+        musicSource.Stop();
+    }
+
+    public void PlayMenuMove()
+    {
+        if (menuMoveClip == null) return;
+        sfxSource.PlayOneShot(menuMoveClip);
+    }
+
+    public void PlayMenuSelect()
+    {
+        if (menuSelectClip == null) return;
+        sfxSource.PlayOneShot(menuSelectClip);
+    }
+
+    public void PlayMenuBack()
+    {
+        if (menuBackClip == null) return;
+        sfxSource.PlayOneShot(menuBackClip);
     }
 }

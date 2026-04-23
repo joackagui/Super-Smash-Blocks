@@ -36,7 +36,7 @@ public class StageSelection : MonoBehaviour
         BindAction(player1Input.left, OnLeftPerformed);
         BindAction(player1Input.right, OnRightPerformed);
         BindAction(player1Input.select, OnSelectPerformed);
-        BindAction(backAction, OnBackPerformed);
+        BindAction(backAction, OnDeselectPerformed);
 
         EnsureValidStartPosition();
         RefreshMarkers();
@@ -49,7 +49,7 @@ public class StageSelection : MonoBehaviour
         UnbindAction(player1Input.left, OnLeftPerformed);
         UnbindAction(player1Input.right, OnRightPerformed);
         UnbindAction(player1Input.select, OnSelectPerformed);
-        UnbindAction(backAction, OnBackPerformed);
+        UnbindAction(backAction, OnDeselectPerformed);
     }
 
     private static void BindAction(
@@ -99,83 +99,51 @@ public class StageSelection : MonoBehaviour
 
     private void OnSelectPerformed(InputAction.CallbackContext context)
     {
-        if (isTransitioning)
-        {
-            return;
-        }
+        if (isTransitioning) return;
 
         string stageName = GetStageName(stagePosition);
-        if (stageName == "None")
-        {
-            return;
-        }
+        if (stageName == "None") return;
 
         if (GameManager.Instance != null)
-        {
             GameManager.Instance.SetStageSelection(stageName);
-        }
 
+        MusicManager.Instance?.PlayMenuSelect();
         Debug.Log($"Stage selected: {stageName}");
         isTransitioning = true;
         int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
         if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
-        {
             SceneManager.LoadScene(nextSceneIndex);
-        }
         else
-        {
             isTransitioning = false;
-        }
     }
 
-    private void OnBackPerformed(InputAction.CallbackContext context)
+    private void OnDeselectPerformed(InputAction.CallbackContext context)
     {
-        if (isTransitioning)
-        {
-            return;
-        }
+        if (isTransitioning) return;
 
         if (GameManager.Instance != null)
-        {
             GameManager.Instance.SetStageSelection("None");
-        }
 
+        MusicManager.Instance?.PlayMenuBack();
         isTransitioning = true;
         int previousSceneIndex = SceneManager.GetActiveScene().buildIndex - 1;
         if (previousSceneIndex >= 0)
-        {
             SceneManager.LoadScene(previousSceneIndex);
-        }
         else
-        {
             isTransitioning = false;
-        }
     }
 
     private void MoveStage(Vector2Int delta)
     {
-        if (isTransitioning)
-        {
-            return;
-        }
-
-        if (stageSlots == null || stageSlots.Length == 0)
-        {
-            return;
-        }
+        if (isTransitioning) return;
+        if (stageSlots == null || stageSlots.Length == 0) return;
 
         Vector2Int nextPosition = stagePosition + delta;
-        if (nextPosition.x < 0 || nextPosition.x > 1 || nextPosition.y < 0 || nextPosition.y > 1)
-        {
-            return;
-        }
-
-        if (!IsSlotConfigured(nextPosition))
-        {
-            return;
-        }
+        if (nextPosition.x < 0 || nextPosition.x > 1 || nextPosition.y < 0 || nextPosition.y > 1) return;
+        if (!IsSlotConfigured(nextPosition)) return;
 
         stagePosition = nextPosition;
+        MusicManager.Instance?.PlayMenuMove();
         RefreshMarkers();
     }
 
