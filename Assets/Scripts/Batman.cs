@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Batman
+public class Batman: Character
 {
     
 }

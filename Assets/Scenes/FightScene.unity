@@ -650,8 +650,12 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1897937685629906842, guid: 47f943f87892a4e4f96aea5d3095fbbf, type: 3}
       propertyPath: m_Name
-      value: SmallPlatform (1)
+      value: SmallPlatform2
       objectReference: {fileID: 0}
+    - target: {fileID: 6474969446541260453, guid: 47f943f87892a4e4f96aea5d3095fbbf, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: ed3fd60d5d0d143dd8a9df361af7980f, type: 2}
     - target: {fileID: 8434345145158690905, guid: 47f943f87892a4e4f96aea5d3095fbbf, type: 3}
       propertyPath: m_LocalPosition.x
       value: -5
@@ -1014,7 +1018,7 @@ PrefabInstance:
     - target: {fileID: 6474969446541260453, guid: 47f943f87892a4e4f96aea5d3095fbbf, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: dbf898c9f9c4a2d46aa6336e23caeb61, type: 2}
+      objectReference: {fileID: 2100000, guid: ed3fd60d5d0d143dd8a9df361af7980f, type: 2}
     - target: {fileID: 8434345145158690905, guid: 47f943f87892a4e4f96aea5d3095fbbf, type: 3}
       propertyPath: m_LocalPosition.x
       value: 5.5
@@ -1060,7 +1064,7 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 47f943f87892a4e4f96aea5d3095fbbf, type: 3}
---- !u!1001 &5963501533500138927
+--- !u!1001 &5804629169097169929
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -1072,10 +1076,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MainPlatform
       objectReference: {fileID: 0}
-    - target: {fileID: 7964615742232041267, guid: 069eadb62556c4151be4d1560ce0689e, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 30
-      objectReference: {fileID: 0}
+    - target: {fileID: 6528969277090761368, guid: 069eadb62556c4151be4d1560ce0689e, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 31e0f38eb8e2b4cb2b696e447b3595f9, type: 2}
     - target: {fileID: 7964615742232041267, guid: 069eadb62556c4151be4d1560ce0689e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -1128,10 +1132,10 @@ SceneRoots:
   - {fileID: 330585546}
   - {fileID: 410087041}
   - {fileID: 832575519}
-  - {fileID: 5963501533500138927}
   - {fileID: 5713362835964179540}
   - {fileID: 1426955754}
   - {fileID: 1928450044752234051}
   - {fileID: 1769733134}
   - {fileID: 1229871241}
   - {fileID: 1045894853}
+  - {fileID: 5804629169097169929}

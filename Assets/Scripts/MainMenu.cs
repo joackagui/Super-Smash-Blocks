@@ -51,6 +51,7 @@ public class MainMenu : MonoBehaviour
             MusicManager.Instance.StopMusic();
 
         _isTransitioning = true;
+        MusicManager.Instance?.PlayMenuSelect();
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 

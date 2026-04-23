@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Joker
+public class Joker: Character
 {
     
 }
