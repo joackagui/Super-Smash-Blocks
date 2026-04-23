@@ -1,0 +1,55 @@
+{
+    "version": 1,
+    "name": "GeneralInput",
+    "maps": [
+        {
+            "name": "New action map",
+            "id": "3d321030-e85f-47ee-855e-9254bce95251",
+            "actions": [
+                {
+                    "name": "Return",
+                    "type": "Button",
+                    "id": "19a5632d-6279-4dfd-a5fb-9c5e1392f02f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Next",
+                    "type": "Button",
+                    "id": "cda80a3e-6abd-44a5-83cf-d8a1a54d8155",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "5666cbf7-69c3-4074-bf44-76024b2c867d",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Return",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f1440eff-f032-4ee9-b04d-53b2c921f258",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Next",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

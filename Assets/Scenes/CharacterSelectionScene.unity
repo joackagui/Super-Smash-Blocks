@@ -203,7 +203,7 @@ GameObject:
   - component: {fileID: 10808988}
   - component: {fileID: 10808987}
   m_Layer: 5
-  m_Name: BlockedIcon
+  m_Name: Joker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -248,7 +248,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: 3ef7a7cae421b4b14892c10f273af665, type: 3}
+  m_Texture: {fileID: 2800000, guid: 84c6895dfe7774456b6e43b2ddf22d66, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -438,12 +438,12 @@ RectTransform:
   - {fileID: 10808986}
   - {fileID: 2072368855}
   - {fileID: 55167916}
-  - {fileID: 1207758213}
-  - {fileID: 6114983}
-  - {fileID: 189778101}
   - {fileID: 2091973971}
   - {fileID: 20430412}
   - {fileID: 840405454}
+  - {fileID: 1207758213}
+  - {fileID: 6114983}
+  - {fileID: 189778101}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -477,6 +477,7 @@ MonoBehaviour:
     right: {fileID: -2016669083627552561, guid: eb37b8e8d3035486c91ba746d52fbf6f, type: 3}
     select: {fileID: 310677176593949835, guid: eb37b8e8d3035486c91ba746d52fbf6f, type: 3}
     deselect: {fileID: -6001212597897504926, guid: eb37b8e8d3035486c91ba746d52fbf6f, type: 3}
+  backAction: {fileID: -6391677252439560717, guid: d69f5cc184bdc4cf9a4ebb857954208a, type: 3}
   characterSlots:
   - characterImage: {fileID: 2081457899}
     player1Marker: {fileID: 1793505367}
@@ -490,7 +491,6 @@ MonoBehaviour:
   - characterImage: {fileID: 1207758214}
     player1Marker: {fileID: 6114984}
     player2Marker: {fileID: 189778102}
-  nextSceneName: StageSelectionScene
 --- !u!1 &55167915
 GameObject:
   m_ObjectHideFlags: 0

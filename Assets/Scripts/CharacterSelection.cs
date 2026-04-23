@@ -26,8 +26,8 @@ public class CharacterSelection : MonoBehaviour
 
     [SerializeField] private PlayerInputBindings player1Input;
     [SerializeField] private PlayerInputBindings player2Input;
+    [SerializeField] private InputActionReference backAction;
     [SerializeField] private CharacterSlot[] characterSlots = new CharacterSlot[4];
-    [SerializeField] private string nextSceneName = "StageSelectionScene";
 
     private Vector2Int player1Position = new Vector2Int(0, 0);
     private Vector2Int player2Position = new Vector2Int(1, 1);
@@ -58,6 +58,7 @@ public class CharacterSelection : MonoBehaviour
         BindAction(player2Input.right, OnPlayer2RightPerformed);
         BindAction(player2Input.select, OnPlayer2SelectPerformed);
         BindAction(player2Input.deselect, OnPlayer2DeselectPerformed);
+        BindAction(backAction, OnBackPerformed);
 
         RefreshMarkers();
     }
@@ -77,6 +78,7 @@ public class CharacterSelection : MonoBehaviour
         UnbindAction(player2Input.right, OnPlayer2RightPerformed);
         UnbindAction(player2Input.select, OnPlayer2SelectPerformed);
         UnbindAction(player2Input.deselect, OnPlayer2DeselectPerformed);
+        UnbindAction(backAction, OnBackPerformed);
     }
 
     private static void BindAction(
@@ -180,7 +182,7 @@ public class CharacterSelection : MonoBehaviour
 
         player1Selected = false;
         RegisterSelection();
-        Debug.Log("Player1 selection: none");
+        Debug.Log("Player1 selection: None");
     }
 
     private void OnPlayer2DeselectPerformed(InputAction.CallbackContext context)
@@ -192,7 +194,31 @@ public class CharacterSelection : MonoBehaviour
 
         player2Selected = false;
         RegisterSelection();
-        Debug.Log("Player2 selection: none");
+        Debug.Log("Player2 selection: None");
+    }
+
+    private void OnBackPerformed(InputAction.CallbackContext context)
+    {
+        if (isTransitioning)
+        {
+            return;
+        }
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ClearSelections();
+        }
+
+        isTransitioning = true;
+        int previousSceneIndex = SceneManager.GetActiveScene().buildIndex - 1;
+        if (previousSceneIndex >= 0)
+        {
+            SceneManager.LoadScene(previousSceneIndex);
+        }
+        else
+        {
+            isTransitioning = false;
+        }
     }
 
     private void MovePlayer(ref Vector2Int currentPosition, Vector2Int otherPlayerPosition, bool isSelected, Vector2Int delta)
@@ -225,8 +251,8 @@ public class CharacterSelection : MonoBehaviour
             return;
         }
 
-        GameManager.Instance.SetPlayer1Selection(player1Selected ? GetCharacterName(player1Position) : "none");
-        GameManager.Instance.SetPlayer2Selection(player2Selected ? GetCharacterName(player2Position) : "none");
+        GameManager.Instance.SetPlayer1Selection(player1Selected ? GetCharacterName(player1Position) : "None");
+        GameManager.Instance.SetPlayer2Selection(player2Selected ? GetCharacterName(player2Position) : "None");
     }
 
     private string GetCharacterName(Vector2Int position)
@@ -235,13 +261,13 @@ public class CharacterSelection : MonoBehaviour
 
         if (slotIndex < 0 || slotIndex >= characterSlots.Length)
         {
-            return "none";
+            return "None";
         }
 
         CharacterSlot slot = characterSlots[slotIndex];
         if (slot == null || slot.characterImage == null)
         {
-            return "none";
+            return "None";
         }
 
         return slot.characterImage.name;
@@ -255,7 +281,15 @@ public class CharacterSelection : MonoBehaviour
         }
 
         isTransitioning = true;
-        SceneManager.LoadScene(nextSceneName);
+        int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
+        if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
+        {
+            SceneManager.LoadScene(nextSceneIndex);
+        }
+        else
+        {
+            isTransitioning = false;
+        }
     }
 
     private void RefreshMarkers()

@@ -6,8 +6,10 @@ public class GameManager : MonoBehaviour
 
     private Character player1;
     private Character player2;
-    private string player1Selection = "none";
-    private string player2Selection = "none";
+    private string player1Selection = "None";
+    private string player2Selection = "None";
+
+    private string stageSelection = "None";
 
     private void Awake()
     {
@@ -61,6 +63,11 @@ public class GameManager : MonoBehaviour
         return player2Selection;
     }
 
+    public string GetStageSelection()
+    {
+        return stageSelection;
+    }
+
     public void SetPlayer1Selection(string selection)
     {
         player1Selection = selection;
@@ -71,25 +78,37 @@ public class GameManager : MonoBehaviour
         player2Selection = selection;
     }
 
+    public void SetStageSelection(string selection)
+    {
+        stageSelection = selection;
+    }
+
     public void ClearSelections()
     {
-        player1Selection = "none";
-        player2Selection = "none";
+        player1Selection = "None";
+        player2Selection = "None";
+        stageSelection = "None";
     }
     public void CreatePlayers(){
-        switch (player1Selection)
-        {
-            case "Batman":
-                player1 = new Character();
-                break;
-        }
-        switch (player2Selection)
-        {
-            case "Batman":
-                player2 = new Character();
-                break;
-        }
-        //player1.Transform.position = new Vector3(-10, 0.5f, 0);
-        // player2.Transform.position = new Vector3(10, 0.5f, 0);
+        // switch (player1Selection)
+        // {
+        //     case "Batman":
+        //         player1 = new Batman();
+        //         break;
+        //     case "Joker":
+        //         player1 = new Joker();
+        //         break;
+        // }
+        // switch (player2Selection)
+        // {
+        //     case "Batman":
+        //         player2 = new Batman();
+        //         break;
+        //     case "Joker":
+        //         player2 = new Joker();
+        //         break;
+        // }
+        // //player1.Transform.position = new Vector3(-10, 0.5f, 0);
+        // // player2.Transform.position = new Vector3(10, 0.5f, 0);
     }
 }
