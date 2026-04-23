@@ -2,15 +2,53 @@ using UnityEngine;
 
 public class Character : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [Header("Animation")]
+    [SerializeField] private Animator animator;
+    [SerializeField] private string moveSpeedParameter = "MoveSpeed";
+    [SerializeField] private string jumpTrigger = "Jump";
+    [SerializeField] private string action1Trigger = "Action1";
+    [SerializeField] private string action2Trigger = "Action2";
+
+    protected virtual void Awake()
     {
-        //new GameObject("Hitbox").AddComponent<BoxCollider>();
+        if (animator == null)
+        {
+            animator = GetComponentInChildren<Animator>();
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+    public virtual void OnMove(float horizontalSpeed)
     {
-        
+        if (animator == null || string.IsNullOrEmpty(moveSpeedParameter))
+        {
+            return;
+        }
+
+        animator.SetFloat(moveSpeedParameter, Mathf.Abs(horizontalSpeed));
+    }
+
+    public virtual void OnJump()
+    {
+        Trigger(jumpTrigger);
+    }
+
+    public virtual void OnAction1()
+    {
+        Trigger(action1Trigger);
+    }
+
+    public virtual void OnAction2()
+    {
+        Trigger(action2Trigger);
+    }
+
+    protected void Trigger(string triggerName)
+    {
+        if (animator == null || string.IsNullOrEmpty(triggerName))
+        {
+            return;
+        }
+
+        animator.SetTrigger(triggerName);
     }
 }
