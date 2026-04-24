@@ -10,8 +10,12 @@ public class UIManager : MonoBehaviour
     {
         public string stageName;
         public Texture texture;
+    }    
+    [System.Serializable]
+    private class CharacterImageEntry
+    {
+        public RawImage characterImage;
     }
-
     [System.Serializable]
     private class StageColor
     {
@@ -19,11 +23,23 @@ public class UIManager : MonoBehaviour
         public Color color;
     }
 
+    [Header("Stage")]
     [SerializeField] private RawImage stageImage;
     [SerializeField] private Texture defaultBackground;
     [SerializeField] private StageBackground[] stageBackgrounds;
     [SerializeField] private StageColor[] stageColors;
     [SerializeField] private Renderer[] platforms;
+
+    [Header("Player Character Images")]
+    [SerializeField] private RawImage player1CharacterImage;
+    [SerializeField] private RawImage player2CharacterImage;
+
+    [Header("Icon Images")]
+    [SerializeField] private Texture batmanImage;
+    [SerializeField] private Texture jokerImage;
+    [SerializeField] private Texture redHoodImage;
+
+    [Header("Input")]
     [SerializeField] private InputActionReference returnToMainMenuAction;
 
     private bool isLoadingMainMenu;
@@ -38,6 +54,11 @@ public class UIManager : MonoBehaviour
         UnbindAction(returnToMainMenuAction, OnReturnToMainMenuPerformed);
     }
 
+    private void Awake()
+    {
+        ValidateGameManager();
+    }
+
     private void Start()
     {
         if (stageImage == null)
@@ -47,6 +68,7 @@ public class UIManager : MonoBehaviour
 
         ApplyStageBackground();
         ApplyPlatformColor();
+        ApplyCharacterImages();
     }
 
     private static void BindAction(
@@ -148,6 +170,39 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    private void ApplyCharacterImages()
+    {
+        if (GameManager.Instance == null) return;
+
+        ApplySingleCharacterImage(
+            player1CharacterImage,
+            GameManager.Instance.GetPlayer1Selection()
+        );
+
+        ApplySingleCharacterImage(
+            player2CharacterImage,
+            GameManager.Instance.GetPlayer2Selection()
+        );
+    }
+
+    private void ApplySingleCharacterImage(RawImage target, string selection)
+    {
+        if (target == null) return;
+
+        if (selection == "Batman")
+        {
+            target.texture = batmanImage;
+        }
+        else if (selection == "Joker")
+        {
+            target.texture = jokerImage;
+        }
+        else if (selection == "RedHood")
+        {
+            target.texture = redHoodImage;
+        }
+    }
+
     private void OnReturnToMainMenuPerformed(InputAction.CallbackContext context)
     {
         if (isLoadingMainMenu)
@@ -157,5 +212,13 @@ public class UIManager : MonoBehaviour
 
         isLoadingMainMenu = true;
         SceneManager.LoadScene(0);
+    }
+
+    private void ValidateGameManager()
+    {
+        if (GameManager.Instance == null)
+        {
+            SceneManager.LoadScene(0);
+        }
     }
 }

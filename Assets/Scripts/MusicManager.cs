@@ -15,7 +15,7 @@ public class MusicManager : MonoBehaviour
     public AudioClip menuMoveClip;
     public AudioClip menuSelectClip;
     public AudioClip menuBackClip;
-
+    public AudioClip menuErrorClip;
     // Sin [SerializeField] — se crean por código
     private AudioSource musicSource;
     private AudioSource sfxSource;
@@ -93,5 +93,11 @@ public class MusicManager : MonoBehaviour
     {
         if (menuBackClip == null) return;
         sfxSource.PlayOneShot(menuBackClip);
+    }
+
+    public void PlayMenuError()
+    {
+        if (menuErrorClip == null) return;
+        sfxSource.PlayOneShot(menuErrorClip);
     }
 }

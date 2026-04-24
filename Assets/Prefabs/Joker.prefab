@@ -110,7 +110,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: ab2dc807eb12f4aed934d3ce6579d291, type: 2}
     - target: {fileID: -1102604029052427019, guid: 21061566351c349509464ec1e221f60b, type: 3}
       propertyPath: m_Name
-      value: Hips
+      value: Waist
       objectReference: {fileID: 0}
     - target: {fileID: -966403662063613215, guid: 21061566351c349509464ec1e221f60b, type: 3}
       propertyPath: m_Enabled
@@ -146,7 +146,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 21061566351c349509464ec1e221f60b, type: 3}
       propertyPath: m_TagString
-      value: Player
+      value: Character
       objectReference: {fileID: 0}
     - target: {fileID: 930713220340759101, guid: 21061566351c349509464ec1e221f60b, type: 3}
       propertyPath: m_Name
@@ -254,7 +254,7 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
@@ -281,7 +281,7 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
@@ -308,7 +308,7 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
@@ -378,6 +378,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 163cb725d4fa845319b5d0b8a6ef38d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Joker
+  speed: 7
+  jumpForce: 8
+  faceRightYRotation: 90
+  faceLeftYRotation: -90
   lives: 3
   hurtClip: {fileID: 8300000, guid: 61f16167afbe545799ef48df68b862f1, type: 3}
   attack1Clip: {fileID: 8300000, guid: 59d44ff6e66304f13aeb98c01d8dfe24, type: 3}
@@ -406,7 +410,7 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
@@ -433,7 +437,7 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
@@ -460,7 +464,7 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
@@ -487,7 +491,7 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
@@ -514,7 +518,7 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
@@ -541,7 +545,7 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
@@ -568,7 +572,7 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30

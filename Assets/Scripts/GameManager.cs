@@ -114,7 +114,21 @@ public class GameManager : MonoBehaviour
     {
         character1 = CreateCharacter(player1Selection);
         character2 = CreateCharacter(player2Selection);
+        Instantiate(player1).GetComponent<Player>();
+        Instantiate(player2).GetComponent<Player>();
         player1.SetCharacter(character1);
         player2.SetCharacter(character2);
+        SpawnCharacter(character1, new Vector3(-10, 5, 0));
+        SpawnCharacter(character2, new Vector3(10, 5, 0));
+    }
+
+    public void SpawnCharacter(Character character, Vector3 position)
+    {
+        character.transform.position = position;
+    }
+
+    public void Victory()
+    {
+        
     }
 }

@@ -52,6 +52,11 @@ public class StageSelection : MonoBehaviour
         UnbindAction(backAction, OnDeselectPerformed);
     }
 
+    private void Awake()
+    {
+        ValidateGameManager();
+    }
+
     private static void BindAction(
         InputActionReference actionReference,
         System.Action<InputAction.CallbackContext> onPerformed)
@@ -222,5 +227,13 @@ public class StageSelection : MonoBehaviour
     private static int GetSlotIndex(Vector2Int position)
     {
         return position.y * 2 + position.x;
+    }
+
+    private void ValidateGameManager()
+    {
+        if (GameManager.Instance == null)
+        {
+            SceneManager.LoadScene(0);
+        }
     }
 }

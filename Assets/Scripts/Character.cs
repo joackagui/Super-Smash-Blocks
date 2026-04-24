@@ -121,6 +121,14 @@ public class Character: MonoBehaviour
             isJumping = false;
             isGrounded = true;
             jumpsRemaining = 2;
+        } else if (collision.gameObject.CompareTag("Barrier"))
+        {
+            Destroy(gameObject);
+            lives--;
+            if (lives == 0)
+            {
+                GameManager.Instance.Victory();
+            }
         }
     }
 
