@@ -12,9 +12,18 @@ public class UIManager : MonoBehaviour
         public Texture texture;
     }
 
+    [System.Serializable]
+    private class StageColor
+    {
+        public string stageName;
+        public Color color;
+    }
+
     [SerializeField] private RawImage stageImage;
     [SerializeField] private Texture defaultBackground;
     [SerializeField] private StageBackground[] stageBackgrounds;
+    [SerializeField] private StageColor[] stageColors;
+    [SerializeField] private Renderer[] platforms;
     [SerializeField] private InputActionReference returnToMainMenuAction;
 
     private bool isLoadingMainMenu;
@@ -37,6 +46,7 @@ public class UIManager : MonoBehaviour
         }
 
         ApplyStageBackground();
+        ApplyPlatformColor();
     }
 
     private static void BindAction(
@@ -94,6 +104,48 @@ public class UIManager : MonoBehaviour
         }
 
         stageImage.texture = selectedTexture;
+    }
+
+    private void ApplyPlatformColor()
+    {
+        if (platforms == null || platforms.Length == 0)
+        {
+            return;
+        }
+
+        string stageSelection = "None";
+        if (GameManager.Instance != null)
+        {
+            stageSelection = GameManager.Instance.GetStageSelection();
+        }
+
+        Color selectedColor = Color.white;
+
+        for (int i = 0; i < stageColors.Length; i++)
+        {
+            StageColor entry = stageColors[i];
+            if (entry == null || string.IsNullOrEmpty(entry.stageName))
+            {
+                continue;
+            }
+
+            if (entry.stageName == stageSelection)
+            {
+                selectedColor = entry.color;
+                break;
+            }
+        }
+
+        for (int i = 0; i < platforms.Length; i++)
+        {
+            if (platforms[i] == null) continue;
+
+            Material[] mats = platforms[i].materials;
+            for (int j = 0; j < mats.Length; j++)
+            {
+                mats[j].color = selectedColor;
+            }
+        }
     }
 
     private void OnReturnToMainMenuPerformed(InputAction.CallbackContext context)

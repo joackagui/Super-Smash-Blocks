@@ -621,6 +621,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 64766d94e4505404a9cc881d9d3b9e0a, type: 3}
+--- !u!23 &1065901573 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 6474969446541260453, guid: 47f943f87892a4e4f96aea5d3095fbbf, type: 3}
+  m_PrefabInstance: {fileID: 1426955754}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1229871238
 GameObject:
   m_ObjectHideFlags: 0
@@ -700,6 +705,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!23 &1265934803 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 6528969277090761368, guid: 069eadb62556c4151be4d1560ce0689e, type: 3}
+  m_PrefabInstance: {fileID: 5804629169097169929}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1426955754
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -761,55 +771,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 47f943f87892a4e4f96aea5d3095fbbf, type: 3}
---- !u!1 &1584975850
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+--- !u!23 &1432386510 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 6474969446541260453, guid: 47f943f87892a4e4f96aea5d3095fbbf, type: 3}
+  m_PrefabInstance: {fileID: 5713362835964179540}
   m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1584975852}
-  - component: {fileID: 1584975851}
-  m_Layer: 0
-  m_Name: Player1
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1584975851
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1584975850}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b02766dcb28a49acae3da4911e70414, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Player
-  totalDamageReceived: 0
-  totalDamageDealt: 0
-  inputActions: {fileID: -944628639613478452, guid: 7704f01f7968f4491bb44bfd42f06be7, type: 3}
-  actionMapName: New action map
-  character: {fileID: 2067725847}
---- !u!4 &1584975852
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1584975850}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -9.64935, y: 2.34043, z: -0.05703}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1769733130
 GameObject:
   m_ObjectHideFlags: 0
@@ -937,6 +903,19 @@ MonoBehaviour:
     texture: {fileID: 2800000, guid: 97c9459dca8bf4aa98eaf78576bec3e2, type: 3}
   - stageName: Themyscira
     texture: {fileID: 2800000, guid: aeb60d6f0260d40b8aa1fe59e204a36a, type: 3}
+  stageColors:
+  - stageName: Gotham
+    color: {r: 0.23529412, g: 0.23529412, b: 0.23529412, a: 0.6666667}
+  - stageName: Themyscira
+    color: {r: 0.2331532, g: 0.6698113, b: 0.22432362, a: 0.6666667}
+  - stageName: ArkhamAsylum
+    color: {r: 0.3529412, g: 0.43137255, b: 0.39215687, a: 0.6666667}
+  - stageName: FortressOfSolitude
+    color: {r: 0.10123708, g: 0.69144946, b: 0.8584906, a: 0.6666667}
+  platforms:
+  - {fileID: 1265934803}
+  - {fileID: 1065901573}
+  - {fileID: 1432386510}
   returnToMainMenuAction: {fileID: -6391677252439560717, guid: d69f5cc184bdc4cf9a4ebb857954208a, type: 3}
 --- !u!1001 &1770954062
 PrefabInstance:
