@@ -9,8 +9,8 @@ public class GameManager : MonoBehaviour
     public Character character1;
     public Character character2;
     public GameObject batmanPrefab;
+    public GameObject redHoodPrefab;
     public GameObject jokerPrefab;
-    public GameObject robinPrefab;
     private string player1Selection = "None";
     private string player2Selection = "None";
 
@@ -103,9 +103,9 @@ public class GameManager : MonoBehaviour
         {
             return Instantiate(jokerPrefab).GetComponent<Character>();
         } 
-        else if (playerSelection == "Robin")
+        else if (playerSelection == "RedHood")
         {
-            return Instantiate(robinPrefab).GetComponent<Character>();
+            return Instantiate(redHoodPrefab).GetComponent<Character>();
         }
         return null;
     }

@@ -1452,7 +1452,7 @@ GameObject:
   - component: {fileID: 2091973973}
   - component: {fileID: 2091973972}
   m_Layer: 5
-  m_Name: BlockedIcon2
+  m_Name: RedHood
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1497,7 +1497,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: 3ef7a7cae421b4b14892c10f273af665, type: 3}
+  m_Texture: {fileID: 2800000, guid: d42d2fed4570f4df7839649de2351898, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0

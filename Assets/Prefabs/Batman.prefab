@@ -221,6 +221,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 4a7008912d1814d70821ad2783a29432, type: 3}
       insertIndex: -1
       addedObject: {fileID: -7480556011662419441}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 4a7008912d1814d70821ad2783a29432, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4086213795887893312}
     - targetCorrespondingSourceObject: {fileID: -6195923566545224496, guid: 4a7008912d1814d70821ad2783a29432, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3570549309144455291}
@@ -350,12 +353,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b443600ce0ed4f91977981d766184e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Batman
+  speed: 7
+  jumpForce: 8
+  faceRightYRotation: 90
+  faceLeftYRotation: -90
   lives: 3
   hurtClip: {fileID: 8300000, guid: cf959a3866f8d46548c6540bff94dd45, type: 3}
   attack1Clip: {fileID: 8300000, guid: 8108f23828fb94ad0bf0bc1825af3a5a, type: 3}
   attack2Clip: {fileID: 8300000, guid: cfa9e979306074f88a6ee8228b0c6a0d, type: 3}
   jumpClip: {fileID: 8300000, guid: 59490852bd44c494fa39e37c664c4ef0, type: 3}
   deathClip: {fileID: 8300000, guid: c04cfa3c544e544e681a3c206c3cf240, type: 3}
+--- !u!95 &4086213795887893312
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 993237681401719161}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: cd6457705b3d246d69e363f88a7a8976, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1142785867343849464 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -8155416357359602736, guid: 4a7008912d1814d70821ad2783a29432, type: 3}

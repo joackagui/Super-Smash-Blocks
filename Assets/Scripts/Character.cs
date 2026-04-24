@@ -2,7 +2,12 @@ using UnityEngine;
 
 public class Character: MonoBehaviour
 {
-    private float speed;
+    [Header("Movement")]
+    [SerializeField] private float speed = 7f;
+    [SerializeField] private float jumpForce = 8f;
+    [SerializeField] private float faceRightYRotation = 90f;
+    [SerializeField] private float faceLeftYRotation = -90f;
+
     private float damageReceived = 0;
     private float damageDealt = 0;
     public int lives = 3;
@@ -20,27 +25,38 @@ public class Character: MonoBehaviour
 
     public AudioClip deathClip;
     private AudioSource sfxSource;
+    private Rigidbody rb;
+
+    private Vector2 moveInput;
+    private int facingDirection = 1;
 
 
     public virtual void Move(Vector2 direction)
     {
-        isMoving = true;
+        moveInput = direction;
+        isMoving = Mathf.Abs(direction.x) > 0.01f;
+
+        if (direction.x > 0.01f)
+        {
+            FaceDirection(1);
+        }
+        else if (direction.x < -0.01f)
+        {
+            FaceDirection(-1);
+        }
     }
 
     public virtual void Jump()
     {
-        if(isGrounded)
+        if (isGrounded || jumpsRemaining > 0)
         {
             ReproduceJumpClip();
             isJumping = true;
             isGrounded = false;
             jumpsRemaining--;
-        } else {
-            if (jumpsRemaining > 0)
-            {
-                isJumping = true;
-                jumpsRemaining--;
-            }
+            Vector3 velocity = rb.linearVelocity;
+            rb.linearVelocity = new Vector3(velocity.x, 0f, velocity.z);
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
     }
 
@@ -65,6 +81,18 @@ public class Character: MonoBehaviour
 
     void Awake()
     {
+        rb = GetComponent<Rigidbody>();
+        if (rb == null)
+        {
+            rb = gameObject.AddComponent<Rigidbody>();
+        }
+
+        rb.isKinematic = false;
+        rb.useGravity = true;
+        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+        rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+
         sfxSource = gameObject.AddComponent<AudioSource>();
         sfxSource.loop = false;
         sfxSource.playOnAwake = false;
@@ -78,9 +106,7 @@ public class Character: MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        if(!isGrounded && jumpsRemaining == 2){
-            jumpsRemaining = 1;
-        }
+        ApplyHorizontalMovement();
     }
 
     void Knockback(Vector2 direction, float force)
@@ -98,25 +124,64 @@ public class Character: MonoBehaviour
         }
     }
 
+    private void ApplyHorizontalMovement()
+    {
+        if (rb == null)
+        {
+            return;
+        }
+
+        Vector3 velocity = rb.linearVelocity;
+        velocity.x = moveInput.x * speed;
+        rb.linearVelocity = velocity;
+    }
+
+    private void FaceDirection(int direction)
+    {
+        if (facingDirection == direction)
+        {
+            return;
+        }
+
+        facingDirection = direction;
+        float yRotation = direction > 0 ? faceRightYRotation : faceLeftYRotation;
+        transform.rotation = Quaternion.Euler(0f, yRotation, 0f);
+    }
+
     public void ReproduceJumpClip()
     {
-        sfxSource.PlayOneShot(jumpClip);
+        if (jumpClip != null)
+        {
+            sfxSource.PlayOneShot(jumpClip);
+        }
     }
     public void ReproduceAttack1Clip()
     {
-        sfxSource.PlayOneShot(attack1Clip);
+        if (attack1Clip != null)
+        {
+            sfxSource.PlayOneShot(attack1Clip);
+        }
     }
     public void ReproduceAttack2Clip()
     {
-        sfxSource.PlayOneShot(attack2Clip);
+        if (attack2Clip != null)
+        {
+            sfxSource.PlayOneShot(attack2Clip);
+        }
     }
     public void ReproduceHurtClip()
     {
-        sfxSource.PlayOneShot(hurtClip);
+        if (hurtClip != null)
+        {
+            sfxSource.PlayOneShot(hurtClip);
+        }
     }
 
     public void ReproduceDeathClip()
     {
-        sfxSource.PlayOneShot(deathClip);
+        if (deathClip != null)
+        {
+            sfxSource.PlayOneShot(deathClip);
+        }
     }
 }
