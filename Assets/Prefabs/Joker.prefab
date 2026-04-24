@@ -198,6 +198,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 21061566351c349509464ec1e221f60b, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3293154551544962224}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 21061566351c349509464ec1e221f60b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -9110808990699841617}
     - targetCorrespondingSourceObject: {fileID: 276565589563686403, guid: 21061566351c349509464ec1e221f60b, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5782455716309888896}
@@ -363,6 +366,24 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.3565576, y: 3.7720287, z: 0.8328658}
   m_Center: {x: -0.0028172135, y: -0.338242, z: 0.03638897}
+--- !u!114 &-9110808990699841617
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2815446942085080182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 163cb725d4fa845319b5d0b8a6ef38d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Joker
+  lives: 3
+  hurtClip: {fileID: 8300000, guid: 61f16167afbe545799ef48df68b862f1, type: 3}
+  attack1Clip: {fileID: 8300000, guid: 59d44ff6e66304f13aeb98c01d8dfe24, type: 3}
+  attack2Clip: {fileID: 8300000, guid: a9f0d009f3e8d402b93b7e6a7faf9754, type: 3}
+  jumpClip: {fileID: 8300000, guid: 59490852bd44c494fa39e37c664c4ef0, type: 3}
+  deathClip: {fileID: 8300000, guid: cdde6e3d989a74a94aebeabdb435bda4, type: 3}
 --- !u!1 &2826463398946300698 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 930713220340759101, guid: 21061566351c349509464ec1e221f60b, type: 3}

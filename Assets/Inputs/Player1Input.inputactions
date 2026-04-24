@@ -7,7 +7,7 @@
             "id": "83d2ea80-590c-4743-b8df-ffb9b5447eec",
             "actions": [
                 {
-                    "name": "Attack1",
+                    "name": "Action1",
                     "type": "Button",
                     "id": "84fcf1d3-b367-4995-a868-bb306b3d962a",
                     "expectedControlType": "",
@@ -16,7 +16,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Attack2",
+                    "name": "Action2",
                     "type": "Button",
                     "id": "b5ecf10c-b90f-4e3f-99f7-7fd9fb00e7d6",
                     "expectedControlType": "",
@@ -87,7 +87,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Attack1",
+                    "action": "Action1",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -98,7 +98,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Attack2",
+                    "action": "Action2",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

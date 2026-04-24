@@ -4,8 +4,13 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    private Character player1;
-    private Character player2;
+    public Player player1;
+    public Player player2;
+    public Character character1;
+    public Character character2;
+    public GameObject batmanPrefab;
+    public GameObject jokerPrefab;
+    public GameObject robinPrefab;
     private string player1Selection = "None";
     private string player2Selection = "None";
 
@@ -36,19 +41,19 @@ public class GameManager : MonoBehaviour
         
     }
 
-    public Character GetPlayer1()
+    public Player GetPlayer1()
     {
         return player1;
     }
-    public Character GetPlayer2()
+    public Player GetPlayer2()
     {
         return player2;
     }
-    public void SetPlayer1(Character player)
+    public void SetPlayer1(Player player)
     {
         player1 = player;
     }
-    public void SetPlayer2(Character player)
+    public void SetPlayer2(Player player)
     {
         player2 = player;
     }
@@ -89,26 +94,27 @@ public class GameManager : MonoBehaviour
         player2Selection = "None";
         stageSelection = "None";
     }
-    public void CreatePlayers(){
-        // switch (player1Selection)
-        // {
-        //     case "Batman":
-        //         player1 = new Batman();
-        //         break;
-        //     case "Joker":
-        //         player1 = new Joker();
-        //         break;
-        // }
-        // switch (player2Selection)
-        // {
-        //     case "Batman":
-        //         player2 = new Batman();
-        //         break;
-        //     case "Joker":
-        //         player2 = new Joker();
-        //         break;
-        // }
-        // //player1.Transform.position = new Vector3(-10, 0.5f, 0);
-        // // player2.Transform.position = new Vector3(10, 0.5f, 0);
+    public Character CreateCharacter(string playerSelection){
+        if (playerSelection == "Batman")
+        {
+            return Instantiate(batmanPrefab).GetComponent<Character>();
+        } 
+        else if (playerSelection == "Joker")
+        {
+            return Instantiate(jokerPrefab).GetComponent<Character>();
+        } 
+        else if (playerSelection == "Robin")
+        {
+            return Instantiate(robinPrefab).GetComponent<Character>();
+        }
+        return null;
+    }
+
+    public void CreatePlayers()
+    {
+        character1 = CreateCharacter(player1Selection);
+        character2 = CreateCharacter(player2Selection);
+        player1.SetCharacter(character1);
+        player2.SetCharacter(character2);
     }
 }
