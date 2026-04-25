@@ -23,7 +23,6 @@ public class Player : MonoBehaviour
     private InputAction attack2Action;
 
     public Character character;
-
     public int lives = 3;
 
     public PlayerSlot Slot => playerSlot;
@@ -37,7 +36,6 @@ public class Player : MonoBehaviour
     {
         spawnPoint = newSpawnPoint;
     }
-
 
     public void SetCharacter(Character character)
     {
@@ -96,7 +94,7 @@ public class Player : MonoBehaviour
         {
             if (GameManager.Instance != null)
             {
-                GameManager.Instance.Victory();
+                GameManager.Instance.Victory(this);
             }
 
             return;
@@ -110,12 +108,12 @@ public class Player : MonoBehaviour
         }
     }
 
-    void Awake()
+    private void Awake()
     {
         ConfigureActions();
     }
 
-    void OnEnable()
+    private void OnEnable()
     {
         if (GameManager.Instance != null)
         {
@@ -125,7 +123,7 @@ public class Player : MonoBehaviour
         EnableActions(true);
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         if (GameManager.Instance != null)
         {
@@ -135,7 +133,7 @@ public class Player : MonoBehaviour
         EnableActions(false);
     }
 
-    void Update()
+    private void Update()
     {
         if (character == null)
         {
@@ -159,10 +157,6 @@ public class Player : MonoBehaviour
         {
             character.Attack2();
         }
-    }
-
-    void Start()
-    {
     }
 
     private void ConfigureActions()

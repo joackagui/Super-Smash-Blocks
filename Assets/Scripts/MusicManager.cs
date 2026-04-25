@@ -64,9 +64,9 @@ public class MusicManager : MonoBehaviour
             case "MainMenuScene":
                 PlayMusic(mainMenuMusic);
                 break;
-            // case "CharacterSelectionScene":
-            //     PlayMusic(selectionMusic);
-            //     break;
+             case "CharacterSelectionScene":
+                 PlayMusic(selectionMusic);
+                 break;
             case "FightScene":
                 PlayMusic(fightMusic);
                 break;

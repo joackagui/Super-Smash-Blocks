@@ -6,6 +6,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     private const string FightSceneName = "FightScene";
+    private const string WinnerSceneName = "WinnerScene";
 
     public Player player1;
     public Player player2;
@@ -14,10 +15,13 @@ public class GameManager : MonoBehaviour
     public GameObject batmanPrefab;
     public GameObject redHoodPrefab;
     public GameObject jokerPrefab;
+
     private string player1Selection = "None";
     private string player2Selection = "None";
-
     private string stageSelection = "None";
+    private string winnerSelection = "None";
+
+    private bool isVictoryLoading = false;
 
     private void Awake()
     {
@@ -43,28 +47,26 @@ public class GameManager : MonoBehaviour
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    void Start()
+    private void Start()
     {
         InitializeFightScene(SceneManager.GetActiveScene());
-    }
-
-    void Update()
-    {
-        
     }
 
     public Player GetPlayer1()
     {
         return player1;
     }
+
     public Player GetPlayer2()
     {
         return player2;
     }
+
     public void SetPlayer1(Player player)
     {
         player1 = player;
     }
+
     public void SetPlayer2(Player player)
     {
         player2 = player;
@@ -85,6 +87,11 @@ public class GameManager : MonoBehaviour
         return stageSelection;
     }
 
+    public string GetWinnerSelection()
+    {
+        return winnerSelection;
+    }
+
     public void SetPlayer1Selection(string selection)
     {
         player1Selection = selection;
@@ -100,6 +107,11 @@ public class GameManager : MonoBehaviour
         stageSelection = selection;
     }
 
+    public void SetWinnerSelection(string selection)
+    {
+        winnerSelection = selection;
+    }
+
     public void ClearSelections()
     {
         player1Selection = "None";
@@ -107,9 +119,18 @@ public class GameManager : MonoBehaviour
         stageSelection = "None";
     }
 
+    public void ClearWinnerSelection()
+    {
+        winnerSelection = "None";
+        isVictoryLoading = false;
+    }
+
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        InitializeFightScene(scene);
+        if (scene.name == FightSceneName)
+        {
+            InitializeFightScene(scene);
+        }
     }
 
     private void InitializeFightScene(Scene scene)
@@ -119,6 +140,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        isVictoryLoading = false;
         CacheFightScenePlayers();
 
         if (player1 != null)
@@ -204,15 +226,16 @@ public class GameManager : MonoBehaviour
         if (playerSelection == "Batman")
         {
             return Instantiate(batmanPrefab, position, rotation).GetComponent<Character>();
-        } 
+        }
         else if (playerSelection == "Joker")
         {
             return Instantiate(jokerPrefab, position, rotation).GetComponent<Character>();
-        } 
+        }
         else if (playerSelection == "RedHood")
         {
             return Instantiate(redHoodPrefab, position, rotation).GetComponent<Character>();
         }
+
         return null;
     }
 
@@ -274,9 +297,28 @@ public class GameManager : MonoBehaviour
         return "None";
     }
 
-    public void Victory()
+    public void Victory(Player defeatedPlayer)
     {
-        Debug.Log("Game Over");
-        ClearSelections();
+        if (isVictoryLoading)
+        {
+            return;
+        }
+
+        isVictoryLoading = true;
+
+        if (defeatedPlayer == player1)
+        {
+            winnerSelection = player2Selection;
+        }
+        else if (defeatedPlayer == player2)
+        {
+            winnerSelection = player1Selection;
+        }
+        else
+        {
+            winnerSelection = "None";
+        }
+
+        SceneManager.LoadScene(WinnerSceneName);
     }
 }
