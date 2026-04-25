@@ -11,6 +11,11 @@ public class MusicManager : MonoBehaviour
     public AudioClip victoryMusic;
     public AudioClip selectionMusic;
 
+    [Header("Victory Music by Character")]
+    public AudioClip batmanVictoryMusic;
+    public AudioClip jokerVictoryMusic;
+    public AudioClip redHoodVictoryMusic;
+
     [Header("SFX Clips")]
     public AudioClip menuMoveClip;
     public AudioClip menuSelectClip;
@@ -45,7 +50,7 @@ public class MusicManager : MonoBehaviour
         sfxSource = gameObject.AddComponent<AudioSource>();
         sfxSource.loop = false;
         sfxSource.playOnAwake = false;
-        sfxSource.volume = sfxVolume; 
+        sfxSource.volume = sfxVolume;
     }
 
     private void OnEnable()  { SceneManager.sceneLoaded += OnSceneLoaded; }
@@ -57,6 +62,21 @@ public class MusicManager : MonoBehaviour
         sfxSource.volume = sfxVolume;
     }
 
+    private AudioClip GetVictoryMusic()
+    {
+        if (GameManager.Instance == null) return victoryMusic;
+
+        string winner = GameManager.Instance.GetWinnerSelection();
+
+        return winner switch
+        {
+            "Batman"  => batmanVictoryMusic  != null ? batmanVictoryMusic  : victoryMusic,
+            "Joker"   => jokerVictoryMusic   != null ? jokerVictoryMusic   : victoryMusic,
+            "RedHood" => redHoodVictoryMusic != null ? redHoodVictoryMusic : victoryMusic,
+            _         => victoryMusic
+        };
+    }
+
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         switch (scene.name)
@@ -64,52 +84,29 @@ public class MusicManager : MonoBehaviour
             case "MainMenuScene":
                 PlayMusic(mainMenuMusic);
                 break;
-             case "CharacterSelectionScene":
-                 PlayMusic(selectionMusic);
-                 break;
             case "FightScene":
                 PlayMusic(fightMusic);
                 break;
             case "VictoryScene":
-                PlayMusic(victoryMusic);
+                PlayMusic(GetVictoryMusic(), loop: false); // ← sin loop
                 break;
         }
     }
 
-    public void PlayMusic(AudioClip clip)
+    public void PlayMusic(AudioClip clip, bool loop = true)
     {
+        if (clip == null) return;
         if (musicSource.clip == clip && musicSource.isPlaying) return;
+        musicSource.loop = loop;
         musicSource.clip = clip;
-        musicSource.volume = musicVolume; 
+        musicSource.volume = musicVolume;
         musicSource.Play();
     }
 
-    public void StopMusic()
-    {
-        musicSource.Stop();
-    }
+    public void StopMusic() { musicSource.Stop(); }
 
-    public void PlayMenuMove()
-    {
-        if (menuMoveClip == null) return;
-        sfxSource.PlayOneShot(menuMoveClip, sfxVolume);
-    }
-
-    public void PlayMenuSelect()
-    {
-        if (menuSelectClip == null) return;
-        sfxSource.PlayOneShot(menuSelectClip, sfxVolume);
-    }
-
-    public void PlayMenuBack()
-    {
-        if (menuBackClip == null) return;
-        sfxSource.PlayOneShot(menuBackClip, sfxVolume);
-    }
-
-    public void PlayMenuError()
-    {
-        if (menuErrorClip == null) return;
-        sfxSource.PlayOneShot(menuErrorClip, sfxVolume);
-    }
+    public void PlayMenuMove()   { if (menuMoveClip   != null) sfxSource.PlayOneShot(menuMoveClip,   sfxVolume); }
+    public void PlayMenuSelect() { if (menuSelectClip != null) sfxSource.PlayOneShot(menuSelectClip, sfxVolume); }
+    public void PlayMenuBack()   { if (menuBackClip   != null) sfxSource.PlayOneShot(menuBackClip,   sfxVolume); }
+    public void PlayMenuError()  { if (menuErrorClip  != null) sfxSource.PlayOneShot(menuErrorClip,  sfxVolume); }
 }

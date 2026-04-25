@@ -6,7 +6,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     private const string FightSceneName = "FightScene";
-    private const string WinnerSceneName = "WinnerScene";
+    private const string WinnerSceneName = "VictoryScene";
 
     public Player player1;
     public Player player2;
