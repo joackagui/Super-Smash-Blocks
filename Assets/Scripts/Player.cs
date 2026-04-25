@@ -3,12 +3,17 @@ using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
-    public int totalDamageReceived;
-    public int totalDamageDealt;
+    public enum PlayerSlot
+    {
+        Player1,
+        Player2
+    }
 
     [Header("Input")]
     [SerializeField] private InputActionAsset inputActions;
     [SerializeField] private string actionMapName = "New action map";
+    [SerializeField] private PlayerSlot playerSlot;
+    [SerializeField] private GameObject spawnPoint;
 
     private InputAction moveAction;
     private InputAction leftAction;
@@ -19,9 +24,90 @@ public class Player : MonoBehaviour
 
     public Character character;
 
+    public int lives = 3;
+
+    public PlayerSlot Slot => playerSlot;
+
+    public GameObject GetSpawnPoint()
+    {
+        return spawnPoint;
+    }
+
+    public void SetSpawnPoint(GameObject newSpawnPoint)
+    {
+        spawnPoint = newSpawnPoint;
+    }
+
+
     public void SetCharacter(Character character)
     {
         this.character = character;
+
+        if (this.character == null)
+        {
+            return;
+        }
+
+        this.character.SetOwner(this);
+        SpawnCharacter(this.character);
+    }
+
+    public void SpawnCharacter(Character newCharacter)
+    {
+        if (newCharacter == null)
+        {
+            return;
+        }
+
+        character = newCharacter;
+
+        if (spawnPoint != null)
+        {
+            Quaternion spawnRotation = spawnPoint.transform.rotation;
+
+            if (playerSlot == PlayerSlot.Player2)
+            {
+                spawnRotation *= Quaternion.Euler(0f, 180f, 0f);
+            }
+
+            character.transform.SetPositionAndRotation(spawnPoint.transform.position, spawnRotation);
+        }
+        else
+        {
+            Debug.LogWarning($"{name}: spawnPoint is not assigned. Using Player transform as fallback.");
+            character.transform.SetPositionAndRotation(transform.position, transform.rotation);
+        }
+
+        character.SetInitialFacing(playerSlot == PlayerSlot.Player1 ? 1 : -1);
+
+        Rigidbody characterBody = character.GetComponent<Rigidbody>();
+        if (characterBody != null)
+        {
+            characterBody.linearVelocity = Vector3.zero;
+            characterBody.angularVelocity = Vector3.zero;
+        }
+    }
+
+    public void HandleCharacterDeath()
+    {
+        lives--;
+
+        if (lives <= 0)
+        {
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.Victory();
+            }
+
+            return;
+        }
+
+        character = null;
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.SpawnCharacter(this);
+        }
     }
 
     void Awake()
@@ -31,11 +117,21 @@ public class Player : MonoBehaviour
 
     void OnEnable()
     {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RegisterPlayer(this);
+        }
+
         EnableActions(true);
     }
 
     void OnDisable()
     {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.UnregisterPlayer(this);
+        }
+
         EnableActions(false);
     }
 

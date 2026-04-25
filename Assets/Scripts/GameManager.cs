@@ -1,8 +1,11 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
+
+    private const string FightSceneName = "FightScene";
 
     public Player player1;
     public Player player2;
@@ -30,12 +33,21 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void Start()
+    private void OnEnable()
     {
-        
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
-    // Update is called once per frame
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    void Start()
+    {
+        InitializeFightScene(SceneManager.GetActiveScene());
+    }
+
     void Update()
     {
         
@@ -94,41 +106,177 @@ public class GameManager : MonoBehaviour
         player2Selection = "None";
         stageSelection = "None";
     }
-    public Character CreateCharacter(string playerSelection){
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        InitializeFightScene(scene);
+    }
+
+    private void InitializeFightScene(Scene scene)
+    {
+        if (!scene.IsValid() || scene.name != FightSceneName)
+        {
+            return;
+        }
+
+        CacheFightScenePlayers();
+
+        if (player1 != null)
+        {
+            SpawnCharacter(player1);
+        }
+
+        if (player2 != null)
+        {
+            SpawnCharacter(player2);
+        }
+    }
+
+    private void CacheFightScenePlayers()
+    {
+        player1 = null;
+        player2 = null;
+
+        Player[] scenePlayers = FindObjectsOfType<Player>();
+
+        foreach (Player scenePlayer in scenePlayers)
+        {
+            RegisterPlayer(scenePlayer);
+        }
+    }
+
+    public void RegisterPlayer(Player player)
+    {
+        if (player == null)
+        {
+            return;
+        }
+
+        if (player.Slot == Player.PlayerSlot.Player1 || player.name == "Player1")
+        {
+            player1 = player;
+            return;
+        }
+
+        if (player.Slot == Player.PlayerSlot.Player2 || player.name == "Player2")
+        {
+            player2 = player;
+            return;
+        }
+
+        if (player1 == null)
+        {
+            player1 = player;
+            return;
+        }
+
+        if (player2 == null)
+        {
+            player2 = player;
+        }
+    }
+
+    public void UnregisterPlayer(Player player)
+    {
+        if (player == null)
+        {
+            return;
+        }
+
+        if (player1 == player)
+        {
+            player1 = null;
+        }
+
+        if (player2 == player)
+        {
+            player2 = null;
+        }
+    }
+
+    public Character CreateCharacter(string playerSelection)
+    {
+        return CreateCharacter(playerSelection, Vector3.zero, Quaternion.identity);
+    }
+
+    public Character CreateCharacter(string playerSelection, Vector3 position, Quaternion rotation)
+    {
         if (playerSelection == "Batman")
         {
-            return Instantiate(batmanPrefab).GetComponent<Character>();
+            return Instantiate(batmanPrefab, position, rotation).GetComponent<Character>();
         } 
         else if (playerSelection == "Joker")
         {
-            return Instantiate(jokerPrefab).GetComponent<Character>();
+            return Instantiate(jokerPrefab, position, rotation).GetComponent<Character>();
         } 
         else if (playerSelection == "RedHood")
         {
-            return Instantiate(redHoodPrefab).GetComponent<Character>();
+            return Instantiate(redHoodPrefab, position, rotation).GetComponent<Character>();
         }
         return null;
     }
 
     public void CreatePlayers()
     {
-        character1 = CreateCharacter(player1Selection);
-        character2 = CreateCharacter(player2Selection);
-        Instantiate(player1).GetComponent<Player>();
-        Instantiate(player2).GetComponent<Player>();
-        player1.SetCharacter(character1);
-        player2.SetCharacter(character2);
-        SpawnCharacter(character1, new Vector3(-10, 5, 0));
-        SpawnCharacter(character2, new Vector3(10, 5, 0));
+        CacheFightScenePlayers();
+
+        if (player1 != null)
+        {
+            SpawnCharacter(player1);
+        }
+
+        if (player2 != null)
+        {
+            SpawnCharacter(player2);
+        }
     }
 
-    public void SpawnCharacter(Character character, Vector3 position)
+    public void SpawnCharacter(Player player)
     {
-        character.transform.position = position;
+        if (player == null)
+        {
+            return;
+        }
+
+        string selection = GetSelectionForPlayer(player);
+        GameObject playerSpawnPoint = player.GetSpawnPoint();
+        Vector3 spawnPosition = playerSpawnPoint != null
+            ? playerSpawnPoint.transform.position
+            : player.transform.position;
+
+        Quaternion spawnRotation = playerSpawnPoint != null
+            ? playerSpawnPoint.transform.rotation
+            : player.transform.rotation;
+
+        Character character = CreateCharacter(selection, spawnPosition, spawnRotation);
+
+        if (character == null)
+        {
+            Debug.LogWarning($"{name}: No character prefab found for selection '{selection}'.");
+            return;
+        }
+
+        player.SetCharacter(character);
+    }
+
+    private string GetSelectionForPlayer(Player player)
+    {
+        if (player == player1)
+        {
+            return player1Selection;
+        }
+
+        if (player == player2)
+        {
+            return player2Selection;
+        }
+
+        return "None";
     }
 
     public void Victory()
     {
-        
+        Debug.Log("Game Over");
+        ClearSelections();
     }
 }

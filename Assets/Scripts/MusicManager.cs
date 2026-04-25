@@ -16,7 +16,11 @@ public class MusicManager : MonoBehaviour
     public AudioClip menuSelectClip;
     public AudioClip menuBackClip;
     public AudioClip menuErrorClip;
-    // Sin [SerializeField] — se crean por código
+
+    [Header("Volume Settings")]
+    [Range(0f, 1f)] public float musicVolume = 0.5f;
+    [Range(0f, 1f)] public float sfxVolume = 1f;
+
     private AudioSource musicSource;
     private AudioSource sfxSource;
 
@@ -33,18 +37,25 @@ public class MusicManager : MonoBehaviour
             return;
         }
 
-        // Se crean en el mismo GameObject que sobrevive entre escenas
         musicSource = gameObject.AddComponent<AudioSource>();
         musicSource.loop = true;
         musicSource.playOnAwake = false;
+        musicSource.volume = musicVolume;
 
         sfxSource = gameObject.AddComponent<AudioSource>();
         sfxSource.loop = false;
         sfxSource.playOnAwake = false;
+        sfxSource.volume = sfxVolume; 
     }
 
     private void OnEnable()  { SceneManager.sceneLoaded += OnSceneLoaded; }
     private void OnDisable() { SceneManager.sceneLoaded -= OnSceneLoaded; }
+
+    private void Update()
+    {
+        musicSource.volume = musicVolume;
+        sfxSource.volume = sfxVolume;
+    }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
@@ -53,9 +64,9 @@ public class MusicManager : MonoBehaviour
             case "MainMenuScene":
                 PlayMusic(mainMenuMusic);
                 break;
-            case "CharacterSelectionScene":
-                PlayMusic(selectionMusic);
-                break;
+            // case "CharacterSelectionScene":
+            //     PlayMusic(selectionMusic);
+            //     break;
             case "FightScene":
                 PlayMusic(fightMusic);
                 break;
@@ -69,6 +80,7 @@ public class MusicManager : MonoBehaviour
     {
         if (musicSource.clip == clip && musicSource.isPlaying) return;
         musicSource.clip = clip;
+        musicSource.volume = musicVolume; 
         musicSource.Play();
     }
 
@@ -80,24 +92,24 @@ public class MusicManager : MonoBehaviour
     public void PlayMenuMove()
     {
         if (menuMoveClip == null) return;
-        sfxSource.PlayOneShot(menuMoveClip);
+        sfxSource.PlayOneShot(menuMoveClip, sfxVolume);
     }
 
     public void PlayMenuSelect()
     {
         if (menuSelectClip == null) return;
-        sfxSource.PlayOneShot(menuSelectClip);
+        sfxSource.PlayOneShot(menuSelectClip, sfxVolume);
     }
 
     public void PlayMenuBack()
     {
         if (menuBackClip == null) return;
-        sfxSource.PlayOneShot(menuBackClip);
+        sfxSource.PlayOneShot(menuBackClip, sfxVolume);
     }
 
     public void PlayMenuError()
     {
         if (menuErrorClip == null) return;
-        sfxSource.PlayOneShot(menuErrorClip);
+        sfxSource.PlayOneShot(menuErrorClip, sfxVolume);
     }
 }
