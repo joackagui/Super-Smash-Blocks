@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class StageSelection : MonoBehaviour
 {
+    private const string ControlsSceneName = "ControlsScene";
+
     [System.Serializable]
     private class PlayerInputBindings
     {
@@ -62,9 +64,7 @@ public class StageSelection : MonoBehaviour
         System.Action<InputAction.CallbackContext> onPerformed)
     {
         if (actionReference == null || actionReference.action == null)
-        {
             return;
-        }
 
         actionReference.action.performed += onPerformed;
         actionReference.action.Enable();
@@ -75,9 +75,7 @@ public class StageSelection : MonoBehaviour
         System.Action<InputAction.CallbackContext> onPerformed)
     {
         if (actionReference == null || actionReference.action == null)
-        {
             return;
-        }
 
         actionReference.action.performed -= onPerformed;
     }
@@ -102,6 +100,7 @@ public class StageSelection : MonoBehaviour
         MoveStage(Vector2Int.right);
     }
 
+    // 🔥 AQUÍ ESTÁ EL CAMBIO IMPORTANTE
     private void OnSelectPerformed(InputAction.CallbackContext context)
     {
         if (isTransitioning) return;
@@ -114,12 +113,11 @@ public class StageSelection : MonoBehaviour
 
         MusicManager.Instance?.PlayMenuSelect();
         Debug.Log($"Stage selected: {stageName}");
+
         isTransitioning = true;
-        int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
-        if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
-            SceneManager.LoadScene(nextSceneIndex);
-        else
-            isTransitioning = false;
+
+        // 👉 en vez de ir directo a FightScene
+        SceneManager.LoadScene(ControlsSceneName);
     }
 
     private void OnDeselectPerformed(InputAction.CallbackContext context)
@@ -130,8 +128,10 @@ public class StageSelection : MonoBehaviour
             GameManager.Instance.SetStageSelection("None");
 
         MusicManager.Instance?.PlayMenuBack();
+
         isTransitioning = true;
         int previousSceneIndex = SceneManager.GetActiveScene().buildIndex - 1;
+
         if (previousSceneIndex >= 0)
             SceneManager.LoadScene(previousSceneIndex);
         else
@@ -144,7 +144,10 @@ public class StageSelection : MonoBehaviour
         if (stageSlots == null || stageSlots.Length == 0) return;
 
         Vector2Int nextPosition = stagePosition + delta;
-        if (nextPosition.x < 0 || nextPosition.x > 1 || nextPosition.y < 0 || nextPosition.y > 1) return;
+
+        if (nextPosition.x < 0 || nextPosition.x > 1 || nextPosition.y < 0 || nextPosition.y > 1)
+            return;
+
         if (!IsSlotConfigured(nextPosition)) return;
 
         stagePosition = nextPosition;
@@ -155,9 +158,7 @@ public class StageSelection : MonoBehaviour
     private void EnsureValidStartPosition()
     {
         if (IsSlotConfigured(stagePosition))
-        {
             return;
-        }
 
         for (int i = 0; i < stageSlots.Length; i++)
         {
@@ -173,10 +174,9 @@ public class StageSelection : MonoBehaviour
     private bool IsSlotConfigured(Vector2Int position)
     {
         int slotIndex = GetSlotIndex(position);
+
         if (slotIndex < 0 || slotIndex >= stageSlots.Length)
-        {
             return false;
-        }
 
         StageSlot slot = stageSlots[slotIndex];
         return slot != null && slot.stageImage != null;
@@ -185,34 +185,28 @@ public class StageSelection : MonoBehaviour
     private string GetStageName(Vector2Int position)
     {
         int slotIndex = GetSlotIndex(position);
+
         if (slotIndex < 0 || slotIndex >= stageSlots.Length)
-        {
             return "None";
-        }
 
         StageSlot slot = stageSlots[slotIndex];
+
         if (slot == null || slot.stageImage == null)
-        {
             return "None";
-        }
 
         return slot.stageImage.name;
     }
 
     private void RefreshMarkers()
     {
-        if (stageSlots == null)
-        {
-            return;
-        }
+        if (stageSlots == null) return;
 
         for (int i = 0; i < stageSlots.Length; i++)
         {
             StageSlot slot = stageSlots[i];
+
             if (slot == null || slot.marker == null)
-            {
                 continue;
-            }
 
             Vector2Int slotPosition = GetSlotPosition(i);
             slot.marker.enabled = slotPosition == stagePosition;
