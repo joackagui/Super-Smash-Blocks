@@ -27,6 +27,8 @@ public class Player : MonoBehaviour
 
     public PlayerSlot Slot => playerSlot;
 
+    private UIManager uiManager;
+
     public GameObject GetSpawnPoint()
     {
         return spawnPoint;
@@ -72,7 +74,6 @@ public class Player : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"{name}: spawnPoint is not assigned. Using Player transform as fallback.");
             character.transform.SetPositionAndRotation(transform.position, transform.rotation);
         }
 
@@ -90,6 +91,11 @@ public class Player : MonoBehaviour
     {
         lives--;
 
+        if (uiManager != null)
+        {
+            uiManager.SetHearts(playerSlot, lives);
+        }
+
         if (lives <= 0)
         {
             if (GameManager.Instance != null)
@@ -104,6 +110,16 @@ public class Player : MonoBehaviour
     private void Awake()
     {
         ConfigureActions();
+    }
+
+    private void Start()
+    {
+        uiManager = FindObjectOfType<UIManager>();
+
+        if (uiManager != null)
+        {
+            uiManager.SetHearts(playerSlot, lives);
+        }
     }
 
     private void OnEnable()
@@ -156,7 +172,6 @@ public class Player : MonoBehaviour
     {
         if (inputActions == null)
         {
-            Debug.LogWarning($"{name}: No InputActionAsset assigned.");
             return;
         }
 
@@ -171,7 +186,6 @@ public class Player : MonoBehaviour
 
         if (map == null)
         {
-            Debug.LogWarning($"{name}: No action map found in InputActionAsset.");
             return;
         }
 

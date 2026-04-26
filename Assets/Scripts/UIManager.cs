@@ -10,12 +10,8 @@ public class UIManager : MonoBehaviour
     {
         public string stageName;
         public Texture texture;
-    }    
-    [System.Serializable]
-    private class CharacterImageEntry
-    {
-        public RawImage characterImage;
     }
+
     [System.Serializable]
     private class StageColor
     {
@@ -33,6 +29,10 @@ public class UIManager : MonoBehaviour
     [Header("Player Character Images")]
     [SerializeField] private RawImage player1CharacterImage;
     [SerializeField] private RawImage player2CharacterImage;
+
+    [Header("Player Hearts")]
+    [SerializeField] private RawImage[] player1Hearts;
+    [SerializeField] private RawImage[] player2Hearts;
 
     [Header("Icon Images")]
     [SerializeField] private Texture batmanImage;
@@ -72,11 +72,10 @@ public class UIManager : MonoBehaviour
         ApplyStageBackground();
         ApplyPlatformColor();
         ApplyCharacterImages();
+        RefreshAllHearts();
     }
 
-    private static void BindAction(
-        InputActionReference actionReference,
-        System.Action<InputAction.CallbackContext> onPerformed)
+    private static void BindAction(InputActionReference actionReference, System.Action<InputAction.CallbackContext> onPerformed)
     {
         if (actionReference == null || actionReference.action == null)
         {
@@ -87,9 +86,7 @@ public class UIManager : MonoBehaviour
         actionReference.action.Enable();
     }
 
-    private static void UnbindAction(
-        InputActionReference actionReference,
-        System.Action<InputAction.CallbackContext> onPerformed)
+    private static void UnbindAction(InputActionReference actionReference, System.Action<InputAction.CallbackContext> onPerformed)
     {
         if (actionReference == null || actionReference.action == null)
         {
@@ -106,24 +103,17 @@ public class UIManager : MonoBehaviour
             return;
         }
 
-        string stageSelection = "None";
-        if (GameManager.Instance != null)
-        {
-            stageSelection = GameManager.Instance.GetStageSelection();
-        }
+        string stageSelection = GameManager.Instance != null ? GameManager.Instance.GetStageSelection() : "None";
 
         Texture selectedTexture = defaultBackground;
+
         for (int i = 0; i < stageBackgrounds.Length; i++)
         {
-            StageBackground entry = stageBackgrounds[i];
-            if (entry == null || string.IsNullOrEmpty(entry.stageName))
-            {
-                continue;
-            }
+            if (stageBackgrounds[i] == null) continue;
 
-            if (entry.stageName == stageSelection)
+            if (stageBackgrounds[i].stageName == stageSelection)
             {
-                selectedTexture = entry.texture;
+                selectedTexture = stageBackgrounds[i].texture;
                 break;
             }
         }
@@ -138,25 +128,17 @@ public class UIManager : MonoBehaviour
             return;
         }
 
-        string stageSelection = "None";
-        if (GameManager.Instance != null)
-        {
-            stageSelection = GameManager.Instance.GetStageSelection();
-        }
+        string stageSelection = GameManager.Instance != null ? GameManager.Instance.GetStageSelection() : "None";
 
         Color selectedColor = Color.white;
 
         for (int i = 0; i < stageColors.Length; i++)
         {
-            StageColor entry = stageColors[i];
-            if (entry == null || string.IsNullOrEmpty(entry.stageName))
-            {
-                continue;
-            }
+            if (stageColors[i] == null) continue;
 
-            if (entry.stageName == stageSelection)
+            if (stageColors[i].stageName == stageSelection)
             {
-                selectedColor = entry.color;
+                selectedColor = stageColors[i].color;
                 break;
             }
         }
@@ -166,6 +148,7 @@ public class UIManager : MonoBehaviour
             if (platforms[i] == null) continue;
 
             Material[] mats = platforms[i].materials;
+
             for (int j = 0; j < mats.Length; j++)
             {
                 mats[j].color = selectedColor;
@@ -175,22 +158,21 @@ public class UIManager : MonoBehaviour
 
     private void ApplyCharacterImages()
     {
-        if (GameManager.Instance == null) return;
+        if (GameManager.Instance == null)
+        {
+            return;
+        }
 
-        ApplySingleCharacterImage(
-            player1CharacterImage,
-            GameManager.Instance.GetPlayer1Selection()
-        );
-
-        ApplySingleCharacterImage(
-            player2CharacterImage,
-            GameManager.Instance.GetPlayer2Selection()
-        );
+        ApplySingleCharacterImage(player1CharacterImage, GameManager.Instance.GetPlayer1Selection());
+        ApplySingleCharacterImage(player2CharacterImage, GameManager.Instance.GetPlayer2Selection());
     }
 
     private void ApplySingleCharacterImage(RawImage target, string selection)
     {
-        if (target == null) return;
+        if (target == null)
+        {
+            return;
+        }
 
         if (selection == "Batman")
         {
@@ -203,6 +185,60 @@ public class UIManager : MonoBehaviour
         else if (selection == "RedHood")
         {
             target.texture = redHoodImage;
+        }
+    }
+
+    public void RefreshAllHearts()
+    {
+        if (GameManager.Instance == null)
+        {
+            return;
+        }
+
+        Player p1 = GameManager.Instance.GetPlayer1();
+        Player p2 = GameManager.Instance.GetPlayer2();
+
+        SetHearts(Player.PlayerSlot.Player1, p1 != null ? p1.lives : 3);
+        SetHearts(Player.PlayerSlot.Player2, p2 != null ? p2.lives : 3);
+    }
+
+    public void SetHearts(Player.PlayerSlot slot, int lives)
+    {
+        RawImage[] hearts = slot == Player.PlayerSlot.Player1 ? player1Hearts : player2Hearts;
+
+        if (hearts == null || hearts.Length == 0)
+        {
+            return;
+        }
+
+        int max = hearts.Length;
+        int active = Mathf.Clamp(lives, 0, max);
+
+        for (int i = 0; i < max; i++)
+        {
+            if (hearts[i] != null)
+            {
+                hearts[i].gameObject.SetActive(true);
+            }
+        }
+
+        for (int i = active; i < max; i++)
+        {
+            int index;
+
+            if (slot == Player.PlayerSlot.Player1)
+            {
+                index = max - 1 - (i - active);
+            }
+            else
+            {
+                index = i - active;
+            }
+
+            if (index >= 0 && index < hearts.Length && hearts[index] != null)
+            {
+                hearts[index].gameObject.SetActive(false);
+            }
         }
     }
 
