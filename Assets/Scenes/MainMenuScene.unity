@@ -728,6 +728,8 @@ MonoBehaviour:
   menuSelectClip: {fileID: 8300000, guid: 8b331a132ccbe4eb299c7b3623117605, type: 3}
   menuBackClip: {fileID: 8300000, guid: 6a8af458cbbd14232bf63312c303fd96, type: 3}
   menuErrorClip: {fileID: 8300000, guid: 6a3e980a8537141f38383b5cc774edf5, type: 3}
+  deathClip: {fileID: 8300000, guid: e87c0d57f9fb444ecae9bbd2a81ba2e1, type: 3}
+  respawnClip: {fileID: 8300000, guid: 1a6adba55216143749e7ee6f7f0a6a00, type: 3}
   musicVolume: 0.3
   sfxVolume: 1
 --- !u!4 &1046822659

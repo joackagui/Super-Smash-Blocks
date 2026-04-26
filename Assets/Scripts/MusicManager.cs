@@ -21,6 +21,8 @@ public class MusicManager : MonoBehaviour
     public AudioClip menuSelectClip;
     public AudioClip menuBackClip;
     public AudioClip menuErrorClip;
+    public AudioClip deathClip;
+    public AudioClip respawnClip;
 
     [Header("Volume Settings")]
     [Range(0f, 1f)] public float musicVolume = 0.5f;
@@ -88,7 +90,7 @@ public class MusicManager : MonoBehaviour
                 PlayMusic(fightMusic);
                 break;
             case "VictoryScene":
-                PlayMusic(GetVictoryMusic(), loop: false); // ← sin loop
+                PlayMusic(GetVictoryMusic(), loop: false);
                 break;
         }
     }
@@ -109,4 +111,6 @@ public class MusicManager : MonoBehaviour
     public void PlayMenuSelect() { if (menuSelectClip != null) sfxSource.PlayOneShot(menuSelectClip, sfxVolume); }
     public void PlayMenuBack()   { if (menuBackClip   != null) sfxSource.PlayOneShot(menuBackClip,   sfxVolume); }
     public void PlayMenuError()  { if (menuErrorClip  != null) sfxSource.PlayOneShot(menuErrorClip,  sfxVolume); }
+    public void PlayCharacterDeath(){ if (deathClip != null) sfxSource.PlayOneShot(deathClip, sfxVolume); }
+    public void PlayCharacterRespawn(){ if (respawnClip != null) sfxSource.PlayOneShot(respawnClip, sfxVolume); }
 }

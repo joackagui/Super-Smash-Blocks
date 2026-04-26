@@ -119,6 +119,11 @@ public class GameManager : MonoBehaviour
         stageSelection = "None";
     }
 
+    public void ClearStageSelection()
+    {
+        stageSelection = "None";
+    }
+
     public void ClearWinnerSelection()
     {
         winnerSelection = "None";
