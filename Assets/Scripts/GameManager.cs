@@ -1,8 +1,12 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
+
+    private const string FightSceneName = "FightScene";
+    private const string WinnerSceneName = "VictoryScene";
 
     public Player player1;
     public Player player2;
@@ -11,10 +15,13 @@ public class GameManager : MonoBehaviour
     public GameObject batmanPrefab;
     public GameObject redHoodPrefab;
     public GameObject jokerPrefab;
+
     private string player1Selection = "None";
     private string player2Selection = "None";
-
     private string stageSelection = "None";
+    private string winnerSelection = "None";
+
+    private bool isVictoryLoading = false;
 
     private void Awake()
     {
@@ -30,29 +37,36 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void Start()
+    private void OnEnable()
     {
-        
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnDisable()
     {
-        
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void Start()
+    {
+        InitializeFightScene(SceneManager.GetActiveScene());
     }
 
     public Player GetPlayer1()
     {
         return player1;
     }
+
     public Player GetPlayer2()
     {
         return player2;
     }
+
     public void SetPlayer1(Player player)
     {
         player1 = player;
     }
+
     public void SetPlayer2(Player player)
     {
         player2 = player;
@@ -73,6 +87,11 @@ public class GameManager : MonoBehaviour
         return stageSelection;
     }
 
+    public string GetWinnerSelection()
+    {
+        return winnerSelection;
+    }
+
     public void SetPlayer1Selection(string selection)
     {
         player1Selection = selection;
@@ -88,33 +107,218 @@ public class GameManager : MonoBehaviour
         stageSelection = selection;
     }
 
+    public void SetWinnerSelection(string selection)
+    {
+        winnerSelection = selection;
+    }
+
     public void ClearSelections()
     {
         player1Selection = "None";
         player2Selection = "None";
         stageSelection = "None";
     }
-    public Character CreateCharacter(string playerSelection){
+
+    public void ClearWinnerSelection()
+    {
+        winnerSelection = "None";
+        isVictoryLoading = false;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == FightSceneName)
+        {
+            InitializeFightScene(scene);
+        }
+    }
+
+    private void InitializeFightScene(Scene scene)
+    {
+        if (!scene.IsValid() || scene.name != FightSceneName)
+        {
+            return;
+        }
+
+        isVictoryLoading = false;
+        CacheFightScenePlayers();
+
+        if (player1 != null)
+        {
+            SpawnCharacter(player1);
+        }
+
+        if (player2 != null)
+        {
+            SpawnCharacter(player2);
+        }
+    }
+
+    private void CacheFightScenePlayers()
+    {
+        player1 = null;
+        player2 = null;
+
+        Player[] scenePlayers = FindObjectsOfType<Player>();
+
+        foreach (Player scenePlayer in scenePlayers)
+        {
+            RegisterPlayer(scenePlayer);
+        }
+    }
+
+    public void RegisterPlayer(Player player)
+    {
+        if (player == null)
+        {
+            return;
+        }
+
+        if (player.Slot == Player.PlayerSlot.Player1 || player.name == "Player1")
+        {
+            player1 = player;
+            return;
+        }
+
+        if (player.Slot == Player.PlayerSlot.Player2 || player.name == "Player2")
+        {
+            player2 = player;
+            return;
+        }
+
+        if (player1 == null)
+        {
+            player1 = player;
+            return;
+        }
+
+        if (player2 == null)
+        {
+            player2 = player;
+        }
+    }
+
+    public void UnregisterPlayer(Player player)
+    {
+        if (player == null)
+        {
+            return;
+        }
+
+        if (player1 == player)
+        {
+            player1 = null;
+        }
+
+        if (player2 == player)
+        {
+            player2 = null;
+        }
+    }
+
+    public Character CreateCharacter(string playerSelection)
+    {
+        return CreateCharacter(playerSelection, Vector3.zero, Quaternion.identity);
+    }
+
+    public Character CreateCharacter(string playerSelection, Vector3 position, Quaternion rotation)
+    {
         if (playerSelection == "Batman")
         {
-            return Instantiate(batmanPrefab).GetComponent<Character>();
-        } 
+            return Instantiate(batmanPrefab, position, rotation).GetComponent<Character>();
+        }
         else if (playerSelection == "Joker")
         {
-            return Instantiate(jokerPrefab).GetComponent<Character>();
-        } 
+            return Instantiate(jokerPrefab, position, rotation).GetComponent<Character>();
+        }
         else if (playerSelection == "RedHood")
         {
-            return Instantiate(redHoodPrefab).GetComponent<Character>();
+            return Instantiate(redHoodPrefab, position, rotation).GetComponent<Character>();
         }
+
         return null;
     }
 
     public void CreatePlayers()
     {
-        character1 = CreateCharacter(player1Selection);
-        character2 = CreateCharacter(player2Selection);
-        player1.SetCharacter(character1);
-        player2.SetCharacter(character2);
+        CacheFightScenePlayers();
+
+        if (player1 != null)
+        {
+            SpawnCharacter(player1);
+        }
+
+        if (player2 != null)
+        {
+            SpawnCharacter(player2);
+        }
+    }
+
+    public void SpawnCharacter(Player player)
+    {
+        if (player == null)
+        {
+            return;
+        }
+
+        string selection = GetSelectionForPlayer(player);
+        GameObject playerSpawnPoint = player.GetSpawnPoint();
+        Vector3 spawnPosition = playerSpawnPoint != null
+            ? playerSpawnPoint.transform.position
+            : player.transform.position;
+
+        Quaternion spawnRotation = playerSpawnPoint != null
+            ? playerSpawnPoint.transform.rotation
+            : player.transform.rotation;
+
+        Character character = CreateCharacter(selection, spawnPosition, spawnRotation);
+
+        if (character == null)
+        {
+            Debug.LogWarning($"{name}: No character prefab found for selection '{selection}'.");
+            return;
+        }
+
+        player.SetCharacter(character);
+    }
+
+    private string GetSelectionForPlayer(Player player)
+    {
+        if (player == player1)
+        {
+            return player1Selection;
+        }
+
+        if (player == player2)
+        {
+            return player2Selection;
+        }
+
+        return "None";
+    }
+
+    public void Victory(Player defeatedPlayer)
+    {
+        if (isVictoryLoading)
+        {
+            return;
+        }
+
+        isVictoryLoading = true;
+
+        if (defeatedPlayer == player1)
+        {
+            winnerSelection = player2Selection;
+        }
+        else if (defeatedPlayer == player2)
+        {
+            winnerSelection = player1Selection;
+        }
+        else
+        {
+            winnerSelection = "None";
+        }
+
+        SceneManager.LoadScene(WinnerSceneName);
     }
 }

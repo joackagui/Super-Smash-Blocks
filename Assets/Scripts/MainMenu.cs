@@ -1,18 +1,100 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using System.Collections;
+using TMPro;
 
 public class MainMenu : MonoBehaviour
 {
+    [Header("Input")]
     [SerializeField] private InputActionReference playAction;
     [SerializeField] private InputActionReference quitAction;
 
+    [Header("UI")]
+    [SerializeField] private Image blackScreen;
+    [SerializeField] private RawImage diffuseImage;
+    [SerializeField] private RawImage logoImage;
+    [SerializeField] private TextMeshProUGUI promptText;
+
+    [Header("Timing")]
+    [SerializeField] private float delayBeforeFade = 2f;
+    [SerializeField] private float fadeDuration = 2f;
+    [SerializeField] private float logoExtraDelay = 1f;
+    [SerializeField] private float textDelayAfterLogo = 0.8f;
+
     private bool _isTransitioning;
+    private bool _canInteract;
 
     private void Start()
     {
         if (MusicManager.Instance != null)
             MusicManager.Instance.PlayMusic(MusicManager.Instance.mainMenuMusic);
+
+        SetAlpha(blackScreen, 1f);
+
+        diffuseImage.gameObject.SetActive(true);
+        logoImage.gameObject.SetActive(true);
+
+        SetAlpha(diffuseImage, 0f);
+        SetAlpha(logoImage, 0f);
+
+        if (promptText != null)
+            promptText.gameObject.SetActive(false);
+
+        StartCoroutine(IntroSequence());
+    }
+
+    private IEnumerator FadeImage(Graphic img, float from, float to)
+    {
+        float t = 0f;
+        while (t < fadeDuration)
+        {
+            t += Time.deltaTime;
+            float alpha = Mathf.Lerp(from, to, t / fadeDuration);
+            SetAlpha(img, alpha);
+            yield return null;
+        }
+        SetAlpha(img, to);
+    }
+
+    private IEnumerator IntroSequence()
+    {
+        _canInteract = false;
+
+        yield return new WaitForSeconds(delayBeforeFade);
+
+        yield return FadeImage(diffuseImage, 0f, 1f);
+
+        yield return new WaitForSeconds(logoExtraDelay);
+
+        yield return FadeImage(logoImage, 0f, 1f);
+
+        yield return new WaitForSeconds(textDelayAfterLogo);
+
+        if (promptText != null)
+        {
+            promptText.gameObject.SetActive(true);
+            SetAlphaTMP(promptText, 1f);
+        }
+
+        _canInteract = true;
+    }
+
+    private void SetAlpha(Graphic img, float alpha)
+    {
+        if (img == null) return;
+        Color c = img.color;
+        c.a = alpha;
+        img.color = c;
+    }
+
+    private void SetAlphaTMP(TextMeshProUGUI tmp, float alpha)
+    {
+        if (tmp == null) return;
+        Color c = tmp.color;
+        c.a = alpha;
+        tmp.color = c;
     }
 
     private void OnEnable()
@@ -45,11 +127,7 @@ public class MainMenu : MonoBehaviour
 
     public void Play()
     {
-        if (_isTransitioning) return;
-
-        if (MusicManager.Instance != null)
-            MusicManager.Instance.StopMusic();
-
+        if (_isTransitioning || !_canInteract) return;
         _isTransitioning = true;
         MusicManager.Instance?.PlayMenuSelect();
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);

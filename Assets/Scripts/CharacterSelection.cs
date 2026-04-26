@@ -37,10 +37,7 @@ public class CharacterSelection : MonoBehaviour
 
     private void Awake()
     {
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.ClearSelections();
-        }
+        ValidateGameManager();
     }
 
     private void OnEnable()
@@ -150,6 +147,12 @@ public class CharacterSelection : MonoBehaviour
     private void OnPlayer1SelectPerformed(InputAction.CallbackContext context)
     {
         if (player1Selected) return;
+
+        if (IsBlockedSelection(player1Position, "Player1"))
+        {
+            return;
+        }
+
         player1Selected = true;
         MusicManager.Instance?.PlayMenuSelect();
         RegisterSelection();
@@ -160,6 +163,12 @@ public class CharacterSelection : MonoBehaviour
     private void OnPlayer2SelectPerformed(InputAction.CallbackContext context)
     {
         if (player2Selected) return;
+
+        if (IsBlockedSelection(player2Position, "Player2"))
+        {
+            return;
+        }
+
         player2Selected = true;
         MusicManager.Instance?.PlayMenuSelect();
         RegisterSelection();
@@ -243,6 +252,18 @@ public class CharacterSelection : MonoBehaviour
         return slot.characterImage.name;
     }
 
+    private bool IsBlockedSelection(Vector2Int position, string playerLabel)
+    {
+        if (GetCharacterName(position) != "Blocked")
+        {
+            return false;
+        }
+
+        Debug.Log($"{playerLabel}: this character is blocked!");
+        MusicManager.Instance?.PlayMenuError();
+        return true;
+    }
+
     private void TryLoadNextScene()
     {
         if (isTransitioning || !player1Selected || !player2Selected)
@@ -292,5 +313,13 @@ public class CharacterSelection : MonoBehaviour
     private static Vector2Int GetSlotPosition(int slotIndex)
     {
         return new Vector2Int(slotIndex % 2, slotIndex / 2);
+    }
+
+    private void ValidateGameManager()
+    {
+        if (GameManager.Instance == null)
+        {
+            SceneManager.LoadScene(0);
+        }
     }
 }

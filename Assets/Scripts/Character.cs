@@ -9,14 +9,16 @@ public class Character: MonoBehaviour
     [SerializeField] private float faceLeftYRotation = -90f;
 
     private float damageReceived = 0;
-    private float damageDealt = 0;
-    public int lives = 3;
     private bool isMoving = false;
     private bool isGrounded = true;
     private bool isJumping = false;
     private int jumpsRemaining = 2;
     private bool isAttacking = false;
     private bool isHurt = false;
+
+    private bool isInvulnerable = false;
+    private float invulnerabilityDuration = 1.5f;
+    private float invulnerabilityTimer = 0f;
 
     public AudioClip hurtClip;
     public AudioClip attack1Clip;
@@ -29,6 +31,20 @@ public class Character: MonoBehaviour
 
     private Vector2 moveInput;
     private int facingDirection = 1;
+    private bool isDead = false;
+    private Player owner;
+
+    public void SetOwner(Player player)
+    {
+        owner = player;
+    }
+
+    public void SetInitialFacing(int direction)
+    {
+        int clampedDirection = direction >= 0 ? 1 : -1;
+        facingDirection = 0;
+        FaceDirection(clampedDirection);
+    }
 
 
     public virtual void Move(Vector2 direction)
@@ -116,12 +132,38 @@ public class Character: MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
+        if (isDead)
+        {
+            return;
+        }
+
         if (collision.gameObject.CompareTag("Ground") || collision.gameObject.CompareTag("Platform"))
         {
             isJumping = false;
             isGrounded = true;
             jumpsRemaining = 2;
+        } else if (collision.gameObject.CompareTag("Barrier"))
+        {
+            Die();
         }
+    }
+
+    public void Die()
+    {
+        if (isDead)
+        {
+            return;
+        }
+
+        isDead = true;
+        ReproduceDeathClip();
+
+        if (owner != null)
+        {
+            owner.HandleCharacterDeath();
+        }
+
+        Destroy(gameObject, 0.1f);
     }
 
     private void ApplyHorizontalMovement()
