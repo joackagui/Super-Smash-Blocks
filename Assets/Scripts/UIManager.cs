@@ -46,7 +46,10 @@ public class UIManager : MonoBehaviour
 
     private void OnEnable()
     {
-        BindAction(returnToMainMenuAction, OnReturnToMainMenuPerformed);
+        if (SceneManager.GetActiveScene().name != "FightScene")
+        {
+            BindAction(returnToMainMenuAction, OnReturnToMainMenuPerformed);
+        }
     }
 
     private void OnDisable()
@@ -205,6 +208,11 @@ public class UIManager : MonoBehaviour
 
     private void OnReturnToMainMenuPerformed(InputAction.CallbackContext context)
     {
+        if (SceneManager.GetActiveScene().name == "FightScene")
+        {
+            return;
+        }
+
         if (isLoadingMainMenu)
         {
             return;

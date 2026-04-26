@@ -10,21 +10,21 @@ public class MainMenu : MonoBehaviour
     [Header("Input")]
     [SerializeField] private InputActionReference playAction;
     [SerializeField] private InputActionReference quitAction;
+
     [Header("UI")]
     [SerializeField] private Image blackScreen;
     [SerializeField] private RawImage diffuseImage;
     [SerializeField] private RawImage logoImage;
     [SerializeField] private TextMeshProUGUI promptText;
+
     [Header("Timing")]
     [SerializeField] private float delayBeforeFade = 2f;
     [SerializeField] private float fadeDuration = 2f;
     [SerializeField] private float logoExtraDelay = 1f;
-    [Header("Blink")]
-    [SerializeField] private float blinkSpeed = 1.2f;
+    [SerializeField] private float textDelayAfterLogo = 0.8f;
 
     private bool _isTransitioning;
     private bool _canInteract;
-    private Coroutine _blinkCoroutine;
 
     private void Start()
     {
@@ -40,7 +40,7 @@ public class MainMenu : MonoBehaviour
         SetAlpha(logoImage, 0f);
 
         if (promptText != null)
-            SetAlphaTMP(promptText, 0f);
+            promptText.gameObject.SetActive(false);
 
         StartCoroutine(IntroSequence());
     }
@@ -68,41 +68,17 @@ public class MainMenu : MonoBehaviour
 
         yield return new WaitForSeconds(logoExtraDelay);
 
-        if (promptText != null)
-            yield return FadeMultiple(0f, 1f, logoImage, promptText);
-        else
-            yield return FadeImage(logoImage, 0f, 1f);
+        yield return FadeImage(logoImage, 0f, 1f);
+
+        yield return new WaitForSeconds(textDelayAfterLogo);
 
         if (promptText != null)
-            _blinkCoroutine = StartCoroutine(BlinkText(promptText));
+        {
+            promptText.gameObject.SetActive(true);
+            SetAlphaTMP(promptText, 1f);
+        }
 
         _canInteract = true;
-    }
-
-    private IEnumerator BlinkText(TextMeshProUGUI tmp)
-    {
-        while (true)
-        {
-            float alpha = (Mathf.Sin(Time.time * blinkSpeed * Mathf.PI * 2f) + 1f) / 2f;
-            SetAlphaTMP(tmp, alpha);
-            yield return null;
-        }
-    }
-
-
-    private IEnumerator FadeMultiple(float from, float to, params Graphic[] images)
-    {
-        float t = 0f;
-        while (t < fadeDuration)
-        {
-            t += Time.deltaTime;
-            float alpha = Mathf.Lerp(from, to, t / fadeDuration);
-            foreach (var img in images)
-                SetAlpha(img, alpha);
-            yield return null;
-        }
-        foreach (var img in images)
-            SetAlpha(img, to);
     }
 
     private void SetAlpha(Graphic img, float alpha)
