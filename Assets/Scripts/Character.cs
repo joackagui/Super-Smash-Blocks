@@ -1,10 +1,11 @@
 using UnityEngine;
+using System.Collections;
 
 public class Character: MonoBehaviour
 {
     [Header("Movement")]
     [SerializeField] private float speed = 7f;
-    [SerializeField] private float jumpForce = 8f;
+    [SerializeField] private float jumpForce = 12f;
     [SerializeField] private float faceRightYRotation = 90f;
     [SerializeField] private float faceLeftYRotation = -90f;
 
@@ -123,6 +124,10 @@ public class Character: MonoBehaviour
     void FixedUpdate()
     {
         ApplyHorizontalMovement();
+        if (!isGrounded && jumpsRemaining == 2)
+        {
+            jumpsRemaining = 1;
+        }
     }
 
     void Knockback(Vector2 direction, float force)
@@ -150,20 +155,55 @@ public class Character: MonoBehaviour
 
     public void Die()
     {
-        if (isDead)
-        {
-            return;
-        }
+        if (isDead) return;
 
         isDead = true;
         ReproduceDeathClip();
 
-        if (owner != null)
-        {
-            owner.HandleCharacterDeath();
-        }
+        StartCoroutine(DeathSequence());
+    }
 
-        Destroy(gameObject, 0.1f);
+    private IEnumerator DeathSequence()
+    {
+        // Ocultar visualmente pero mantener activo para reproducir el audio
+        foreach (var r in GetComponentsInChildren<Renderer>())
+            r.enabled = false;
+
+        // Notificar al owner (sin que spawne todavía)
+        if (owner != null)
+            owner.HandleCharacterDeath(onRespawnReady: () => StartCoroutine(RespawnSequence()));
+
+        // t=0.5s → sonido de muerte en MusicManager
+        yield return new WaitForSeconds(0.5f);
+        if (MusicManager.Instance != null)
+            MusicManager.Instance.PlayCharacterDeath();
+    }
+
+    private IEnumerator RespawnSequence()
+    {
+        // Esperar hasta t=3s desde la muerte (ya pasaron ~0.5s, faltan 2.5s)
+        yield return new WaitForSeconds(2.5f);
+
+        Respawn();
+    }
+
+    private void Respawn()
+    {
+        isDead = false;
+        isGrounded = true;
+        jumpsRemaining = 2;
+        isAttacking = false;
+        isHurt = false;
+        damageReceived = 0;
+
+        foreach (var r in GetComponentsInChildren<Renderer>())
+            r.enabled = true;
+
+        if (owner != null)
+            owner.SpawnCharacter(this); // reposiciona en el spawnPoint
+
+        if (MusicManager.Instance != null)
+            MusicManager.Instance.PlayCharacterRespawn();
     }
 
     private void ApplyHorizontalMovement()

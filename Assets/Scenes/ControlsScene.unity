@@ -211,6 +211,81 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &134961121
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 134961122}
+  - component: {fileID: 134961124}
+  - component: {fileID: 134961123}
+  m_Layer: 5
+  m_Name: BlackImage
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &134961122
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 134961121}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 464916780}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &134961123
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 134961121}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &134961124
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 134961121}
+  m_CullTransparentMesh: 1
 --- !u!1 &198810427
 GameObject:
   m_ObjectHideFlags: 0
@@ -367,7 +442,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a77d79d05bb19044fa8b696dee4d185c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ControlsSceneManager
-  continueAction: {fileID: 310677176593949835, guid: 7704f01f7968f4491bb44bfd42f06be7, type: 3}
+  blackScreen: {fileID: 134961123}
+  controlsImage: {fileID: 623221051}
+  promptText: {fileID: 1145147751}
+  delayBeforeFade: 1.2
+  fadeDuration: 2.4
+  textBlinkSpeed: 1.2
+  continueAction: {fileID: -4645664107522570380, guid: d69f5cc184bdc4cf9a4ebb857954208a, type: 3}
+  returnAction: {fileID: 0}
   fightSceneName: FightScene
 --- !u!4 &447510415
 Transform:
@@ -558,6 +640,7 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 134961122}
   - {fileID: 623221050}
   - {fileID: 1145147750}
   m_Father: {fileID: 0}
@@ -624,7 +707,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: 6660c662d91dfe54083782a777f1069e, type: 3}
+  m_Texture: {fileID: 2800000, guid: 06a131040b1af4191afdcb72c9be7126, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -697,7 +780,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Press "c" to continue
+  m_text: Press "Enter" to continue
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b0cb21fae8f17424bb54666b335e3b1d, type: 2}
   m_sharedMaterial: {fileID: -2919966952878356776, guid: b0cb21fae8f17424bb54666b335e3b1d, type: 2}
