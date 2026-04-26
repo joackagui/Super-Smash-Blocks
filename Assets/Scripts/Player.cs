@@ -86,26 +86,19 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void HandleCharacterDeath()
+    public void HandleCharacterDeath(System.Action onRespawnReady = null)
     {
         lives--;
 
         if (lives <= 0)
         {
             if (GameManager.Instance != null)
-            {
                 GameManager.Instance.Victory(this);
-            }
 
             return;
         }
 
-        character = null;
-
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.SpawnCharacter(this);
-        }
+        onRespawnReady?.Invoke();
     }
 
     private void Awake()
