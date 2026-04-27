@@ -12,12 +12,12 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Character
   - Water
   - UI
-  - 
-  - 
-  - 
+  - Ground
+  - OneWayPlatform
+  - Barrier
   - 
   - 
   - 

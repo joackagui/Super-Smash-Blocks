@@ -51,15 +51,15 @@ public class ControlsSceneManager : MonoBehaviour
 
         yield return new WaitForSeconds(delayBeforeFade);
 
-        if (promptText != null)
-            yield return FadeMultiple(0f, 1f, controlsImage, promptText);
-        else
-            yield return FadeGraphic(controlsImage, 0f, 1f);
+        _canInteract = true;
 
         if (promptText != null)
             StartCoroutine(BlinkText(promptText, textBlinkSpeed));
 
-        _canInteract = true;
+        if (promptText != null)
+            yield return FadeMultiple(0f, 1f, controlsImage, promptText);
+        else
+            yield return FadeGraphic(controlsImage, 0f, 1f);
     }
 
     private IEnumerator FadeGraphic(Graphic img, float from, float to)

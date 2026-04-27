@@ -16,6 +16,8 @@ public class GameManager : MonoBehaviour
     public GameObject redHoodPrefab;
     public GameObject jokerPrefab;
 
+    private bool firstTimeFightSceneLoaded = true;
+
     private string player1Selection = "None";
     private string player2Selection = "None";
     private string stageSelection = "None";
@@ -90,6 +92,16 @@ public class GameManager : MonoBehaviour
     public string GetWinnerSelection()
     {
         return winnerSelection;
+    }
+
+    public bool GetFirstTimeFightSceneLoaded()
+    {
+        return firstTimeFightSceneLoaded;
+    }
+
+    public void SetFirstTimeFightSceneLoaded(bool value)
+    {
+        firstTimeFightSceneLoaded = value;
     }
 
     public void SetPlayer1Selection(string selection)

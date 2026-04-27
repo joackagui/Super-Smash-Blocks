@@ -16,7 +16,6 @@ public class Character: MonoBehaviour
     private int jumpsRemaining = 2;
     private bool isAttacking = false;
     private bool isHurt = false;
-
     private bool isInvulnerable = false;
     private float invulnerabilityDuration = 1.5f;
     private float invulnerabilityTimer = 0f;
@@ -34,6 +33,7 @@ public class Character: MonoBehaviour
     private int facingDirection = 1;
     private bool isDead = false;
     private Player owner;
+    private Animator animator;
 
     public void SetOwner(Player player)
     {
@@ -70,6 +70,13 @@ public class Character: MonoBehaviour
             ReproduceJumpClip();
             isJumping = true;
             isGrounded = false;
+            
+            if(jumpsRemaining == 2)
+                animator.SetTrigger("Jump1");
+            else if (jumpsRemaining == 1)
+            {
+                animator.SetTrigger("Jump2");
+            }
             jumpsRemaining--;
             Vector3 velocity = rb.linearVelocity;
             rb.linearVelocity = new Vector3(velocity.x, 0f, velocity.z);
@@ -99,6 +106,7 @@ public class Character: MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        animator = GetComponent<Animator>();
         if (rb == null)
         {
             rb = gameObject.AddComponent<Rigidbody>();
@@ -124,10 +132,7 @@ public class Character: MonoBehaviour
     void FixedUpdate()
     {
         ApplyHorizontalMovement();
-        if (!isGrounded && jumpsRemaining == 2)
-        {
-            jumpsRemaining = 1;
-        }
+        animator.SetBool("isGrounded", isGrounded);
     }
 
     void Knockback(Vector2 direction, float force)
@@ -137,19 +142,43 @@ public class Character: MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        if (isDead)
+        if (isDead) return;
+
+        if (collision.gameObject.CompareTag("Ground"))
         {
+            Land();
             return;
         }
 
-        if (collision.gameObject.CompareTag("Ground") || collision.gameObject.CompareTag("Platform"))
+        if (collision.gameObject.CompareTag("Platform"))
         {
-            isJumping = false;
-            isGrounded = true;
-            jumpsRemaining = 2;
-        } else if (collision.gameObject.CompareTag("Barrier"))
+            foreach (ContactPoint contact in collision.contacts)
+            {
+                if (Vector3.Dot(contact.normal, Vector3.up) > 0.5f)
+                {
+                    Land();
+                    break;
+                }
+            }
+        }
+
+        if (collision.gameObject.CompareTag("Barrier"))
         {
             Die();
+        }
+    }
+    void OnCollisionStay(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Platform"))
+        {
+            foreach (ContactPoint contact in collision.contacts)
+            {
+                if (Vector3.Dot(contact.normal, Vector3.up) > 0.5f)
+                {
+                    isGrounded = true;
+                    return;
+                }
+            }
         }
     }
 
@@ -265,5 +294,11 @@ public class Character: MonoBehaviour
         {
             sfxSource.PlayOneShot(deathClip);
         }
+    }
+    void Land()
+    {
+        isJumping = false;
+        isGrounded = true;
+        jumpsRemaining = 2;
     }
 }

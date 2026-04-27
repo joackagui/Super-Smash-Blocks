@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class StageSelection : MonoBehaviour
 {
-    private const string ControlsSceneName = "ControlsScene";
+    // private const string ControlsSceneName = "ControlsScene";
 
     [System.Serializable]
     private class PlayerInputBindings
@@ -116,8 +116,15 @@ public class StageSelection : MonoBehaviour
 
         isTransitioning = true;
 
-        // 👉 en vez de ir directo a FightScene
-        SceneManager.LoadScene(ControlsSceneName);
+        if (GameManager.Instance.GetFirstTimeFightSceneLoaded())
+        {
+            GameManager.Instance.SetFirstTimeFightSceneLoaded(false);
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        }
+        else
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 2);
+        }    
     }
 
     private void OnDeselectPerformed(InputAction.CallbackContext context)

@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6859179864739589360}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: LeftShoulder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42,7 +42,7 @@ GameObject:
   - component: {fileID: 4272512531238410256}
   - component: {fileID: 1659143313809044139}
   - component: {fileID: 5204229720643435540}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Waist
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -132,7 +132,7 @@ GameObject:
   - component: {fileID: 8398474515782627098}
   - component: {fileID: 6060865661455770898}
   - component: {fileID: 1260252756904403006}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: LeftArm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -221,7 +221,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8957229104304325728}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RightShoulder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -254,7 +254,7 @@ GameObject:
   - component: {fileID: 3605867773471246669}
   - component: {fileID: 5054923273677377983}
   - component: {fileID: 640767188437095468}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RightLeg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -346,7 +346,7 @@ GameObject:
   - component: {fileID: 4206286350078801394}
   - component: {fileID: 6743990722106017405}
   - component: {fileID: 6406889599328623663}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RedHood
   m_TagString: Character
   m_Icon: {fileID: 0}
@@ -447,7 +447,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 8
   m_CollisionDetection: 0
 --- !u!65 &6406889599328623663
 BoxCollider:
@@ -481,7 +481,7 @@ GameObject:
   - component: {fileID: 3622178799468575115}
   - component: {fileID: 3033145399866936172}
   - component: {fileID: 3025542762658946441}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RightArm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -572,7 +572,7 @@ GameObject:
   - component: {fileID: 6856977628848003243}
   - component: {fileID: 3928009328424866156}
   - component: {fileID: 3393753877693448227}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Head
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -662,7 +662,7 @@ GameObject:
   - component: {fileID: 7585401377103914383}
   - component: {fileID: 5002898537486315498}
   - component: {fileID: 5847924509620953644}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: LeftLeg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -750,7 +750,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1111728892583113113}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: LeftHip
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -783,7 +783,7 @@ GameObject:
   - component: {fileID: 1302406598721610863}
   - component: {fileID: 832692863527869203}
   - component: {fileID: 7715362035224602549}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Torso
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -871,7 +871,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3221114198952910867}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RightHip
   m_TagString: Untagged
   m_Icon: {fileID: 0}
