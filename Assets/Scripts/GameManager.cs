@@ -176,7 +176,7 @@ public class GameManager : MonoBehaviour
         player1 = null;
         player2 = null;
 
-        Player[] scenePlayers = FindObjectsOfType<Player>();
+        Player[] scenePlayers = FindObjectsByType<Player>();
 
         foreach (Player scenePlayer in scenePlayers)
         {

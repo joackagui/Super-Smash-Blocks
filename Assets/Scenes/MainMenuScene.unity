@@ -721,9 +721,12 @@ MonoBehaviour:
   fightMusic: {fileID: 8300000, guid: 5593bee5979b64d72895f6ef87f92483, type: 3}
   victoryMusic: {fileID: 8300000, guid: 67a7bc44f931645c1b4181672b371715, type: 3}
   selectionMusic: {fileID: 0}
-  batmanVictoryMusic: {fileID: 8300000, guid: 320fbc7dc57804ddc82389e0befacafe, type: 3}
-  jokerVictoryMusic: {fileID: 8300000, guid: d9ab82dce16f94b3c9cad69343ede8ef, type: 3}
-  redHoodVictoryMusic: {fileID: 8300000, guid: f30a68f67126d4ac8838db3ea4867ebe, type: 3}
+  batmanVictoryClip: {fileID: 8300000, guid: 320fbc7dc57804ddc82389e0befacafe, type: 3}
+  batmanVictoryTheme: {fileID: 8300000, guid: 598baaf2f43414da19009ba1190da17d, type: 3}
+  jokerVictoryClip: {fileID: 8300000, guid: 3a2383e8dd1434270bace6e55308199e, type: 3}
+  jokerVictoryTheme: {fileID: 8300000, guid: 9fef55f4ed6c24ea78aebd9b4b9a8d63, type: 3}
+  redHoodVictoryClip: {fileID: 8300000, guid: f30a68f67126d4ac8838db3ea4867ebe, type: 3}
+  redHoodVictoryTheme: {fileID: 8300000, guid: aeab820143da0418f9ce5a4549366025, type: 3}
   menuMoveClip: {fileID: 8300000, guid: 9f58ea5f1becc4f25a7932461700b802, type: 3}
   menuSelectClip: {fileID: 8300000, guid: 8b331a132ccbe4eb299c7b3623117605, type: 3}
   menuBackClip: {fileID: 8300000, guid: 6a8af458cbbd14232bf63312c303fd96, type: 3}

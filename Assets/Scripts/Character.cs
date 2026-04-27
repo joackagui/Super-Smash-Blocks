@@ -34,6 +34,10 @@ public class Character: MonoBehaviour
     private bool isDead = false;
     private Player owner;
     private Animator animator;
+    private int attackComboIndex = 0;
+    private int specialComboIndex = 0;
+    private float comboResetTime = 1.2f;
+    private float lastAttackTime = 0f;
 
     public void SetOwner(Player player)
     {
@@ -87,13 +91,35 @@ public class Character: MonoBehaviour
     public virtual void Attack1()
     {
         ReproduceAttack1Clip();
-        // base attack
+        lastAttackTime = Time.time;
+
+        if (isGrounded)
+        {
+            animator.SetInteger("attackComboIndex", attackComboIndex);
+            animator.SetTrigger("Attack1Ground");
+            attackComboIndex = attackComboIndex == 0 ? 1 : 0; // alterna entre 0 y 1
+        }
+        else
+        {
+            animator.SetTrigger("Attack1Air");
+        }
     }
 
     public virtual void Attack2()
     {
         ReproduceAttack2Clip();
-        // special attack
+        lastAttackTime = Time.time;
+
+        if (isGrounded)
+        {
+            animator.SetInteger("specialComboIndex", specialComboIndex);
+            animator.SetTrigger("Attack2Ground");
+            specialComboIndex = specialComboIndex == 0 ? 1 : 0;
+        }
+        else
+        {
+            animator.SetTrigger("Attack2Air");
+        }
     }
 
     public void TakeDamage(float dmg)
@@ -101,6 +127,12 @@ public class Character: MonoBehaviour
         ReproduceHurtClip();
         damageReceived += dmg;
         isHurt = true;
+        animator.SetTrigger("Hurt");
+    }
+
+    public virtual void Dodge()
+    {
+        animator.SetTrigger("Dodge");
     }
 
     void Awake()
@@ -128,11 +160,21 @@ public class Character: MonoBehaviour
         //new GameObject("Hitbox").AddComponent<BoxCollider>();
     }
 
-    // Update is called once per frame
+    void Update()
+    {
+        if (Time.time - lastAttackTime > comboResetTime)
+        {
+            attackComboIndex = 0;
+            specialComboIndex = 0;
+        }
+    }
+
     void FixedUpdate()
     {
         ApplyHorizontalMovement();
         animator.SetBool("isGrounded", isGrounded);
+        animator.SetBool("isWalking", isMoving); 
+        
     }
 
     void Knockback(Vector2 direction, float force)

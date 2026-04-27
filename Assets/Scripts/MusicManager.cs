@@ -12,9 +12,12 @@ public class MusicManager : MonoBehaviour
     public AudioClip selectionMusic;
 
     [Header("Victory Music by Character")]
-    public AudioClip batmanVictoryMusic;
-    public AudioClip jokerVictoryMusic;
-    public AudioClip redHoodVictoryMusic;
+    public AudioClip batmanVictoryClip;
+    public AudioClip batmanVictoryTheme;
+    public AudioClip jokerVictoryClip;
+    public AudioClip jokerVictoryTheme;
+    public AudioClip redHoodVictoryClip;
+    public AudioClip redHoodVictoryTheme;
 
     [Header("SFX Clips")]
     public AudioClip menuMoveClip;
@@ -30,6 +33,7 @@ public class MusicManager : MonoBehaviour
 
     private AudioSource musicSource;
     private AudioSource sfxSource;
+    private AudioSource victorySource;
 
     private void Awake()
     {
@@ -53,6 +57,11 @@ public class MusicManager : MonoBehaviour
         sfxSource.loop = false;
         sfxSource.playOnAwake = false;
         sfxSource.volume = sfxVolume;
+
+        victorySource = gameObject.AddComponent<AudioSource>();
+        victorySource.loop = false;
+        victorySource.playOnAwake = false;
+        victorySource.volume = musicVolume;
     }
 
     private void OnEnable()  { SceneManager.sceneLoaded += OnSceneLoaded; }
@@ -62,9 +71,10 @@ public class MusicManager : MonoBehaviour
     {
         musicSource.volume = musicVolume;
         sfxSource.volume = sfxVolume;
+        victorySource.volume = musicVolume;
     }
 
-    private AudioClip GetVictoryMusic()
+    private AudioClip GetVictoryClip()
     {
         if (GameManager.Instance == null) return victoryMusic;
 
@@ -72,9 +82,24 @@ public class MusicManager : MonoBehaviour
 
         return winner switch
         {
-            "Batman"  => batmanVictoryMusic  != null ? batmanVictoryMusic  : victoryMusic,
-            "Joker"   => jokerVictoryMusic   != null ? jokerVictoryMusic   : victoryMusic,
-            "RedHood" => redHoodVictoryMusic != null ? redHoodVictoryMusic : victoryMusic,
+            "Batman"  => batmanVictoryClip  != null ? batmanVictoryClip  : victoryMusic,
+            "Joker"   => jokerVictoryClip   != null ? jokerVictoryClip   : victoryMusic,
+            "RedHood" => redHoodVictoryClip != null ? redHoodVictoryClip : victoryMusic,
+            _         => victoryMusic
+        };
+    }
+
+    private AudioClip GetVictoryTheme()
+    {
+        if (GameManager.Instance == null) return victoryMusic;
+
+        string winner = GameManager.Instance.GetWinnerSelection();
+
+        return winner switch
+        {
+            "Batman"  => batmanVictoryTheme  != null ? batmanVictoryTheme  : victoryMusic,
+            "Joker"   => jokerVictoryTheme   != null ? jokerVictoryTheme   : victoryMusic,
+            "RedHood" => redHoodVictoryTheme != null ? redHoodVictoryTheme : victoryMusic,
             _         => victoryMusic
         };
     }
@@ -90,8 +115,30 @@ public class MusicManager : MonoBehaviour
                 PlayMusic(fightMusic);
                 break;
             case "VictoryScene":
-                PlayMusic(GetVictoryMusic(), loop: false);
+                PlayVictoryMusic();
                 break;
+        }
+    }
+
+    private void PlayVictoryMusic()
+    {
+        AudioClip clip  = GetVictoryClip();
+        AudioClip theme = GetVictoryTheme();
+
+        if (clip != null)
+        {
+            victorySource.loop   = false;
+            victorySource.clip   = clip;
+            victorySource.volume = musicVolume;
+            victorySource.Play();
+        }
+
+        if (theme != null)
+        {
+            musicSource.loop   = true;
+            musicSource.clip   = theme;
+            musicSource.volume = musicVolume;
+            musicSource.Play();
         }
     }
 

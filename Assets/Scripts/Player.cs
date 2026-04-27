@@ -21,6 +21,7 @@ public class Player : MonoBehaviour
     private InputAction jumpAction;
     private InputAction attack1Action;
     private InputAction attack2Action;
+    private InputAction dodgeAction;
 
     public Character character;
     public int lives = 3;
@@ -114,7 +115,7 @@ public class Player : MonoBehaviour
 
     private void Start()
     {
-        uiManager = FindObjectOfType<UIManager>();
+        uiManager = FindFirstObjectByType<UIManager>();
 
         if (uiManager != null)
         {
@@ -166,6 +167,11 @@ public class Player : MonoBehaviour
         {
             character.Attack2();
         }
+
+        if (dodgeAction != null && dodgeAction.triggered)
+        {
+            character.Dodge();
+        }
     }
 
     private void ConfigureActions()
@@ -195,6 +201,7 @@ public class Player : MonoBehaviour
         jumpAction = map.FindAction("Jump", false) ?? map.FindAction("Up", false);
         attack1Action = map.FindAction("Action1", false);
         attack2Action = map.FindAction("Action2", false);
+        dodgeAction = map.FindAction("Dodge", false);
 
         map.Enable();
     }
@@ -207,6 +214,7 @@ public class Player : MonoBehaviour
         SetActionState(jumpAction, enable);
         SetActionState(attack1Action, enable);
         SetActionState(attack2Action, enable);
+        SetActionState(dodgeAction, enable);
     }
 
     private static void SetActionState(InputAction action, bool enable)
