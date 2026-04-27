@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 228597623}
   - component: {fileID: 228597622}
   m_Layer: 5
-  m_Name: FortressOfSolitude
+  m_Name: Funhouse
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -157,7 +157,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: 8d6d94fe6a17743a4948ccd696882895, type: 3}
+  m_Texture: {fileID: 2800000, guid: 85758b6099df12e46a3c729d4ffb09af, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -807,7 +807,7 @@ GameObject:
   - component: {fileID: 1212272564}
   - component: {fileID: 1212272563}
   m_Layer: 5
-  m_Name: Themyscira
+  m_Name: ACE
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -833,7 +833,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: 7ac2d0a0a9a7647cb981256bd5029994, type: 3}
+  m_Texture: {fileID: 2800000, guid: d65324abf6edff0459a62af7a4c58f1c, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
