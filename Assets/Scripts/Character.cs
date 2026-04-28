@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class Character: MonoBehaviour
+public class Character : MonoBehaviour
 {
     [Header("Movement")]
     [SerializeField] private float speed = 7f;
@@ -10,7 +10,7 @@ public class Character: MonoBehaviour
     [SerializeField] private float faceLeftYRotation = -90f;
 
     private float damageReceived = 0;
-    private bool isMoving = false;
+    private bool isWalking = false;
     private bool isGrounded = true;
     private bool isJumping = false;
     private int jumpsRemaining = 2;
@@ -24,47 +24,52 @@ public class Character: MonoBehaviour
     public AudioClip attack1Clip;
     public AudioClip attack2Clip;
     public AudioClip jumpClip;
-
     public AudioClip deathClip;
+
     private AudioSource sfxSource;
     private Rigidbody rb;
-
     private Vector2 moveInput;
     private int facingDirection = 1;
     private bool isDead = false;
     private Player owner;
     private Animator animator;
+
     private int attackComboIndex = 0;
     private int specialComboIndex = 0;
     private float comboResetTime = 1.2f;
     private float lastAttackTime = 0f;
+    private Quaternion desiredRotation = Quaternion.identity;
 
-    public void SetOwner(Player player)
-    {
-        owner = player;
-    }
+    // Nombres de parámetros del Animator — deben coincidir EXACTAMENTE
+    private static readonly int PARAM_IS_GROUNDED     = Animator.StringToHash("isGrounded");
+    private static readonly int PARAM_IS_WALKING      = Animator.StringToHash("isWalking");
+    private static readonly int PARAM_ATTACK_COMBO    = Animator.StringToHash("attackComboIndex");
+    private static readonly int PARAM_SPECIAL_COMBO   = Animator.StringToHash("specialComboIndex");
+    private static readonly int PARAM_JUMP1           = Animator.StringToHash("Jump1");
+    private static readonly int PARAM_JUMP2           = Animator.StringToHash("Jump2");
+    private static readonly int PARAM_ATTACK1_GROUND  = Animator.StringToHash("Attack1Ground");
+    private static readonly int PARAM_ATTACK1_AIR     = Animator.StringToHash("Attack1Air");
+    private static readonly int PARAM_ATTACK2_GROUND  = Animator.StringToHash("Attack2Ground");
+    private static readonly int PARAM_ATTACK2_AIR     = Animator.StringToHash("Attack2Air");
+    private static readonly int PARAM_DODGE           = Animator.StringToHash("Dodge");
+    private static readonly int PARAM_HURT            = Animator.StringToHash("Hurt");
+
+    public void SetOwner(Player player) { owner = player; }
 
     public void SetInitialFacing(int direction)
     {
-        int clampedDirection = direction >= 0 ? 1 : -1;
+        int clamped = direction >= 0 ? 1 : -1;
         facingDirection = 0;
-        FaceDirection(clampedDirection);
+        FaceDirection(clamped);
     }
-
 
     public virtual void Move(Vector2 direction)
     {
         moveInput = direction;
-        isMoving = Mathf.Abs(direction.x) > 0.01f;
+        isWalking = Mathf.Abs(direction.x) > 0.01f;
 
-        if (direction.x > 0.01f)
-        {
-            FaceDirection(1);
-        }
-        else if (direction.x < -0.01f)
-        {
-            FaceDirection(-1);
-        }
+        if (direction.x > 0.01f)       FaceDirection(1);
+        else if (direction.x < -0.01f) FaceDirection(-1);
     }
 
     public virtual void Jump()
@@ -74,16 +79,18 @@ public class Character: MonoBehaviour
             ReproduceJumpClip();
             isJumping = true;
             isGrounded = false;
-            
-            if(jumpsRemaining == 2)
-                animator.SetTrigger("Jump1");
+
+            ClearAllTriggers(); // evita triggers acumulados
+
+            if (jumpsRemaining == 2)
+                animator.SetTrigger(PARAM_JUMP1);
             else if (jumpsRemaining == 1)
-            {
-                animator.SetTrigger("Jump2");
-            }
+                animator.SetTrigger(PARAM_JUMP2);
+
             jumpsRemaining--;
-            Vector3 velocity = rb.linearVelocity;
-            rb.linearVelocity = new Vector3(velocity.x, 0f, velocity.z);
+
+            Vector3 vel = rb.linearVelocity;
+            rb.linearVelocity = new Vector3(vel.x, 0f, vel.z);
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
     }
@@ -92,16 +99,17 @@ public class Character: MonoBehaviour
     {
         ReproduceAttack1Clip();
         lastAttackTime = Time.time;
+        ClearAllTriggers();
 
         if (isGrounded)
         {
-            animator.SetInteger("attackComboIndex", attackComboIndex);
-            animator.SetTrigger("Attack1Ground");
-            attackComboIndex = attackComboIndex == 0 ? 1 : 0; // alterna entre 0 y 1
+            animator.SetInteger(PARAM_ATTACK_COMBO, attackComboIndex);
+            animator.SetTrigger(PARAM_ATTACK1_GROUND);
+            attackComboIndex = attackComboIndex == 0 ? 1 : 0;
         }
         else
         {
-            animator.SetTrigger("Attack1Air");
+            animator.SetTrigger(PARAM_ATTACK1_AIR);
         }
     }
 
@@ -109,40 +117,57 @@ public class Character: MonoBehaviour
     {
         ReproduceAttack2Clip();
         lastAttackTime = Time.time;
+        ClearAllTriggers();
 
         if (isGrounded)
         {
-            animator.SetInteger("specialComboIndex", specialComboIndex);
-            animator.SetTrigger("Attack2Ground");
+            animator.SetInteger(PARAM_SPECIAL_COMBO, specialComboIndex);
+            animator.SetTrigger(PARAM_ATTACK2_GROUND);
             specialComboIndex = specialComboIndex == 0 ? 1 : 0;
         }
         else
         {
-            animator.SetTrigger("Attack2Air");
+            animator.SetTrigger(PARAM_ATTACK2_AIR);
         }
     }
 
     public void TakeDamage(float dmg)
     {
+        if (isInvulnerable || isDead) return;
+
         ReproduceHurtClip();
         damageReceived += dmg;
         isHurt = true;
-        animator.SetTrigger("Hurt");
+        ClearAllTriggers();
+        animator.SetTrigger(PARAM_HURT);
     }
 
     public virtual void Dodge()
     {
-        animator.SetTrigger("Dodge");
+        ClearAllTriggers();
+        animator.SetTrigger(PARAM_DODGE);
+    }
+
+    // Limpia todos los triggers para evitar que se acumulen y disparen
+    // animaciones incorrectas en el siguiente frame
+    private void ClearAllTriggers()
+    {
+        animator.ResetTrigger(PARAM_JUMP1);
+        animator.ResetTrigger(PARAM_JUMP2);
+        animator.ResetTrigger(PARAM_ATTACK1_GROUND);
+        animator.ResetTrigger(PARAM_ATTACK1_AIR);
+        animator.ResetTrigger(PARAM_ATTACK2_GROUND);
+        animator.ResetTrigger(PARAM_ATTACK2_AIR);
+        animator.ResetTrigger(PARAM_DODGE);
+        animator.ResetTrigger(PARAM_HURT);
     }
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
-        if (rb == null)
-        {
-            rb = gameObject.AddComponent<Rigidbody>();
-        }
+
+        if (rb == null) rb = gameObject.AddComponent<Rigidbody>();
 
         rb.isKinematic = false;
         rb.useGravity = true;
@@ -150,14 +175,18 @@ public class Character: MonoBehaviour
         rb.interpolation = RigidbodyInterpolation.Interpolate;
         rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
 
+        if (animator != null)
+        {
+            animator.enabled = true;
+            animator.applyRootMotion = false;
+            animator.updateMode = AnimatorUpdateMode.Normal;
+        }
+
         sfxSource = gameObject.AddComponent<AudioSource>();
         sfxSource.loop = false;
         sfxSource.playOnAwake = false;
-    }
 
-    void Start()
-    {
-        //new GameObject("Hitbox").AddComponent<BoxCollider>();
+        desiredRotation = transform.rotation;
     }
 
     void Update()
@@ -172,14 +201,22 @@ public class Character: MonoBehaviour
     void FixedUpdate()
     {
         ApplyHorizontalMovement();
-        animator.SetBool("isGrounded", isGrounded);
-        animator.SetBool("isWalking", isMoving); 
-        
+
+        if (rb != null)
+            rb.MoveRotation(desiredRotation);
+
+        if (animator != null)
+        {
+            animator.SetBool(PARAM_IS_GROUNDED, isGrounded);
+            animator.SetBool(PARAM_IS_WALKING, isWalking);
+        }
     }
 
-    void Knockback(Vector2 direction, float force)
+    void OnAnimatorMove()
     {
-        // apply knockback force
+        if (rb == null || animator == null || !animator.enabled) return;
+        transform.position = rb.position;
+        transform.rotation = desiredRotation;
     }
 
     void OnCollisionEnter(Collision collision)
@@ -187,74 +224,47 @@ public class Character: MonoBehaviour
         if (isDead) return;
 
         if (collision.gameObject.CompareTag("Ground"))
-        {
-            Land();
-            return;
-        }
+        { Land(); return; }
 
         if (collision.gameObject.CompareTag("Platform"))
         {
-            foreach (ContactPoint contact in collision.contacts)
-            {
-                if (Vector3.Dot(contact.normal, Vector3.up) > 0.5f)
-                {
-                    Land();
-                    break;
-                }
-            }
+            foreach (ContactPoint c in collision.contacts)
+                if (Vector3.Dot(c.normal, Vector3.up) > 0.5f) { Land(); break; }
         }
 
         if (collision.gameObject.CompareTag("Barrier"))
-        {
             Die();
-        }
     }
+
     void OnCollisionStay(Collision collision)
     {
         if (collision.gameObject.CompareTag("Platform"))
         {
-            foreach (ContactPoint contact in collision.contacts)
-            {
-                if (Vector3.Dot(contact.normal, Vector3.up) > 0.5f)
-                {
-                    isGrounded = true;
-                    return;
-                }
-            }
+            foreach (ContactPoint c in collision.contacts)
+                if (Vector3.Dot(c.normal, Vector3.up) > 0.5f) { isGrounded = true; return; }
         }
     }
 
     public void Die()
     {
         if (isDead) return;
-
         isDead = true;
         ReproduceDeathClip();
-
         StartCoroutine(DeathSequence());
     }
 
     private IEnumerator DeathSequence()
     {
-        // Ocultar visualmente pero mantener activo para reproducir el audio
-        foreach (var r in GetComponentsInChildren<Renderer>())
-            r.enabled = false;
-
-        // Notificar al owner (sin que spawne todavía)
+        foreach (var r in GetComponentsInChildren<Renderer>()) r.enabled = false;
         if (owner != null)
             owner.HandleCharacterDeath(onRespawnReady: () => StartCoroutine(RespawnSequence()));
-
-        // t=0.5s → sonido de muerte en MusicManager
         yield return new WaitForSeconds(0.5f);
-        if (MusicManager.Instance != null)
-            MusicManager.Instance.PlayCharacterDeath();
+        if (MusicManager.Instance != null) MusicManager.Instance.PlayCharacterDeath();
     }
 
     private IEnumerator RespawnSequence()
     {
-        // Esperar hasta t=3s desde la muerte (ya pasaron ~0.5s, faltan 2.5s)
         yield return new WaitForSeconds(2.5f);
-
         Respawn();
     }
 
@@ -267,80 +277,39 @@ public class Character: MonoBehaviour
         isHurt = false;
         damageReceived = 0;
 
-        foreach (var r in GetComponentsInChildren<Renderer>())
-            r.enabled = true;
-
-        if (owner != null)
-            owner.SpawnCharacter(this); // reposiciona en el spawnPoint
-
-        if (MusicManager.Instance != null)
-            MusicManager.Instance.PlayCharacterRespawn();
+        foreach (var r in GetComponentsInChildren<Renderer>()) r.enabled = true;
+        if (owner != null) owner.SpawnCharacter(this);
+        if (MusicManager.Instance != null) MusicManager.Instance.PlayCharacterRespawn();
     }
 
     private void ApplyHorizontalMovement()
     {
-        if (rb == null)
-        {
-            return;
-        }
-
-        Vector3 velocity = rb.linearVelocity;
-        velocity.x = moveInput.x * speed;
-        rb.linearVelocity = velocity;
+        if (rb == null) return;
+        Vector3 vel = rb.linearVelocity;
+        vel.x = moveInput.x * speed;
+        rb.linearVelocity = vel;
     }
 
     private void FaceDirection(int direction)
     {
-        if (facingDirection == direction)
-        {
-            return;
-        }
-
+        if (facingDirection == direction) return;
         facingDirection = direction;
-        float yRotation = direction > 0 ? faceRightYRotation : faceLeftYRotation;
-        transform.rotation = Quaternion.Euler(0f, yRotation, 0f);
+        float yRot = direction > 0 ? faceRightYRotation : faceLeftYRotation;
+        desiredRotation = Quaternion.Euler(0f, yRot, 0f);
+        if (rb != null) rb.MoveRotation(desiredRotation);
+        else transform.rotation = desiredRotation;
     }
 
-    public void ReproduceJumpClip()
-    {
-        if (jumpClip != null)
-        {
-            sfxSource.PlayOneShot(jumpClip);
-        }
-    }
-    public void ReproduceAttack1Clip()
-    {
-        if (attack1Clip != null)
-        {
-            sfxSource.PlayOneShot(attack1Clip);
-        }
-    }
-    public void ReproduceAttack2Clip()
-    {
-        if (attack2Clip != null)
-        {
-            sfxSource.PlayOneShot(attack2Clip);
-        }
-    }
-    public void ReproduceHurtClip()
-    {
-        if (hurtClip != null)
-        {
-            sfxSource.PlayOneShot(hurtClip);
-        }
-    }
-
-    public void ReproduceDeathClip()
-    {
-        if (deathClip != null)
-        {
-            sfxSource.PlayOneShot(deathClip);
-        }
-    }
     void Land()
     {
         isJumping = false;
         isGrounded = true;
         jumpsRemaining = 2;
     }
+
+    public void ReproduceJumpClip()    { if (jumpClip    != null) sfxSource.PlayOneShot(jumpClip); }
+    public void ReproduceAttack1Clip() { if (attack1Clip != null) sfxSource.PlayOneShot(attack1Clip); }
+    public void ReproduceAttack2Clip() { if (attack2Clip != null) sfxSource.PlayOneShot(attack2Clip); }
+    public void ReproduceHurtClip()    { if (hurtClip    != null) sfxSource.PlayOneShot(hurtClip); }
+    public void ReproduceDeathClip()   { if (deathClip   != null) sfxSource.PlayOneShot(deathClip); }
 }

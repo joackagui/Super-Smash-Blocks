@@ -684,8 +684,8 @@ MonoBehaviour:
   diffuseImage: {fileID: 1325908613}
   logoImage: {fileID: 450550116}
   promptText: {fileID: 725142340}
-  delayBeforeFade: 2
-  fadeDuration: 2
+  delayBeforeFade: 1
+  fadeDuration: 1
   logoExtraDelay: 1
   textDelayAfterLogo: 0.3
 --- !u!1 &1046822657
