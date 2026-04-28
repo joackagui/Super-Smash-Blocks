@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using TMPro;
 
 public class Player : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class Player : MonoBehaviour
     [SerializeField] private string actionMapName = "New action map";
     [SerializeField] private PlayerSlot playerSlot;
     [SerializeField] private GameObject spawnPoint;
+    [SerializeField] private TextMeshProUGUI damageText;
 
     private InputAction moveAction;
     private InputAction leftAction;
@@ -32,7 +34,7 @@ public class Player : MonoBehaviour
 
     public GameObject GetSpawnPoint()
     {
-        return spawnPoint;
+        return ResolveSpawnPoint();
     }
 
     public void SetSpawnPoint(GameObject newSpawnPoint)
@@ -61,17 +63,18 @@ public class Player : MonoBehaviour
         }
 
         character = newCharacter;
+        GameObject resolvedSpawnPoint = ResolveSpawnPoint();
 
-        if (spawnPoint != null)
+        if (resolvedSpawnPoint != null)
         {
-            Quaternion spawnRotation = spawnPoint.transform.rotation;
+            Quaternion spawnRotation = resolvedSpawnPoint.transform.rotation;
 
             if (playerSlot == PlayerSlot.Player2)
             {
                 spawnRotation *= Quaternion.Euler(0f, 180f, 0f);
             }
 
-            character.transform.SetPositionAndRotation(spawnPoint.transform.position, spawnRotation);
+            character.transform.SetPositionAndRotation(resolvedSpawnPoint.transform.position, spawnRotation);
         }
         else
         {
@@ -86,6 +89,29 @@ public class Player : MonoBehaviour
             characterBody.linearVelocity = Vector3.zero;
             characterBody.angularVelocity = Vector3.zero;
         }
+
+        RefreshDamageText();
+    }
+
+    private GameObject ResolveSpawnPoint()
+    {
+        if (spawnPoint != null)
+        {
+            return spawnPoint;
+        }
+
+        string preferredName = playerSlot == PlayerSlot.Player1
+            ? "Player1SpawnPoint"
+            : "Player2SpawnPoint";
+
+        GameObject foundSpawnPoint = GameObject.Find(preferredName);
+        if (foundSpawnPoint != null)
+        {
+            spawnPoint = foundSpawnPoint;
+            return spawnPoint;
+        }
+
+        return null;
     }
 
     public void HandleCharacterDeath(System.Action onRespawnReady = null)
@@ -155,6 +181,8 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
+        RefreshDamageText();
+
         if (character == null)
         {
             return;
@@ -265,5 +293,21 @@ public class Player : MonoBehaviour
         }
 
         return new Vector2(Mathf.Clamp(axisX, -1f, 1f), 0f);
+    }
+
+    private void RefreshDamageText()
+    {
+        if (damageText == null)
+        {
+            return;
+        }
+
+        if (character == null)
+        {
+            damageText.text = "0%";
+            return;
+        }
+
+        damageText.text = character.GetDamageReceived().ToString("0") + "%";
     }
 }

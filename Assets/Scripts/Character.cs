@@ -147,6 +147,11 @@ public class Character : MonoBehaviour
         StartCoroutine(HurtRecoverySequence());
     }
 
+    public float GetDamageReceived()
+    {
+        return damageReceived;
+    }
+
     private void ApplyKnockback(Vector3 attackerPosition)
     {
         if (rb == null) return;
@@ -154,7 +159,7 @@ public class Character : MonoBehaviour
         float directionX = transform.position.x - attackerPosition.x;
         directionX = directionX >= 0f ? 1f : -1f;
 
-        float force = 8f + 0.25f * damageReceived;
+        float force = 5f + 0.25f * damageReceived;
         float angle = 30f * Mathf.Deg2Rad;
 
         Vector3 knockbackDirection = new Vector3(

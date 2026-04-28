@@ -933,6 +933,7 @@ MonoBehaviour:
   actionMapName: New action map
   playerSlot: 1
   spawnPoint: {fileID: 1282564280}
+  damageText: {fileID: 159688218}
   character: {fileID: 0}
   lives: 3
 --- !u!4 &418130828
@@ -2182,6 +2183,7 @@ MonoBehaviour:
   actionMapName: New action map
   playerSlot: 0
   spawnPoint: {fileID: 443020239}
+  damageText: {fileID: 1872527568}
   character: {fileID: 0}
   lives: 3
 --- !u!4 &1146621737
