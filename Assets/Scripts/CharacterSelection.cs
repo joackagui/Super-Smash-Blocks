@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 public class CharacterSelection : MonoBehaviour
 {
@@ -28,6 +29,11 @@ public class CharacterSelection : MonoBehaviour
     [SerializeField] private PlayerInputBindings player2Input;
     [SerializeField] private InputActionReference backAction;
     [SerializeField] private CharacterSlot[] characterSlots = new CharacterSlot[4];
+
+    [SerializeField] private TextMeshProUGUI player1SelectText;
+    [SerializeField] private TextMeshProUGUI player1DeselectText;
+    [SerializeField] private TextMeshProUGUI player2SelectText;
+    [SerializeField] private TextMeshProUGUI player2DeselectText;
 
     private Vector2Int player1Position = new Vector2Int(0, 0);
     private Vector2Int player2Position = new Vector2Int(1, 1);
@@ -58,6 +64,7 @@ public class CharacterSelection : MonoBehaviour
         BindAction(backAction, OnBackPerformed);
 
         RefreshMarkers();
+        UpdateUIText();
     }
 
     private void OnDisable()
@@ -78,29 +85,16 @@ public class CharacterSelection : MonoBehaviour
         UnbindAction(backAction, OnBackPerformed);
     }
 
-    private static void BindAction(
-        InputActionReference actionReference,
-        System.Action<InputAction.CallbackContext> onPerformed)
+    private static void BindAction(InputActionReference actionReference, System.Action<InputAction.CallbackContext> onPerformed)
     {
-        if (actionReference == null || actionReference.action == null)
-        {
-            return;
-        }
-
+        if (actionReference == null || actionReference.action == null) return;
         actionReference.action.performed += onPerformed;
-
         actionReference.action.Enable();
     }
 
-    private static void UnbindAction(
-        InputActionReference actionReference,
-        System.Action<InputAction.CallbackContext> onPerformed)
+    private static void UnbindAction(InputActionReference actionReference, System.Action<InputAction.CallbackContext> onPerformed)
     {
-        if (actionReference == null || actionReference.action == null)
-        {
-            return;
-        }
-
+        if (actionReference == null || actionReference.action == null) return;
         actionReference.action.performed -= onPerformed;
     }
 
@@ -147,15 +141,12 @@ public class CharacterSelection : MonoBehaviour
     private void OnPlayer1SelectPerformed(InputAction.CallbackContext context)
     {
         if (player1Selected) return;
-
-        if (IsBlockedSelection(player1Position, "Player1"))
-        {
-            return;
-        }
+        if (IsBlockedSelection(player1Position, "Player1")) return;
 
         player1Selected = true;
         MusicManager.Instance?.PlayMenuSelect();
         RegisterSelection();
+        UpdateUIText();
         Debug.Log($"Player1 selection: {GetCharacterName(player1Position)}");
         TryLoadNextScene();
     }
@@ -163,15 +154,12 @@ public class CharacterSelection : MonoBehaviour
     private void OnPlayer2SelectPerformed(InputAction.CallbackContext context)
     {
         if (player2Selected) return;
-
-        if (IsBlockedSelection(player2Position, "Player2"))
-        {
-            return;
-        }
+        if (IsBlockedSelection(player2Position, "Player2")) return;
 
         player2Selected = true;
         MusicManager.Instance?.PlayMenuSelect();
         RegisterSelection();
+        UpdateUIText();
         Debug.Log($"Player2 selection: {GetCharacterName(player2Position)}");
         TryLoadNextScene();
     }
@@ -179,18 +167,22 @@ public class CharacterSelection : MonoBehaviour
     private void OnPlayer1DeselectPerformed(InputAction.CallbackContext context)
     {
         if (!player1Selected) return;
+
         player1Selected = false;
         MusicManager.Instance?.PlayMenuBack();
         RegisterSelection();
+        UpdateUIText();
         Debug.Log("Player1 selection: None");
     }
 
     private void OnPlayer2DeselectPerformed(InputAction.CallbackContext context)
     {
         if (!player2Selected) return;
+
         player2Selected = false;
         MusicManager.Instance?.PlayMenuBack();
         RegisterSelection();
+        UpdateUIText();
         Debug.Log("Player2 selection: None");
     }
 
@@ -225,10 +217,7 @@ public class CharacterSelection : MonoBehaviour
 
     private void RegisterSelection()
     {
-        if (GameManager.Instance == null)
-        {
-            return;
-        }
+        if (GameManager.Instance == null) return;
 
         GameManager.Instance.SetPlayer1Selection(player1Selected ? GetCharacterName(player1Position) : "None");
         GameManager.Instance.SetPlayer2Selection(player2Selected ? GetCharacterName(player2Position) : "None");
@@ -238,26 +227,17 @@ public class CharacterSelection : MonoBehaviour
     {
         int slotIndex = position.y * 2 + position.x;
 
-        if (slotIndex < 0 || slotIndex >= characterSlots.Length)
-        {
-            return "None";
-        }
+        if (slotIndex < 0 || slotIndex >= characterSlots.Length) return "None";
 
         CharacterSlot slot = characterSlots[slotIndex];
-        if (slot == null || slot.characterImage == null)
-        {
-            return "None";
-        }
+        if (slot == null || slot.characterImage == null) return "None";
 
         return slot.characterImage.name;
     }
 
     private bool IsBlockedSelection(Vector2Int position, string playerLabel)
     {
-        if (GetCharacterName(position) != "Blocked")
-        {
-            return false;
-        }
+        if (GetCharacterName(position) != "Blocked") return false;
 
         Debug.Log($"{playerLabel}: this character is blocked!");
         MusicManager.Instance?.PlayMenuError();
@@ -266,21 +246,14 @@ public class CharacterSelection : MonoBehaviour
 
     private void TryLoadNextScene()
     {
-        if (isTransitioning || !player1Selected || !player2Selected)
-        {
-            return;
-        }
+        if (isTransitioning || !player1Selected || !player2Selected) return;
 
         isTransitioning = true;
         int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
         if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
-        {
             SceneManager.LoadScene(nextSceneIndex);
-        }
         else
-        {
             isTransitioning = false;
-        }
     }
 
     private void RefreshMarkers()
@@ -288,25 +261,14 @@ public class CharacterSelection : MonoBehaviour
         for (int i = 0; i < characterSlots.Length; i++)
         {
             CharacterSlot slot = characterSlots[i];
-
-            if (slot == null)
-            {
-                continue;
-            }
+            if (slot == null) continue;
 
             Vector2Int slotPosition = GetSlotPosition(i);
             bool showPlayer1 = slotPosition == player1Position;
             bool showPlayer2 = slotPosition == player2Position;
 
-            if (slot.player1Marker != null)
-            {
-                slot.player1Marker.enabled = showPlayer1;
-            }
-
-            if (slot.player2Marker != null)
-            {
-                slot.player2Marker.enabled = showPlayer2;
-            }
+            if (slot.player1Marker != null) slot.player1Marker.enabled = showPlayer1;
+            if (slot.player2Marker != null) slot.player2Marker.enabled = showPlayer2;
         }
     }
 
@@ -315,11 +277,18 @@ public class CharacterSelection : MonoBehaviour
         return new Vector2Int(slotIndex % 2, slotIndex / 2);
     }
 
+    private void UpdateUIText()
+    {
+        if (player1SelectText != null) player1SelectText.gameObject.SetActive(!player1Selected);
+        if (player1DeselectText != null) player1DeselectText.gameObject.SetActive(player1Selected);
+
+        if (player2SelectText != null) player2SelectText.gameObject.SetActive(!player2Selected);
+        if (player2DeselectText != null) player2DeselectText.gameObject.SetActive(player2Selected);
+    }
+
     private void ValidateGameManager()
     {
         if (GameManager.Instance == null)
-        {
             SceneManager.LoadScene(0);
-        }
     }
 }

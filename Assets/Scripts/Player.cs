@@ -108,6 +108,16 @@ public class Player : MonoBehaviour
         onRespawnReady?.Invoke();
     }
 
+    public void HealLife(int amount = 1)
+    {
+        lives = Mathf.Min(3, lives + amount);
+
+        if (uiManager != null)
+        {
+            uiManager.SetHearts(playerSlot, lives);
+        }
+    }
+
     private void Awake()
     {
         ConfigureActions();
