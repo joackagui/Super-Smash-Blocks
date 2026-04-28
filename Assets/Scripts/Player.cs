@@ -64,31 +64,34 @@ public class Player : MonoBehaviour
 
         character = newCharacter;
         GameObject resolvedSpawnPoint = ResolveSpawnPoint();
+        Vector3 spawnPosition = transform.position;
+        Quaternion spawnRotation = transform.rotation;
 
         if (resolvedSpawnPoint != null)
         {
-            Quaternion spawnRotation = resolvedSpawnPoint.transform.rotation;
+            spawnPosition = resolvedSpawnPoint.transform.position + Vector3.up * GetSpawnHeightOffset(character);
+            spawnRotation = resolvedSpawnPoint.transform.rotation;
 
             if (playerSlot == PlayerSlot.Player2)
             {
                 spawnRotation *= Quaternion.Euler(0f, 180f, 0f);
             }
-
-            character.transform.SetPositionAndRotation(resolvedSpawnPoint.transform.position, spawnRotation);
         }
-        else
-        {
-            character.transform.SetPositionAndRotation(transform.position, transform.rotation);
-        }
-
-        character.SetInitialFacing(playerSlot == PlayerSlot.Player1 ? 1 : -1);
 
         Rigidbody characterBody = character.GetComponent<Rigidbody>();
         if (characterBody != null)
         {
             characterBody.linearVelocity = Vector3.zero;
             characterBody.angularVelocity = Vector3.zero;
+            characterBody.position = spawnPosition;
+            characterBody.rotation = spawnRotation;
         }
+        else
+        {
+            character.transform.SetPositionAndRotation(spawnPosition, spawnRotation);
+        }
+
+        character.SetInitialFacing(playerSlot == PlayerSlot.Player1 ? 1 : -1);
 
         RefreshDamageText();
     }
@@ -112,6 +115,27 @@ public class Player : MonoBehaviour
         }
 
         return null;
+    }
+
+    private float GetSpawnHeightOffset(Character targetCharacter)
+    {
+        if (targetCharacter == null)
+        {
+            return 0f;
+        }
+
+        Collider characterCollider = targetCharacter.GetComponent<Collider>();
+        if (characterCollider == null)
+        {
+            characterCollider = targetCharacter.GetComponentInChildren<Collider>();
+        }
+
+        if (characterCollider == null)
+        {
+            return 1f;
+        }
+
+        return characterCollider.bounds.extents.y + 0.1f;
     }
 
     public void HandleCharacterDeath(System.Action onRespawnReady = null)
