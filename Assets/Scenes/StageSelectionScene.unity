@@ -322,7 +322,7 @@ MonoBehaviour:
     left: {fileID: -6086142847131883179, guid: 7704f01f7968f4491bb44bfd42f06be7, type: 3}
     right: {fileID: 303562441187682275, guid: 7704f01f7968f4491bb44bfd42f06be7, type: 3}
     select: {fileID: 310677176593949835, guid: 7704f01f7968f4491bb44bfd42f06be7, type: 3}
-  backAction: {fileID: -6001212597897504926, guid: 7704f01f7968f4491bb44bfd42f06be7, type: 3}
+  backAction: {fileID: -6391677252439560717, guid: d69f5cc184bdc4cf9a4ebb857954208a, type: 3}
   stageSlots:
   - stageImage: {fileID: 1151911975}
     marker: {fileID: 1945894050}
