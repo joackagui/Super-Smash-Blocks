@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class Hitbox : MonoBehaviour
 {
@@ -8,11 +9,11 @@ public class Hitbox : MonoBehaviour
 
     private const float HAND_DAMAGE = 7f;
     private const float FOOT_DAMAGE = 10f;
-    private const float KNOCKBACK_BASE = 8f;
-    private const float KNOCKBACK_DAMAGE_MULTIPLIER = 0.15f;
 
     private Character ownerCharacter;
     private bool isActive = false;
+
+    private HashSet<Character> hitTargets = new HashSet<Character>();
 
     public void SetOwner(Character owner)
     {
@@ -21,14 +22,33 @@ public class Hitbox : MonoBehaviour
         string n = gameObject.name.ToLower();
         if (n.Contains("hand"))
             hitboxType = HitboxType.Hand;
-        else if (n.Contains("foot"))   // foot en lugar de leg
+        else if (n.Contains("foot"))
             hitboxType = HitboxType.Foot;
     }
 
-    public void Activate()   { isActive = true; }
-    public void Deactivate() { isActive = false; }
+    public void Activate()
+    {
+        isActive = true;
+        hitTargets.Clear();
+    }
+
+    public void Deactivate()
+    {
+        isActive = false;
+        hitTargets.Clear();
+    }
 
     private void OnTriggerEnter(Collider other)
+    {
+        TryHit(other);
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        TryHit(other);
+    }
+
+    private void TryHit(Collider other)
     {
         if (!isActive) return;
         if (ownerCharacter == null) return;
@@ -40,6 +60,10 @@ public class Hitbox : MonoBehaviour
 
         if (target == null) return;
         if (target == ownerCharacter) return;
+
+        if (hitTargets.Contains(target)) return;
+
+        hitTargets.Add(target);
 
         float damage = hitboxType == HitboxType.Hand ? HAND_DAMAGE : FOOT_DAMAGE;
         target.TakeDamage(damage, ownerCharacter.transform.position);

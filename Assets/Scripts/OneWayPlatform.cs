@@ -18,7 +18,6 @@ public class OneWayPlatform : MonoBehaviour
         float playerBottom = playerCollider.bounds.min.y;
         float platformTop = platformCollider.bounds.max.y;
 
-        // Si el jugador está debajo → ignorar colisión
         if (playerBottom < platformTop)
         {
             Physics.IgnoreCollision(playerCollider, platformCollider, true);

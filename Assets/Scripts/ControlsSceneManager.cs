@@ -99,8 +99,6 @@ public class ControlsSceneManager : MonoBehaviour
         }
     }
 
-    // ---- Helpers ----
-
     private void SetAlpha(Graphic img, float alpha)
     {
         if (img == null) return;
@@ -116,8 +114,6 @@ public class ControlsSceneManager : MonoBehaviour
         c.a = alpha;
         tmp.color = c;
     }
-
-    // ---- Input ----
 
     private void OnEnable()
     {

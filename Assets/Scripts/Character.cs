@@ -79,7 +79,7 @@ public class Character : MonoBehaviour
             isJumping = true;
             isGrounded = false;
 
-            ClearAllTriggers(); // evita triggers acumulados
+            ClearAllTriggers();
 
             if (jumpsRemaining == 2)
                 animator.SetTrigger(PARAM_JUMP1);
@@ -137,27 +137,36 @@ public class Character : MonoBehaviour
         ReproduceHurtClip();
         damageReceived += dmg;
         isHurt = true;
+        isInvulnerable = true;
         ClearAllTriggers();
         animator.SetTrigger(PARAM_HURT);
 
         Debug.Log($"[{gameObject.name}] TakeDamage: +{dmg} | damageReceived total: {damageReceived}");
 
         ApplyKnockback(attackerPosition);
+        StartCoroutine(HurtRecoverySequence());
     }
 
     private void ApplyKnockback(Vector3 attackerPosition)
     {
         if (rb == null) return;
 
-        // Dirección solo en X — el juego es lateral
         float directionX = transform.position.x - attackerPosition.x;
-        directionX = directionX >= 0 ? 1f : -1f; // normaliza a exactamente 1 o -1
+        directionX = directionX >= 0f ? 1f : -1f;
 
-        float force = 15f + damageReceived * 0.25f;
+        float force = 8f + 0.25f * damageReceived;
+        float angle = 30f * Mathf.Deg2Rad;
+
+        Vector3 knockbackDirection = new Vector3(
+            Mathf.Cos(angle) * directionX,
+            Mathf.Sin(angle),
+            0f
+        ).normalized;
 
         rb.linearVelocity = Vector3.zero;
-        rb.AddForce(new Vector3(directionX * force, 0f, 0f), ForceMode.Impulse);
+        rb.AddForce(knockbackDirection * force, ForceMode.Impulse);
     }
+
 
     public virtual void Dodge()
     {
@@ -327,9 +336,18 @@ public class Character : MonoBehaviour
     private void ApplyHorizontalMovement()
     {
         if (rb == null) return;
+        if (isHurt) return;
+
         Vector3 vel = rb.linearVelocity;
         vel.x = moveInput.x * speed;
         rb.linearVelocity = vel;
+    }
+
+    private IEnumerator HurtRecoverySequence()
+    {
+        yield return new WaitForSeconds(invulnerabilityDuration);
+        isHurt = false;
+        isInvulnerable = false;
     }
 
     private void FaceDirection(int direction)

@@ -125,7 +125,7 @@ public class Player : MonoBehaviour
 
     private void Start()
     {
-        uiManager = FindFirstObjectByType<UIManager>();
+        uiManager = FindAnyObjectByType<UIManager>();
 
         if (uiManager != null)
         {

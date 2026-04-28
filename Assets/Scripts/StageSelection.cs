@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class StageSelection : MonoBehaviour
 {
-    // private const string ControlsSceneName = "ControlsScene";
 
     [System.Serializable]
     private class PlayerInputBindings
@@ -100,7 +99,6 @@ public class StageSelection : MonoBehaviour
         MoveStage(Vector2Int.right);
     }
 
-    // 🔥 AQUÍ ESTÁ EL CAMBIO IMPORTANTE
     private void OnSelectPerformed(InputAction.CallbackContext context)
     {
         if (isTransitioning) return;
