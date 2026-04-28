@@ -33,14 +33,12 @@ public class Character : MonoBehaviour
     private bool isDead = false;
     private Player owner;
     private Animator animator;
-
+    private float fixedZPosition;
     private int attackComboIndex = 0;
     private int specialComboIndex = 0;
     private float comboResetTime = 1.2f;
     private float lastAttackTime = 0f;
     private Quaternion desiredRotation = Quaternion.identity;
-
-    // Nombres de parámetros del Animator — deben coincidir EXACTAMENTE
     private static readonly int PARAM_IS_GROUNDED     = Animator.StringToHash("isGrounded");
     private static readonly int PARAM_IS_WALKING      = Animator.StringToHash("isWalking");
     private static readonly int PARAM_ATTACK_COMBO    = Animator.StringToHash("attackComboIndex");
@@ -53,6 +51,7 @@ public class Character : MonoBehaviour
     private static readonly int PARAM_ATTACK2_AIR     = Animator.StringToHash("Attack2Air");
     private static readonly int PARAM_DODGE           = Animator.StringToHash("Dodge");
     private static readonly int PARAM_HURT            = Animator.StringToHash("Hurt");
+    private Hitbox[] hitboxes;
 
     public void SetOwner(Player player) { owner = player; }
 
@@ -131,7 +130,7 @@ public class Character : MonoBehaviour
         }
     }
 
-    public void TakeDamage(float dmg)
+    public void TakeDamage(float dmg, Vector3 attackerPosition)
     {
         if (isInvulnerable || isDead) return;
 
@@ -140,6 +139,24 @@ public class Character : MonoBehaviour
         isHurt = true;
         ClearAllTriggers();
         animator.SetTrigger(PARAM_HURT);
+
+        Debug.Log($"[{gameObject.name}] TakeDamage: +{dmg} | damageReceived total: {damageReceived}");
+
+        ApplyKnockback(attackerPosition);
+    }
+
+    private void ApplyKnockback(Vector3 attackerPosition)
+    {
+        if (rb == null) return;
+
+        // Dirección solo en X — el juego es lateral
+        float directionX = transform.position.x - attackerPosition.x;
+        directionX = directionX >= 0 ? 1f : -1f; // normaliza a exactamente 1 o -1
+
+        float force = 8f + damageReceived * 0.15f;
+
+        rb.linearVelocity = Vector3.zero;
+        rb.AddForce(new Vector3(directionX * force, 0f, 0f), ForceMode.Impulse);
     }
 
     public virtual void Dodge()
@@ -148,8 +165,6 @@ public class Character : MonoBehaviour
         animator.SetTrigger(PARAM_DODGE);
     }
 
-    // Limpia todos los triggers para evitar que se acumulen y disparen
-    // animaciones incorrectas en el siguiente frame
     private void ClearAllTriggers()
     {
         animator.ResetTrigger(PARAM_JUMP1);
@@ -171,7 +186,9 @@ public class Character : MonoBehaviour
 
         rb.isKinematic = false;
         rb.useGravity = true;
-        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+
+        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ | RigidbodyConstraints.FreezePositionZ;
+
         rb.interpolation = RigidbodyInterpolation.Interpolate;
         rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
 
@@ -187,6 +204,13 @@ public class Character : MonoBehaviour
         sfxSource.playOnAwake = false;
 
         desiredRotation = transform.rotation;
+        hitboxes = GetComponentsInChildren<Hitbox>(includeInactive: true);
+        foreach (var hb in hitboxes)
+        {
+            hb.SetOwner(this);
+            hb.Deactivate();
+        }
+        fixedZPosition = transform.position.z;
     }
 
     void Update()
@@ -210,6 +234,24 @@ public class Character : MonoBehaviour
             animator.SetBool(PARAM_IS_GROUNDED, isGrounded);
             animator.SetBool(PARAM_IS_WALKING, isWalking);
         }
+
+        Vector3 pos = rb.position;
+        pos.z = fixedZPosition;
+        rb.MovePosition(pos);
+    }
+    public void ActivateHitboxByName(string hitboxName)
+    {
+        foreach (var hb in hitboxes)
+        {
+            if (hb.gameObject.name == hitboxName)
+                hb.Activate();
+        }
+    }
+
+    public void DeactivateAllHitboxes()
+    {
+        foreach (var hb in hitboxes)
+            hb.Deactivate();
     }
 
     void OnAnimatorMove()

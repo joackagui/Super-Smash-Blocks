@@ -13,7 +13,8 @@ GameObject:
   - component: {fileID: 4577138697301061155}
   - component: {fileID: 3487122165913142177}
   - component: {fileID: 1134285765728483192}
-  m_Layer: 3
+  - component: {fileID: 7428090615138434405}
+  m_Layer: 9
   m_Name: LeftHand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -129,12 +130,25 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 5.0585127
+  m_Radius: 5
   m_Center: {x: -10.059319, y: 3.4959264, z: -17.530722}
+--- !u!114 &7428090615138434405
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 239848452643214729}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f70e2b21067584ec494598a92d307c7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Hitbox
+  hitboxType: 0
 --- !u!1 &993237681401719161
 GameObject:
   m_ObjectHideFlags: 0
@@ -393,7 +407,8 @@ GameObject:
   m_Component:
   - component: {fileID: 8646938904614284291}
   - component: {fileID: 2538831610621312985}
-  m_Layer: 0
+  - component: {fileID: 3868729602288362331}
+  m_Layer: 9
   m_Name: LeftFoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -430,12 +445,25 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3868729602288362331
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1148176391698503471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f70e2b21067584ec494598a92d307c7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Hitbox
+  hitboxType: 1
 --- !u!1 &1305469993745764588
 GameObject:
   m_ObjectHideFlags: 0
@@ -1567,7 +1595,8 @@ GameObject:
   - component: {fileID: 7383226119184431557}
   - component: {fileID: 4659732673395635470}
   - component: {fileID: 8687914252016417653}
-  m_Layer: 3
+  - component: {fileID: 8137889425327133251}
+  m_Layer: 9
   m_Name: RightHand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1684,12 +1713,25 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 5.0585127
+  m_Radius: 5
   m_Center: {x: 10.059319, y: 3.4959264, z: -17.530722}
+--- !u!114 &8137889425327133251
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8430584414460152532}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f70e2b21067584ec494598a92d307c7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Hitbox
+  hitboxType: 0
 --- !u!1 &8450128706527321847
 GameObject:
   m_ObjectHideFlags: 0
@@ -1700,7 +1742,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3072702404599242534}
   - component: {fileID: 5187018486564002057}
-  m_Layer: 0
+  - component: {fileID: 1907262838689032486}
+  m_Layer: 9
   m_Name: RightFoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1737,12 +1780,25 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1907262838689032486
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8450128706527321847}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f70e2b21067584ec494598a92d307c7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Hitbox
+  hitboxType: 1
 --- !u!1 &8548393702762091828
 GameObject:
   m_ObjectHideFlags: 0
