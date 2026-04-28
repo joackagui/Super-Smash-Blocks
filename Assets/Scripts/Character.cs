@@ -153,7 +153,7 @@ public class Character : MonoBehaviour
         float directionX = transform.position.x - attackerPosition.x;
         directionX = directionX >= 0 ? 1f : -1f; // normaliza a exactamente 1 o -1
 
-        float force = 8f + damageReceived * 0.15f;
+        float force = 15f + damageReceived * 0.25f;
 
         rb.linearVelocity = Vector3.zero;
         rb.AddForce(new Vector3(directionX * force, 0f, 0f), ForceMode.Impulse);

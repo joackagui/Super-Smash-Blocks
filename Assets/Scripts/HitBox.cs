@@ -34,7 +34,6 @@ public class Hitbox : MonoBehaviour
         if (ownerCharacter == null) return;
         if (!other.CompareTag("Character")) return;
 
-        // Busca el Character en el objeto o en su padre
         Character target = other.GetComponent<Character>();
         if (target == null)
             target = other.GetComponentInParent<Character>();
