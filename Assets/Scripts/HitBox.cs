@@ -11,9 +11,15 @@ public class Hitbox : MonoBehaviour
     private const float FOOT_DAMAGE = 10f;
 
     private Character ownerCharacter;
+    private Collider hitboxCollider;
     private bool isActive = false;
 
     private HashSet<Character> hitTargets = new HashSet<Character>();
+
+    private void Awake()
+    {
+        hitboxCollider = GetComponent<Collider>();
+    }
 
     public void SetOwner(Character owner)
     {
@@ -30,6 +36,7 @@ public class Hitbox : MonoBehaviour
     {
         isActive = true;
         hitTargets.Clear();
+        DetectOverlappingTargets();
     }
 
     public void Deactivate()
@@ -52,11 +59,8 @@ public class Hitbox : MonoBehaviour
     {
         if (!isActive) return;
         if (ownerCharacter == null) return;
-        if (!other.CompareTag("Character")) return;
 
-        Character target = other.GetComponent<Character>();
-        if (target == null)
-            target = other.GetComponentInParent<Character>();
+        Character target = other.GetComponentInParent<Character>();
 
         if (target == null) return;
         if (target == ownerCharacter) return;
@@ -67,5 +71,25 @@ public class Hitbox : MonoBehaviour
 
         float damage = hitboxType == HitboxType.Hand ? HAND_DAMAGE : FOOT_DAMAGE;
         target.TakeDamage(damage, ownerCharacter.transform.position);
+    }
+
+    private void DetectOverlappingTargets()
+    {
+        if (hitboxCollider == null) return;
+
+        Bounds bounds = hitboxCollider.bounds;
+        Collider[] overlaps = Physics.OverlapBox(
+            bounds.center,
+            bounds.extents,
+            transform.rotation,
+            Physics.AllLayers,
+            QueryTriggerInteraction.Collide
+        );
+
+        foreach (Collider overlap in overlaps)
+        {
+            if (overlap == hitboxCollider) continue;
+            TryHit(overlap);
+        }
     }
 }

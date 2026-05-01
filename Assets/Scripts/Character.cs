@@ -3,6 +3,13 @@ using System.Collections;
 
 public class Character : MonoBehaviour
 {
+    private enum QueuedAttackType
+    {
+        None,
+        Attack1,
+        Attack2
+    }
+
     [Header("Movement")]
     [SerializeField] private float speed = 10f;
     [SerializeField] private float jumpForce = 12f;
@@ -34,11 +41,13 @@ public class Character : MonoBehaviour
     private Player owner;
     private Animator animator;
     private float fixedZPosition;
+    private RigidbodyConstraints defaultConstraints;
     private int attackComboIndex = 0;
     private int specialComboIndex = 0;
     private float comboResetTime = 1.2f;
     private float lastAttackTime = 0f;
     private Quaternion desiredRotation = Quaternion.identity;
+    private QueuedAttackType queuedAttack = QueuedAttackType.None;
     private static readonly int PARAM_IS_GROUNDED     = Animator.StringToHash("isGrounded");
     private static readonly int PARAM_IS_WALKING      = Animator.StringToHash("isWalking");
     private static readonly int PARAM_ATTACK_COMBO    = Animator.StringToHash("attackComboIndex");
@@ -51,6 +60,14 @@ public class Character : MonoBehaviour
     private static readonly int PARAM_ATTACK2_AIR     = Animator.StringToHash("Attack2Air");
     private static readonly int PARAM_DODGE           = Animator.StringToHash("Dodge");
     private static readonly int PARAM_HURT            = Animator.StringToHash("Hurt");
+    private static readonly int PARAM_DEATH           = Animator.StringToHash("Death");
+    private static readonly int STATE_BASE_ATTACK_GROUND_1 = Animator.StringToHash("Base Layer.BaseAttackGround1");
+    private static readonly int STATE_BASE_ATTACK_GROUND_2 = Animator.StringToHash("Base Layer.BaseAttackGround2");
+    private static readonly int STATE_BASE_ATTACK_AIR      = Animator.StringToHash("Base Layer.BaseAttackAir");
+    private static readonly int STATE_SPECIAL_ATTACK_GROUND_1 = Animator.StringToHash("Base Layer.SpecialAttackGround1");
+    private static readonly int STATE_SPECIAL_ATTACK_GROUND_2 = Animator.StringToHash("Base Layer.SpecialAttackGround2");
+    private static readonly int STATE_SPECIAL_ATTACK_AIR      = Animator.StringToHash("Base Layer.SpecialAttackAir");
+    private static readonly int STATE_DEATH                = Animator.StringToHash("Base Layer.Death");
     private Hitbox[] hitboxes;
 
     public void SetOwner(Player player) { owner = player; }
@@ -96,44 +113,37 @@ public class Character : MonoBehaviour
 
     public virtual void Attack1()
     {
-        ReproduceAttack1Clip();
-        lastAttackTime = Time.time;
-        ClearAllTriggers();
+        if (isDead || animator == null) return;
 
-        if (isGrounded)
+        if (isAttacking)
         {
-            animator.SetInteger(PARAM_ATTACK_COMBO, attackComboIndex);
-            animator.SetTrigger(PARAM_ATTACK1_GROUND);
-            attackComboIndex = attackComboIndex == 0 ? 1 : 0;
+            queuedAttack = QueuedAttackType.Attack1;
+            return;
         }
-        else
-        {
-            animator.SetTrigger(PARAM_ATTACK1_AIR);
-        }
+
+        ExecuteAttack1();
     }
 
     public virtual void Attack2()
     {
-        ReproduceAttack2Clip();
-        lastAttackTime = Time.time;
-        ClearAllTriggers();
+        if (isDead || animator == null) return;
 
-        if (isGrounded)
+        if (isAttacking)
         {
-            animator.SetInteger(PARAM_SPECIAL_COMBO, specialComboIndex);
-            animator.SetTrigger(PARAM_ATTACK2_GROUND);
-            specialComboIndex = specialComboIndex == 0 ? 1 : 0;
+            queuedAttack = QueuedAttackType.Attack2;
+            return;
         }
-        else
-        {
-            animator.SetTrigger(PARAM_ATTACK2_AIR);
-        }
+
+        ExecuteAttack2();
     }
 
     public void TakeDamage(float dmg, Vector3 attackerPosition)
     {
         if (isInvulnerable || isDead) return;
 
+        queuedAttack = QueuedAttackType.None;
+        isAttacking = false;
+        DeactivateAllHitboxes();
         ReproduceHurtClip();
         damageReceived += dmg;
         isHurt = true;
@@ -175,6 +185,9 @@ public class Character : MonoBehaviour
 
     public virtual void Dodge()
     {
+        queuedAttack = QueuedAttackType.None;
+        isAttacking = false;
+        DeactivateAllHitboxes();
         ClearAllTriggers();
         animator.SetTrigger(PARAM_DODGE);
     }
@@ -189,6 +202,7 @@ public class Character : MonoBehaviour
         animator.ResetTrigger(PARAM_ATTACK2_AIR);
         animator.ResetTrigger(PARAM_DODGE);
         animator.ResetTrigger(PARAM_HURT);
+        animator.ResetTrigger(PARAM_DEATH);
     }
 
     void Awake()
@@ -201,7 +215,8 @@ public class Character : MonoBehaviour
         rb.isKinematic = false;
         rb.useGravity = true;
 
-        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ | RigidbodyConstraints.FreezePositionZ;
+        defaultConstraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ | RigidbodyConstraints.FreezePositionZ;
+        rb.constraints = defaultConstraints;
 
         rb.interpolation = RigidbodyInterpolation.Interpolate;
         rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
@@ -229,6 +244,8 @@ public class Character : MonoBehaviour
 
     void Update()
     {
+        UpdateAttackState();
+
         if (Time.time - lastAttackTime > comboResetTime)
         {
             attackComboIndex = 0;
@@ -238,6 +255,8 @@ public class Character : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (isDead) return;
+
         ApplyHorizontalMovement();
 
         if (rb != null)
@@ -287,9 +306,6 @@ public class Character : MonoBehaviour
             foreach (ContactPoint c in collision.contacts)
                 if (Vector3.Dot(c.normal, Vector3.up) > 0.5f) { Land(); break; }
         }
-
-        if (collision.gameObject.CompareTag("Barrier"))
-            Die();
     }
 
     void OnCollisionStay(Collision collision)
@@ -301,26 +317,60 @@ public class Character : MonoBehaviour
         }
     }
 
+    void OnTriggerEnter(Collider other)
+    {
+        if (isDead) return;
+
+        if (other.gameObject.CompareTag("Barrier"))
+        {
+            Die();
+        }
+    }
+
     public void Die()
     {
         if (isDead) return;
         isDead = true;
+        queuedAttack = QueuedAttackType.None;
+        isAttacking = false;
+        isHurt = false;
+        isInvulnerable = true;
+        moveInput = Vector2.zero;
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.useGravity = false;
+            rb.constraints = RigidbodyConstraints.FreezeAll;
+        }
+        DeactivateAllHitboxes();
+        float deathAnimationDuration = TriggerDeathAnimationIfAvailable();
         ReproduceDeathClip();
-        StartCoroutine(DeathSequence());
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlayCharacterDeath();
+        }
+        StartCoroutine(DeathSequence(deathAnimationDuration));
     }
 
-    private IEnumerator DeathSequence()
+    private IEnumerator DeathSequence(float deathAnimationDuration)
     {
+        if (deathAnimationDuration > 0f)
+        {
+            yield return new WaitForSeconds(deathAnimationDuration);
+        }
+
         foreach (var r in GetComponentsInChildren<Renderer>()) r.enabled = false;
+
         if (owner != null)
+        {
             owner.HandleCharacterDeath(onRespawnReady: () => StartCoroutine(RespawnSequence()));
-        yield return new WaitForSeconds(0.5f);
-        if (MusicManager.Instance != null) MusicManager.Instance.PlayCharacterDeath();
+        }
     }
 
     private IEnumerator RespawnSequence()
     {
-        yield return new WaitForSeconds(2.5f);
+        yield return new WaitForSeconds(0.5f);
         Respawn();
     }
 
@@ -330,8 +380,20 @@ public class Character : MonoBehaviour
         isGrounded = true;
         jumpsRemaining = 2;
         isAttacking = false;
+        queuedAttack = QueuedAttackType.None;
         isHurt = false;
+        isInvulnerable = false;
         damageReceived = 0;
+        DeactivateAllHitboxes();
+        moveInput = Vector2.zero;
+
+        if (rb != null)
+        {
+            rb.useGravity = true;
+            rb.constraints = defaultConstraints;
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
 
         foreach (var r in GetComponentsInChildren<Renderer>()) r.enabled = true;
         if (owner != null) owner.SpawnCharacter(this);
@@ -353,6 +415,136 @@ public class Character : MonoBehaviour
         yield return new WaitForSeconds(invulnerabilityDuration);
         isHurt = false;
         isInvulnerable = false;
+    }
+
+    private float TriggerDeathAnimationIfAvailable()
+    {
+        if (animator == null || !HasAnimatorTrigger(PARAM_DEATH))
+        {
+            return 0f;
+        }
+
+        ClearAllTriggers();
+        animator.SetTrigger(PARAM_DEATH);
+
+        float deathDuration = GetAnimationClipLength("Death");
+        return deathDuration;
+    }
+
+    private void ExecuteAttack1()
+    {
+        ReproduceAttack1Clip();
+        lastAttackTime = Time.time;
+        isAttacking = true;
+        queuedAttack = QueuedAttackType.None;
+        DeactivateAllHitboxes();
+        ClearAllTriggers();
+
+        if (isGrounded)
+        {
+            animator.SetInteger(PARAM_ATTACK_COMBO, attackComboIndex);
+            animator.SetTrigger(PARAM_ATTACK1_GROUND);
+            attackComboIndex = attackComboIndex == 0 ? 1 : 0;
+        }
+        else
+        {
+            animator.SetTrigger(PARAM_ATTACK1_AIR);
+        }
+    }
+
+    private void ExecuteAttack2()
+    {
+        ReproduceAttack2Clip();
+        lastAttackTime = Time.time;
+        isAttacking = true;
+        queuedAttack = QueuedAttackType.None;
+        DeactivateAllHitboxes();
+        ClearAllTriggers();
+
+        if (isGrounded)
+        {
+            animator.SetInteger(PARAM_SPECIAL_COMBO, specialComboIndex);
+            animator.SetTrigger(PARAM_ATTACK2_GROUND);
+            specialComboIndex = specialComboIndex == 0 ? 1 : 0;
+        }
+        else
+        {
+            animator.SetTrigger(PARAM_ATTACK2_AIR);
+        }
+    }
+
+    private void UpdateAttackState()
+    {
+        if (animator == null) return;
+
+        AnimatorStateInfo currentState = animator.GetCurrentAnimatorStateInfo(0);
+        bool attackStateActive = IsAttackState(currentState);
+
+        if (!attackStateActive && animator.IsInTransition(0))
+        {
+            AnimatorStateInfo nextState = animator.GetNextAnimatorStateInfo(0);
+            attackStateActive = IsAttackState(nextState);
+        }
+
+        if (attackStateActive)
+        {
+            isAttacking = true;
+            return;
+        }
+
+        if (!isAttacking) return;
+
+        isAttacking = false;
+
+        if (queuedAttack == QueuedAttackType.Attack1)
+        {
+            ExecuteAttack1();
+        }
+        else if (queuedAttack == QueuedAttackType.Attack2)
+        {
+            ExecuteAttack2();
+        }
+    }
+
+    private static bool IsAttackState(AnimatorStateInfo stateInfo)
+    {
+        int stateHash = stateInfo.fullPathHash;
+        return stateHash == STATE_BASE_ATTACK_GROUND_1
+            || stateHash == STATE_BASE_ATTACK_GROUND_2
+            || stateHash == STATE_BASE_ATTACK_AIR
+            || stateHash == STATE_SPECIAL_ATTACK_GROUND_1
+            || stateHash == STATE_SPECIAL_ATTACK_GROUND_2
+            || stateHash == STATE_SPECIAL_ATTACK_AIR;
+    }
+
+    private bool HasAnimatorTrigger(int parameterHash)
+    {
+        if (animator == null) return false;
+
+        foreach (AnimatorControllerParameter parameter in animator.parameters)
+        {
+            if (parameter.nameHash == parameterHash && parameter.type == AnimatorControllerParameterType.Trigger)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private float GetAnimationClipLength(string clipName)
+    {
+        if (animator == null || animator.runtimeAnimatorController == null) return 0f;
+
+        foreach (AnimationClip clip in animator.runtimeAnimatorController.animationClips)
+        {
+            if (clip != null && clip.name == clipName)
+            {
+                return clip.length;
+            }
+        }
+
+        return 0f;
     }
 
     private void FaceDirection(int direction)
