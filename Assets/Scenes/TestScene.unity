@@ -119,17 +119,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!114 &18302644 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2875086749187684300, guid: 0b6c1a25bb50a429389832b6fdb8f2d7, type: 3}
-  m_PrefabInstance: {fileID: 482893485}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e4ca38d42b7894642a31a28459a63464, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RedHood
 --- !u!1 &161870803
 GameObject:
   m_ObjectHideFlags: 0
@@ -280,63 +269,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &482893485
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 1229094486557266302, guid: 0b6c1a25bb50a429389832b6fdb8f2d7, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -10
-      objectReference: {fileID: 0}
-    - target: {fileID: 1229094486557266302, guid: 0b6c1a25bb50a429389832b6fdb8f2d7, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.4999999
-      objectReference: {fileID: 0}
-    - target: {fileID: 1229094486557266302, guid: 0b6c1a25bb50a429389832b6fdb8f2d7, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0.18189503
-      objectReference: {fileID: 0}
-    - target: {fileID: 1229094486557266302, guid: 0b6c1a25bb50a429389832b6fdb8f2d7, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1229094486557266302, guid: 0b6c1a25bb50a429389832b6fdb8f2d7, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1229094486557266302, guid: 0b6c1a25bb50a429389832b6fdb8f2d7, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1229094486557266302, guid: 0b6c1a25bb50a429389832b6fdb8f2d7, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1229094486557266302, guid: 0b6c1a25bb50a429389832b6fdb8f2d7, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1229094486557266302, guid: 0b6c1a25bb50a429389832b6fdb8f2d7, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1229094486557266302, guid: 0b6c1a25bb50a429389832b6fdb8f2d7, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4165417100620128824, guid: 0b6c1a25bb50a429389832b6fdb8f2d7, type: 3}
-      propertyPath: m_Name
-      value: RedHood
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 0b6c1a25bb50a429389832b6fdb8f2d7, type: 3}
 --- !u!1 &795750627
 GameObject:
   m_ObjectHideFlags: 0
@@ -371,7 +303,7 @@ MonoBehaviour:
   playerSlot: 0
   spawnPoint: {fileID: 356343787}
   damageText: {fileID: 0}
-  character: {fileID: 18302644}
+  character: {fileID: 1251788423}
   lives: 3
 --- !u!4 &795750629
 Transform:
@@ -683,6 +615,74 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1251788422
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 469325181975475139, guid: 4e7a8fcaf53164b35828071bee8846fc, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -10
+      objectReference: {fileID: 0}
+    - target: {fileID: 469325181975475139, guid: 4e7a8fcaf53164b35828071bee8846fc, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 469325181975475139, guid: 4e7a8fcaf53164b35828071bee8846fc, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.39724174
+      objectReference: {fileID: 0}
+    - target: {fileID: 469325181975475139, guid: 4e7a8fcaf53164b35828071bee8846fc, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 469325181975475139, guid: 4e7a8fcaf53164b35828071bee8846fc, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 469325181975475139, guid: 4e7a8fcaf53164b35828071bee8846fc, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 469325181975475139, guid: 4e7a8fcaf53164b35828071bee8846fc, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 469325181975475139, guid: 4e7a8fcaf53164b35828071bee8846fc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 469325181975475139, guid: 4e7a8fcaf53164b35828071bee8846fc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 469325181975475139, guid: 4e7a8fcaf53164b35828071bee8846fc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 993237681401719161, guid: 4e7a8fcaf53164b35828071bee8846fc, type: 3}
+      propertyPath: m_Name
+      value: Batman
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4e7a8fcaf53164b35828071bee8846fc, type: 3}
+--- !u!114 &1251788423 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: -7480556011662419441, guid: 4e7a8fcaf53164b35828071bee8846fc, type: 3}
+  m_PrefabInstance: {fileID: 1251788422}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b443600ce0ed4f91977981d766184e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Batman
 --- !u!1001 &1686671795
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -751,5 +751,5 @@ SceneRoots:
   - {fileID: 1222124106}
   - {fileID: 795750629}
   - {fileID: 161870805}
-  - {fileID: 482893485}
   - {fileID: 306472775}
+  - {fileID: 1251788422}
