@@ -20,20 +20,34 @@ public class CharacterSelection : MonoBehaviour
     [System.Serializable]
     private class CharacterSlot
     {
+        public string characterName;
+        public Texture icon;
         public RawImage characterImage;
         public RawImage player1Marker;
         public RawImage player2Marker;
     }
 
+    [Header("Input")]
     [SerializeField] private PlayerInputBindings player1Input;
     [SerializeField] private PlayerInputBindings player2Input;
     [SerializeField] private InputActionReference backAction;
+
+    [Header("Slots")]
     [SerializeField] private CharacterSlot[] characterSlots = new CharacterSlot[4];
 
+    [Header("UI Text")]
     [SerializeField] private TextMeshProUGUI player1SelectText;
     [SerializeField] private TextMeshProUGUI player1DeselectText;
     [SerializeField] private TextMeshProUGUI player2SelectText;
     [SerializeField] private TextMeshProUGUI player2DeselectText;
+
+    [Header("Player 1 Preview")]
+    [SerializeField] private RawImage player1Icon;
+    [SerializeField] private TextMeshProUGUI player1Name;
+
+    [Header("Player 2 Preview")]
+    [SerializeField] private RawImage player2Icon;
+    [SerializeField] private TextMeshProUGUI player2Name;
 
     private Vector2Int player1Position = new Vector2Int(0, 0);
     private Vector2Int player2Position = new Vector2Int(1, 1);
@@ -61,10 +75,12 @@ public class CharacterSelection : MonoBehaviour
         BindAction(player2Input.right, OnPlayer2RightPerformed);
         BindAction(player2Input.select, OnPlayer2SelectPerformed);
         BindAction(player2Input.deselect, OnPlayer2DeselectPerformed);
+
         BindAction(backAction, OnBackPerformed);
 
         RefreshMarkers();
         UpdateUIText();
+        UpdatePlayerPreview();
     }
 
     private void OnDisable()
@@ -82,6 +98,7 @@ public class CharacterSelection : MonoBehaviour
         UnbindAction(player2Input.right, OnPlayer2RightPerformed);
         UnbindAction(player2Input.select, OnPlayer2SelectPerformed);
         UnbindAction(player2Input.deselect, OnPlayer2DeselectPerformed);
+
         UnbindAction(backAction, OnBackPerformed);
     }
 
@@ -213,6 +230,7 @@ public class CharacterSelection : MonoBehaviour
         currentPosition = nextPosition;
         MusicManager.Instance?.PlayMenuMove();
         RefreshMarkers();
+        UpdatePlayerPreview();
     }
 
     private void RegisterSelection()
@@ -230,9 +248,9 @@ public class CharacterSelection : MonoBehaviour
         if (slotIndex < 0 || slotIndex >= characterSlots.Length) return "None";
 
         CharacterSlot slot = characterSlots[slotIndex];
-        if (slot == null || slot.characterImage == null) return "None";
+        if (slot == null) return "None";
 
-        return slot.characterImage.name;
+        return slot.characterName;
     }
 
     private bool IsBlockedSelection(Vector2Int position, string playerLabel)
@@ -250,6 +268,7 @@ public class CharacterSelection : MonoBehaviour
 
         isTransitioning = true;
         int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
+
         if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
             SceneManager.LoadScene(nextSceneIndex);
         else
@@ -284,6 +303,38 @@ public class CharacterSelection : MonoBehaviour
 
         if (player2SelectText != null) player2SelectText.gameObject.SetActive(!player2Selected);
         if (player2DeselectText != null) player2DeselectText.gameObject.SetActive(player2Selected);
+    }
+
+    private void UpdatePlayerPreview()
+    {
+        UpdateSinglePreview(player1Position, player1Icon, player1Name);
+        UpdateSinglePreview(player2Position, player2Icon, player2Name);
+    }
+
+    private void UpdateSinglePreview(Vector2Int pos, RawImage icon, TextMeshProUGUI text)
+    {
+        if (icon == null || text == null) return;
+
+        int index = pos.y * 2 + pos.x;
+
+        if (index < 0 || index >= characterSlots.Length)
+        {
+            text.text = "None";
+            icon.texture = null;
+            return;
+        }
+
+        CharacterSlot slot = characterSlots[index];
+
+        if (slot == null)
+        {
+            text.text = "None";
+            icon.texture = null;
+            return;
+        }
+
+        text.text = slot.characterName;
+        icon.texture = slot.icon;
     }
 
     private void ValidateGameManager()

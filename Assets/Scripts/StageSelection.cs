@@ -2,10 +2,10 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 public class StageSelection : MonoBehaviour
 {
-
     [System.Serializable]
     private class PlayerInputBindings
     {
@@ -19,6 +19,8 @@ public class StageSelection : MonoBehaviour
     [System.Serializable]
     private class StageSlot
     {
+        public string stageName;
+        public Texture icon;
         public RawImage stageImage;
         public RawImage marker;
     }
@@ -27,8 +29,25 @@ public class StageSelection : MonoBehaviour
     [SerializeField] private InputActionReference backAction;
     [SerializeField] private StageSlot[] stageSlots = new StageSlot[4];
 
+    [SerializeField] private RawImage player1Icon;
+    [SerializeField] private RawImage player2Icon;
+    [SerializeField] private TextMeshProUGUI player1Name;
+    [SerializeField] private TextMeshProUGUI player2Name;
+
+    [SerializeField] private RawImage stagePreviewIcon;
+    [SerializeField] private TextMeshProUGUI stagePreviewName;
+
+    [SerializeField] private Texture batmanIcon;
+    [SerializeField] private Texture jokerIcon;
+    [SerializeField] private Texture redHoodIcon;
+
     private Vector2Int stagePosition = new Vector2Int(0, 0);
     private bool isTransitioning;
+
+    private void Awake()
+    {
+        ValidateGameManager();
+    }
 
     private void OnEnable()
     {
@@ -41,6 +60,8 @@ public class StageSelection : MonoBehaviour
 
         EnsureValidStartPosition();
         RefreshMarkers();
+        ApplyPlayerSelections();
+        UpdateStagePreview();
     }
 
     private void OnDisable()
@@ -53,29 +74,16 @@ public class StageSelection : MonoBehaviour
         UnbindAction(backAction, OnDeselectPerformed);
     }
 
-    private void Awake()
+    private static void BindAction(InputActionReference actionReference, System.Action<InputAction.CallbackContext> onPerformed)
     {
-        ValidateGameManager();
-    }
-
-    private static void BindAction(
-        InputActionReference actionReference,
-        System.Action<InputAction.CallbackContext> onPerformed)
-    {
-        if (actionReference == null || actionReference.action == null)
-            return;
-
+        if (actionReference == null || actionReference.action == null) return;
         actionReference.action.performed += onPerformed;
         actionReference.action.Enable();
     }
 
-    private static void UnbindAction(
-        InputActionReference actionReference,
-        System.Action<InputAction.CallbackContext> onPerformed)
+    private static void UnbindAction(InputActionReference actionReference, System.Action<InputAction.CallbackContext> onPerformed)
     {
-        if (actionReference == null || actionReference.action == null)
-            return;
-
+        if (actionReference == null || actionReference.action == null) return;
         actionReference.action.performed -= onPerformed;
     }
 
@@ -110,7 +118,6 @@ public class StageSelection : MonoBehaviour
             GameManager.Instance.SetStageSelection(stageName);
 
         MusicManager.Instance?.PlayMenuSelect();
-        Debug.Log($"Stage selected: {stageName}");
 
         isTransitioning = true;
 
@@ -122,7 +129,7 @@ public class StageSelection : MonoBehaviour
         else
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 2);
-        }    
+        }
     }
 
     private void OnDeselectPerformed(InputAction.CallbackContext context)
@@ -158,6 +165,29 @@ public class StageSelection : MonoBehaviour
         stagePosition = nextPosition;
         MusicManager.Instance?.PlayMenuMove();
         RefreshMarkers();
+        UpdateStagePreview();
+    }
+
+    private void UpdateStagePreview()
+    {
+        int index = stagePosition.y * 2 + stagePosition.x;
+
+        if (index < 0 || index >= stageSlots.Length) return;
+
+        StageSlot slot = stageSlots[index];
+
+        if (slot == null)
+        {
+            if (stagePreviewName != null) stagePreviewName.text = "None";
+            if (stagePreviewIcon != null) stagePreviewIcon.texture = null;
+            return;
+        }
+
+        if (stagePreviewName != null)
+            stagePreviewName.text = slot.stageName;
+
+        if (stagePreviewIcon != null)
+            stagePreviewIcon.texture = slot.icon;
     }
 
     private void EnsureValidStartPosition()
@@ -189,17 +219,12 @@ public class StageSelection : MonoBehaviour
 
     private string GetStageName(Vector2Int position)
     {
-        int slotIndex = GetSlotIndex(position);
+        int index = position.y * 2 + position.x;
 
-        if (slotIndex < 0 || slotIndex >= stageSlots.Length)
-            return "None";
+        if (index < 0 || index >= stageSlots.Length) return "None";
 
-        StageSlot slot = stageSlots[slotIndex];
-
-        if (slot == null || slot.stageImage == null)
-            return "None";
-
-        return slot.stageImage.name;
+        StageSlot slot = stageSlots[index];
+        return slot != null ? slot.stageName : "None";
     }
 
     private void RefreshMarkers()
@@ -226,6 +251,39 @@ public class StageSelection : MonoBehaviour
     private static int GetSlotIndex(Vector2Int position)
     {
         return position.y * 2 + position.x;
+    }
+
+    private void ApplyPlayerSelections()
+    {
+        if (GameManager.Instance == null) return;
+
+        ApplySingle(GameManager.Instance.GetPlayer1Selection(), player1Icon, player1Name);
+        ApplySingle(GameManager.Instance.GetPlayer2Selection(), player2Icon, player2Name);
+    }
+
+    private void ApplySingle(string selection, RawImage icon, TextMeshProUGUI text)
+    {
+        if (text != null)
+            text.text = selection;
+
+        if (icon == null)
+            return;
+
+        switch (selection)
+        {
+            case "Batman":
+                icon.texture = batmanIcon;
+                break;
+            case "Joker":
+                icon.texture = jokerIcon;
+                break;
+            case "RedHood":
+                icon.texture = redHoodIcon;
+                break;
+            default:
+                icon.texture = null;
+                break;
+        }
     }
 
     private void ValidateGameManager()
