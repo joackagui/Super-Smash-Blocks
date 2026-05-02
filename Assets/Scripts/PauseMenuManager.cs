@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
+using TMPro;
 
 public class PauseMenuManager : MonoBehaviour
 {
@@ -9,9 +11,14 @@ public class PauseMenuManager : MonoBehaviour
     [Header("UI")]
     [SerializeField] private GameObject pausePanel;
     [SerializeField] private GameObject hudObject;
+    [SerializeField] private Button[] buttons;
+    [SerializeField] private TextMeshProUGUI[] buttonTexts;
 
     [Header("Scenes")]
     [SerializeField] private int mainMenuSceneIndex = 0;
+
+    private int currentIndex;
+    private float blinkSpeed = 5f;
 
     private void Start()
     {
@@ -34,6 +41,30 @@ public class PauseMenuManager : MonoBehaviour
             if (IsPaused) ResumeGame();
             else PauseGame();
         }
+
+        if (!IsPaused) return;
+
+        if (Keyboard.current.wKey.wasPressedThisFrame)
+        {
+            currentIndex--;
+            if (currentIndex < 0) currentIndex = buttons.Length - 1;
+            UpdateSelection();
+        }
+
+        if (Keyboard.current.sKey.wasPressedThisFrame)
+        {
+            currentIndex++;
+            if (currentIndex >= buttons.Length) currentIndex = 0;
+            UpdateSelection();
+        }
+
+        if (Keyboard.current.enterKey.wasPressedThisFrame)
+        {
+            Debug.Log("ENTER en índice: " + currentIndex + " -> " + buttons[currentIndex].name);
+            buttons[currentIndex].onClick.Invoke();
+        }
+
+        HandleBlink();
     }
 
     public void PauseGame()
@@ -46,6 +77,44 @@ public class PauseMenuManager : MonoBehaviour
 
         Time.timeScale = 0f;
         IsPaused = true;
+
+        currentIndex = 1;
+        UpdateSelection();
+    }
+
+    private void UpdateSelection()
+    {
+        for (int i = 0; i < buttons.Length; i++)
+        {
+            if (i == currentIndex)
+            {
+                buttons[i].Select();
+                Debug.Log("Seleccionando índice: " + i + " -> " + buttons[i].name);
+            }
+
+            if (buttonTexts[i] != null)
+            {
+                buttonTexts[i].alpha = 1f;
+            }
+        }
+    }
+
+    private void HandleBlink()
+    {
+        for (int i = 0; i < buttonTexts.Length; i++)
+        {
+            if (buttonTexts[i] == null) continue;
+
+            if (i == currentIndex)
+            {
+                float alpha = (Mathf.Sin(Time.unscaledTime * blinkSpeed) + 1f) / 2f;
+                buttonTexts[i].alpha = alpha;
+            }
+            else
+            {
+                buttonTexts[i].alpha = 1f;
+            }
+        }
     }
 
     public void ResumeGame()
@@ -62,11 +131,13 @@ public class PauseMenuManager : MonoBehaviour
 
     public void OnReturnButton()
     {
+        Debug.Log("Se ejecutó RETURN");
         ResumeGame();
     }
 
     public void OnBackToMenuButton()
     {
+        Debug.Log("Se ejecutó BACK TO MENU");
         ResumeGame();
         SceneManager.LoadScene(mainMenuSceneIndex);
     }
