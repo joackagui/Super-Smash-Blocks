@@ -19,13 +19,13 @@ public class Character : MonoBehaviour
     private float damageReceived = 0;
     private bool isWalking = false;
     private bool isGrounded = true;
-    private bool isJumping = false;
     private int jumpsRemaining = 2;
     private bool isAttacking = false;
     private bool isHurt = false;
     private bool isInvulnerable = false;
+    [SerializeField] private float dodgeInvulnerabilityFallbackDuration = 0.5f;
+    [SerializeField] private float respawnInvulnerabilityDuration = 1.5f;
     private float invulnerabilityDuration = 1.5f;
-    private float invulnerabilityTimer = 0f;
 
     public AudioClip hurtClip;
     public AudioClip attack1Clip;
@@ -54,6 +54,7 @@ public class Character : MonoBehaviour
     private static readonly int PARAM_SPECIAL_COMBO   = Animator.StringToHash("specialComboIndex");
     private static readonly int PARAM_JUMP1           = Animator.StringToHash("Jump1");
     private static readonly int PARAM_JUMP2           = Animator.StringToHash("Jump2");
+    private static readonly int PARAM_NEEDS_LANDING   = Animator.StringToHash("needsLanding");
     private static readonly int PARAM_ATTACK1_GROUND  = Animator.StringToHash("Attack1Ground");
     private static readonly int PARAM_ATTACK1_AIR     = Animator.StringToHash("Attack1Air");
     private static readonly int PARAM_ATTACK2_GROUND  = Animator.StringToHash("Attack2Ground");
@@ -67,8 +68,12 @@ public class Character : MonoBehaviour
     private static readonly int STATE_SPECIAL_ATTACK_GROUND_1 = Animator.StringToHash("Base Layer.SpecialAttackGround1");
     private static readonly int STATE_SPECIAL_ATTACK_GROUND_2 = Animator.StringToHash("Base Layer.SpecialAttackGround2");
     private static readonly int STATE_SPECIAL_ATTACK_AIR      = Animator.StringToHash("Base Layer.SpecialAttackAir");
+    private static readonly int STATE_LANDING              = Animator.StringToHash("Base Layer.Landing");
     private static readonly int STATE_DEATH                = Animator.StringToHash("Base Layer.Death");
+    private const string GROUND_DODGE_CLIP_NAME = "GroundDodge";
+    private const string AIR_DODGE_CLIP_NAME = "AirDodge";
     private Hitbox[] hitboxes;
+    private Coroutine timedInvulnerabilityRoutine;
 
     public void SetOwner(Player player) { owner = player; }
 
@@ -93,15 +98,19 @@ public class Character : MonoBehaviour
         if (isGrounded || jumpsRemaining > 0)
         {
             ReproduceJumpClip();
-            isJumping = true;
             isGrounded = false;
 
             ClearAllTriggers();
 
             if (jumpsRemaining == 2)
+            {
                 animator.SetTrigger(PARAM_JUMP1);
+            }
             else if (jumpsRemaining == 1)
+            {
                 animator.SetTrigger(PARAM_JUMP2);
+                animator.SetBool(PARAM_NEEDS_LANDING, true);
+            }
 
             jumpsRemaining--;
 
@@ -147,7 +156,7 @@ public class Character : MonoBehaviour
         ReproduceHurtClip();
         damageReceived += dmg;
         isHurt = true;
-        isInvulnerable = true;
+        // isInvulnerable = true;
         ClearAllTriggers();
         animator.SetTrigger(PARAM_HURT);
 
@@ -169,8 +178,8 @@ public class Character : MonoBehaviour
         float directionX = transform.position.x - attackerPosition.x;
         directionX = directionX >= 0f ? 1f : -1f;
 
-        float force = 0.25f * damageReceived;
-        float angle = 30f * Mathf.Deg2Rad;
+        float force = 0.2f * damageReceived;
+        float angle = 45f * Mathf.Deg2Rad;
 
         Vector3 knockbackDirection = new Vector3(
             Mathf.Cos(angle) * directionX,
@@ -185,11 +194,14 @@ public class Character : MonoBehaviour
 
     public virtual void Dodge()
     {
+        if (isDead || animator == null) return;
+
         queuedAttack = QueuedAttackType.None;
         isAttacking = false;
         DeactivateAllHitboxes();
         ClearAllTriggers();
         animator.SetTrigger(PARAM_DODGE);
+        StartTimedInvulnerability(GetDodgeInvulnerabilityDuration());
     }
 
     private void ClearAllTriggers()
@@ -245,6 +257,7 @@ public class Character : MonoBehaviour
     void Update()
     {
         UpdateAttackState();
+        UpdateLandingState();
 
         if (Time.time - lastAttackTime > comboResetTime)
         {
@@ -331,6 +344,7 @@ public class Character : MonoBehaviour
     {
         if (isDead) return;
         isDead = true;
+        CancelTimedInvulnerability();
         queuedAttack = QueuedAttackType.None;
         isAttacking = false;
         isHurt = false;
@@ -382,10 +396,12 @@ public class Character : MonoBehaviour
         isAttacking = false;
         queuedAttack = QueuedAttackType.None;
         isHurt = false;
-        isInvulnerable = false;
+        isInvulnerable = true;
         damageReceived = 0;
         DeactivateAllHitboxes();
         moveInput = Vector2.zero;
+
+        animator.SetBool(PARAM_NEEDS_LANDING, false);
 
         if (rb != null)
         {
@@ -398,6 +414,7 @@ public class Character : MonoBehaviour
         foreach (var r in GetComponentsInChildren<Renderer>()) r.enabled = true;
         if (owner != null) owner.SpawnCharacter(this);
         if (MusicManager.Instance != null) MusicManager.Instance.PlayCharacterRespawn();
+        StartTimedInvulnerability(respawnInvulnerabilityDuration);
     }
 
     private void ApplyHorizontalMovement()
@@ -414,7 +431,7 @@ public class Character : MonoBehaviour
     {
         yield return new WaitForSeconds(invulnerabilityDuration);
         isHurt = false;
-        isInvulnerable = false;
+        // isInvulnerable = false;
     }
 
     private float TriggerDeathAnimationIfAvailable()
@@ -517,6 +534,26 @@ public class Character : MonoBehaviour
             || stateHash == STATE_SPECIAL_ATTACK_AIR;
     }
 
+    private void UpdateLandingState()
+    {
+        if (animator == null || !animator.GetBool(PARAM_NEEDS_LANDING)) return;
+
+        AnimatorStateInfo currentState = animator.GetCurrentAnimatorStateInfo(0);
+        if (currentState.fullPathHash == STATE_LANDING)
+        {
+            animator.SetBool(PARAM_NEEDS_LANDING, false);
+            return;
+        }
+
+        if (!animator.IsInTransition(0)) return;
+
+        AnimatorStateInfo nextState = animator.GetNextAnimatorStateInfo(0);
+        if (nextState.fullPathHash == STATE_LANDING)
+        {
+            animator.SetBool(PARAM_NEEDS_LANDING, false);
+        }
+    }
+
     private bool HasAnimatorTrigger(int parameterHash)
     {
         if (animator == null) return false;
@@ -547,6 +584,35 @@ public class Character : MonoBehaviour
         return 0f;
     }
 
+    private float GetDodgeInvulnerabilityDuration()
+    {
+        float clipLength = GetAnimationClipLength(isGrounded ? GROUND_DODGE_CLIP_NAME : AIR_DODGE_CLIP_NAME);
+        return clipLength > 0f ? clipLength : dodgeInvulnerabilityFallbackDuration;
+    }
+
+    private void StartTimedInvulnerability(float duration)
+    {
+        CancelTimedInvulnerability();
+        isInvulnerable = true;
+        timedInvulnerabilityRoutine = StartCoroutine(EndInvulnerabilityAfter(duration));
+    }
+
+    private void CancelTimedInvulnerability()
+    {
+        if (timedInvulnerabilityRoutine != null)
+        {
+            StopCoroutine(timedInvulnerabilityRoutine);
+            timedInvulnerabilityRoutine = null;
+        }
+    }
+
+    private IEnumerator EndInvulnerabilityAfter(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        isInvulnerable = false;
+        timedInvulnerabilityRoutine = null;
+    }
+
     private void FaceDirection(int direction)
     {
         if (facingDirection == direction) return;
@@ -559,7 +625,6 @@ public class Character : MonoBehaviour
 
     void Land()
     {
-        isJumping = false;
         isGrounded = true;
         jumpsRemaining = 2;
     }
