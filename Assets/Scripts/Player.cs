@@ -205,6 +205,11 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
+        if (PauseMenuManager.IsPaused)
+        {
+            return;
+        }
+
         RefreshDamageText();
 
         if (character == null)
