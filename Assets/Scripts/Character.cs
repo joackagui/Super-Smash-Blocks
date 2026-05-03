@@ -25,7 +25,12 @@ public class Character : MonoBehaviour
     private bool isInvulnerable = false;
     [SerializeField] private float dodgeInvulnerabilityFallbackDuration = 0.5f;
     [SerializeField] private float respawnInvulnerabilityDuration = 1.5f;
-    private float invulnerabilityDuration = 1.5f;
+    // private float invulnerabilityDuration = 1.5f;
+    [Header("Hurt Animation")]
+    [SerializeField] private float hurtDurationPerDamage = 0.1f;
+    [SerializeField] private float minHurtDuration = 0.01f;
+    [SerializeField] private float maxHurtDuration = 2.0f;
+    private float previousAnimatorSpeed = 1f;
 
     public AudioClip hurtClip;
     public AudioClip attack1Clip;
@@ -74,6 +79,7 @@ public class Character : MonoBehaviour
     private const string AIR_DODGE_CLIP_NAME = "AirDodge";
     private Hitbox[] hitboxes;
     private Coroutine timedInvulnerabilityRoutine;
+    private Coroutine hurtRecoveryRoutine;
 
     public void SetOwner(Player player) { owner = player; }
 
@@ -163,7 +169,24 @@ public class Character : MonoBehaviour
         Debug.Log($"[{gameObject.name}] TakeDamage: +{dmg} | damageReceived total: {damageReceived}");
 
         ApplyKnockback(attackerPosition);
-        StartCoroutine(HurtRecoverySequence());
+
+        float hurtDuration = Mathf.Clamp(dmg * hurtDurationPerDamage, minHurtDuration, maxHurtDuration);
+        if (animator != null)
+        {
+            float clipLen = GetAnimationClipLength("Hurt");
+            if (clipLen > 0f && hurtDuration > 0f)
+            {
+                previousAnimatorSpeed = animator.speed;
+                animator.speed = clipLen / hurtDuration;
+            }
+        }
+
+        if (hurtRecoveryRoutine != null)
+        {
+            StopCoroutine(hurtRecoveryRoutine);
+            hurtRecoveryRoutine = null;
+        }
+        hurtRecoveryRoutine = StartCoroutine(HurtRecoverySequence(hurtDuration));
     }
 
     public float GetDamageReceived()
@@ -427,11 +450,14 @@ public class Character : MonoBehaviour
         rb.linearVelocity = vel;
     }
 
-    private IEnumerator HurtRecoverySequence()
+    private IEnumerator HurtRecoverySequence(float duration)
     {
-        yield return new WaitForSeconds(invulnerabilityDuration);
+        yield return new WaitForSeconds(duration);
         isHurt = false;
+        if (animator != null)
+            animator.speed = previousAnimatorSpeed;
         // isInvulnerable = false;
+        hurtRecoveryRoutine = null;
     }
 
     private float TriggerDeathAnimationIfAvailable()
