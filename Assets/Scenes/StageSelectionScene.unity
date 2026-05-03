@@ -202,6 +202,7 @@ GameObject:
   - component: {fileID: 307631753}
   - component: {fileID: 307631755}
   - component: {fileID: 307631754}
+  - component: {fileID: 307631756}
   m_Layer: 5
   m_Name: Player1Name
   m_TagString: Untagged
@@ -328,6 +329,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 307631752}
   m_CullTransparentMesh: 1
+--- !u!114 &307631756
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 307631752}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c327cb24d929f56499401bd53f55c246, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlinkText
+  text: {fileID: 307631754}
+  blinkSpeed: 1
 --- !u!1 &640618112
 GameObject:
   m_ObjectHideFlags: 0
@@ -471,15 +486,15 @@ MonoBehaviour:
     icon: {fileID: 2800000, guid: b8da0cc1268f7409ea6485f6ffd145dd, type: 3}
     stageImage: {fileID: 1151911975}
     marker: {fileID: 1945894050}
-  - stageName: Arkham Asylum
+  - stageName: ArkhamAsylum
     icon: {fileID: 2800000, guid: b24cc76ddabd5474799bb67606e1b628, type: 3}
     stageImage: {fileID: 1236875538}
     marker: {fileID: 1007775399}
-  - stageName: ACE Chemicals
+  - stageName: ACE
     icon: {fileID: 2800000, guid: d65324abf6edff0459a62af7a4c58f1c, type: 3}
     stageImage: {fileID: 1212272563}
     marker: {fileID: 1471438121}
-  - stageName: Joker's Funhouse
+  - stageName: Funhouse
     icon: {fileID: 2800000, guid: 85758b6099df12e46a3c729d4ffb09af, type: 3}
     stageImage: {fileID: 228597622}
     marker: {fileID: 1870529183}
@@ -819,6 +834,7 @@ GameObject:
   - component: {fileID: 1127177520}
   - component: {fileID: 1127177522}
   - component: {fileID: 1127177521}
+  - component: {fileID: 1127177523}
   m_Layer: 5
   m_Name: Player2Name
   m_TagString: Untagged
@@ -945,6 +961,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1127177519}
   m_CullTransparentMesh: 1
+--- !u!114 &1127177523
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1127177519}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c327cb24d929f56499401bd53f55c246, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlinkText
+  text: {fileID: 1127177521}
+  blinkSpeed: 1
 --- !u!1 &1146683411
 GameObject:
   m_ObjectHideFlags: 0
@@ -1319,6 +1349,7 @@ GameObject:
   - component: {fileID: 1523541242}
   - component: {fileID: 1523541241}
   - component: {fileID: 1523541240}
+  - component: {fileID: 1523541243}
   m_Layer: 5
   m_Name: StageName
   m_TagString: Untagged
@@ -1445,6 +1476,20 @@ RectTransform:
   m_AnchoredPosition: {x: 300, y: -325}
   m_SizeDelta: {x: 350, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1523541243
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1523541239}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c327cb24d929f56499401bd53f55c246, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlinkText
+  text: {fileID: 1523541240}
+  blinkSpeed: 1
 --- !u!1 &1544772398
 GameObject:
   m_ObjectHideFlags: 0

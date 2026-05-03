@@ -8,13 +8,11 @@ public class PauseMenuManager : MonoBehaviour
 {
     public static bool IsPaused { get; private set; }
 
-    [Header("UI")]
     [SerializeField] private GameObject pausePanel;
     [SerializeField] private GameObject hudObject;
     [SerializeField] private Button[] buttons;
     [SerializeField] private TextMeshProUGUI[] buttonTexts;
 
-    [Header("Scenes")]
     [SerializeField] private int mainMenuSceneIndex = 0;
 
     private int currentIndex;
@@ -42,12 +40,15 @@ public class PauseMenuManager : MonoBehaviour
             else PauseGame();
         }
 
-        if (!IsPaused) return;
+        if (!IsPaused)
+            return;
 
         if (Keyboard.current.wKey.wasPressedThisFrame)
         {
             currentIndex--;
             if (currentIndex < 0) currentIndex = buttons.Length - 1;
+
+            MusicManager.Instance?.PlayMenuMove();
             UpdateSelection();
         }
 
@@ -55,12 +56,14 @@ public class PauseMenuManager : MonoBehaviour
         {
             currentIndex++;
             if (currentIndex >= buttons.Length) currentIndex = 0;
+
+            MusicManager.Instance?.PlayMenuMove();
             UpdateSelection();
         }
 
         if (Keyboard.current.enterKey.wasPressedThisFrame)
         {
-            Debug.Log("ENTER en índice: " + currentIndex + " -> " + buttons[currentIndex].name);
+            MusicManager.Instance?.PlayMenuSelect();
             buttons[currentIndex].onClick.Invoke();
         }
 
@@ -78,6 +81,8 @@ public class PauseMenuManager : MonoBehaviour
         Time.timeScale = 0f;
         IsPaused = true;
 
+        MusicManager.Instance?.PlayMenuSelect();
+
         currentIndex = 1;
         UpdateSelection();
     }
@@ -87,15 +92,10 @@ public class PauseMenuManager : MonoBehaviour
         for (int i = 0; i < buttons.Length; i++)
         {
             if (i == currentIndex)
-            {
                 buttons[i].Select();
-                Debug.Log("Seleccionando índice: " + i + " -> " + buttons[i].name);
-            }
 
             if (buttonTexts[i] != null)
-            {
                 buttonTexts[i].alpha = 1f;
-            }
         }
     }
 
@@ -131,13 +131,11 @@ public class PauseMenuManager : MonoBehaviour
 
     public void OnReturnButton()
     {
-        Debug.Log("Se ejecutó RETURN");
         ResumeGame();
     }
 
     public void OnBackToMenuButton()
     {
-        Debug.Log("Se ejecutó BACK TO MENU");
         ResumeGame();
         SceneManager.LoadScene(mainMenuSceneIndex);
     }
