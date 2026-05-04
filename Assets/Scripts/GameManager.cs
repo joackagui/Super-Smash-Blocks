@@ -290,11 +290,7 @@ public class GameManager : MonoBehaviour
 
         Character character = CreateCharacter(selection, spawnPosition, spawnRotation);
 
-        if (character == null)
-        {
-            Debug.LogWarning($"{name}: No character prefab found for selection '{selection}'.");
-            return;
-        }
+        if (character == null) return;
 
         player.SetCharacter(character);
     }
