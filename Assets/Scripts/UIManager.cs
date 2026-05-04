@@ -44,6 +44,11 @@ public class UIManager : MonoBehaviour
 
     private bool isLoadingMainMenu;
 
+    private void Awake()
+    {
+        ValidateGameManager();
+    }
+
     private void OnEnable()
     {
         if (SceneManager.GetActiveScene().name != "FightScene")
@@ -57,17 +62,10 @@ public class UIManager : MonoBehaviour
         UnbindAction(returnToMainMenuAction, OnReturnToMainMenuPerformed);
     }
 
-    private void Awake()
-    {
-        ValidateGameManager();
-    }
-
     private void Start()
     {
         if (stageImage == null)
-        {
             stageImage = GetComponent<RawImage>();
-        }
 
         ApplyStageBackground();
         ApplyPlatformColor();
@@ -78,9 +76,7 @@ public class UIManager : MonoBehaviour
     private static void BindAction(InputActionReference actionReference, System.Action<InputAction.CallbackContext> onPerformed)
     {
         if (actionReference == null || actionReference.action == null)
-        {
             return;
-        }
 
         actionReference.action.performed += onPerformed;
         actionReference.action.Enable();
@@ -89,9 +85,7 @@ public class UIManager : MonoBehaviour
     private static void UnbindAction(InputActionReference actionReference, System.Action<InputAction.CallbackContext> onPerformed)
     {
         if (actionReference == null || actionReference.action == null)
-        {
             return;
-        }
 
         actionReference.action.performed -= onPerformed;
     }
@@ -99,22 +93,27 @@ public class UIManager : MonoBehaviour
     private void ApplyStageBackground()
     {
         if (stageImage == null)
-        {
             return;
-        }
 
         string stageSelection = GameManager.Instance != null ? GameManager.Instance.GetStageSelection() : "None";
+        stageSelection = Normalize(stageSelection);
+
+        Debug.Log("Stage seleccionado en GameManager: " + stageSelection);
 
         Texture selectedTexture = defaultBackground;
 
-        for (int i = 0; i < stageBackgrounds.Length; i++)
+        if (stageBackgrounds != null)
         {
-            if (stageBackgrounds[i] == null) continue;
-
-            if (stageBackgrounds[i].stageName == stageSelection)
+            for (int i = 0; i < stageBackgrounds.Length; i++)
             {
-                selectedTexture = stageBackgrounds[i].texture;
-                break;
+                if (stageBackgrounds[i] == null)
+                    continue;
+
+                if (Normalize(stageBackgrounds[i].stageName) == stageSelection)
+                {
+                    selectedTexture = stageBackgrounds[i].texture;
+                    break;
+                }
             }
         }
 
@@ -124,28 +123,32 @@ public class UIManager : MonoBehaviour
     private void ApplyPlatformColor()
     {
         if (platforms == null || platforms.Length == 0)
-        {
             return;
-        }
 
         string stageSelection = GameManager.Instance != null ? GameManager.Instance.GetStageSelection() : "None";
+        stageSelection = Normalize(stageSelection);
 
         Color selectedColor = Color.white;
 
-        for (int i = 0; i < stageColors.Length; i++)
+        if (stageColors != null)
         {
-            if (stageColors[i] == null) continue;
-
-            if (stageColors[i].stageName == stageSelection)
+            for (int i = 0; i < stageColors.Length; i++)
             {
-                selectedColor = stageColors[i].color;
-                break;
+                if (stageColors[i] == null)
+                    continue;
+
+                if (Normalize(stageColors[i].stageName) == stageSelection)
+                {
+                    selectedColor = stageColors[i].color;
+                    break;
+                }
             }
         }
 
         for (int i = 0; i < platforms.Length; i++)
         {
-            if (platforms[i] == null) continue;
+            if (platforms[i] == null)
+                continue;
 
             Material[] mats = platforms[i].materials;
 
@@ -159,9 +162,7 @@ public class UIManager : MonoBehaviour
     private void ApplyCharacterImages()
     {
         if (GameManager.Instance == null)
-        {
             return;
-        }
 
         ApplySingleCharacterImage(player1CharacterImage, GameManager.Instance.GetPlayer1Selection());
         ApplySingleCharacterImage(player2CharacterImage, GameManager.Instance.GetPlayer2Selection());
@@ -170,9 +171,7 @@ public class UIManager : MonoBehaviour
     private void ApplySingleCharacterImage(RawImage target, string selection)
     {
         if (target == null)
-        {
             return;
-        }
 
         if (selection == "Batman")
         {
@@ -191,9 +190,7 @@ public class UIManager : MonoBehaviour
     public void RefreshAllHearts()
     {
         if (GameManager.Instance == null)
-        {
             return;
-        }
 
         Player p1 = GameManager.Instance.GetPlayer1();
         Player p2 = GameManager.Instance.GetPlayer2();
@@ -207,9 +204,7 @@ public class UIManager : MonoBehaviour
         RawImage[] hearts = slot == Player.PlayerSlot.Player1 ? player1Hearts : player2Hearts;
 
         if (hearts == null || hearts.Length == 0)
-        {
             return;
-        }
 
         int max = hearts.Length;
         int active = Mathf.Clamp(lives, 0, max);
@@ -217,9 +212,7 @@ public class UIManager : MonoBehaviour
         for (int i = 0; i < max; i++)
         {
             if (hearts[i] != null)
-            {
                 hearts[i].gameObject.SetActive(true);
-            }
         }
 
         for (int i = active; i < max; i++)
@@ -227,32 +220,22 @@ public class UIManager : MonoBehaviour
             int index;
 
             if (slot == Player.PlayerSlot.Player1)
-            {
                 index = max - 1 - (i - active);
-            }
             else
-            {
                 index = i - active;
-            }
 
             if (index >= 0 && index < hearts.Length && hearts[index] != null)
-            {
                 hearts[index].gameObject.SetActive(false);
-            }
         }
     }
 
     private void OnReturnToMainMenuPerformed(InputAction.CallbackContext context)
     {
         if (SceneManager.GetActiveScene().name == "FightScene")
-        {
             return;
-        }
 
         if (isLoadingMainMenu)
-        {
             return;
-        }
 
         isLoadingMainMenu = true;
         SceneManager.LoadScene(0);
@@ -264,5 +247,10 @@ public class UIManager : MonoBehaviour
         {
             SceneManager.LoadScene(0);
         }
+    }
+
+    private string Normalize(string value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? "None" : value.Trim();
     }
 }
