@@ -220,6 +220,11 @@ public class Player : MonoBehaviour
         Vector2 move = ReadMovement();
         character.Move(move);
 
+        if (!character.CanAcceptActions)
+        {
+            return;
+        }
+
         if (jumpAction != null && jumpAction.triggered)
         {
             character.Jump();

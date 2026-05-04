@@ -64,6 +64,8 @@ public class Hitbox : MonoBehaviour
 
         if (target == null) return;
         if (target == ownerCharacter) return;
+        if (!ownerCharacter.IsAttackAnimationActive()) return;
+        if (!CanHitTarget(target)) return;
 
         if (hitTargets.Contains(target)) return;
 
@@ -71,6 +73,63 @@ public class Hitbox : MonoBehaviour
 
         float damage = hitboxType == HitboxType.Hand ? HAND_DAMAGE : FOOT_DAMAGE;
         target.TakeDamage(damage, ownerCharacter.transform.position);
+    }
+
+    private bool CanHitTarget(Character target)
+    {
+        if (target == null || ownerCharacter == null)
+        {
+            return false;
+        }
+
+        Collider targetCollider = target.GetComponent<Collider>();
+        if (targetCollider == null)
+        {
+            targetCollider = target.GetComponentInChildren<Collider>();
+        }
+
+        if (targetCollider == null)
+        {
+            return false;
+        }
+
+        Vector3 origin = ownerCharacter.transform.position + Vector3.up * 0.75f;
+        Vector3 targetPoint = targetCollider.bounds.center;
+        Vector3 toTarget = targetPoint - origin;
+
+        float distance = toTarget.magnitude;
+        if (distance <= 0.001f)
+        {
+            return false;
+        }
+
+        Vector3 direction = toTarget / distance;
+        if (Vector3.Dot(ownerCharacter.transform.forward, direction) <= 0.35f)
+        {
+            return false;
+        }
+
+        RaycastHit[] hits = Physics.RaycastAll(
+            origin,
+            direction,
+            distance,
+            Physics.AllLayers,
+            QueryTriggerInteraction.Collide
+        );
+
+        float closestDistance = float.MaxValue;
+        Character closestCharacter = null;
+
+        foreach (RaycastHit hit in hits)
+        {
+            if (hit.distance < closestDistance)
+            {
+                closestDistance = hit.distance;
+                closestCharacter = hit.collider.GetComponentInParent<Character>();
+            }
+        }
+
+        return closestCharacter == target;
     }
 
     private void DetectOverlappingTargets()

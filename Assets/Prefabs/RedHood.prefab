@@ -500,8 +500,8 @@ MonoBehaviour:
   minHurtDuration: 0.05
   maxHurtDuration: 1
   hurtClip: {fileID: 8300000, guid: ebea8cfd366a340a18ad1ec4422af771, type: 3}
-  attack1Clip: {fileID: 8300000, guid: 4bafd34176d3a48a8bd2453c30873b70, type: 3}
-  attack2Clip: {fileID: 8300000, guid: 65c669ff27ca54cdbb4d821da9c36a0f, type: 3}
+  attack1Clip: {fileID: 8300000, guid: 65c669ff27ca54cdbb4d821da9c36a0f, type: 3}
+  attack2Clip: {fileID: 8300000, guid: 4bafd34176d3a48a8bd2453c30873b70, type: 3}
   jumpClip: {fileID: 8300000, guid: 59490852bd44c494fa39e37c664c4ef0, type: 3}
   deathClip: {fileID: 8300000, guid: 705fec02ca67a411e9ad74fb294133bd, type: 3}
 --- !u!54 &6743990722106017405

@@ -23,6 +23,8 @@ public class Character : MonoBehaviour
     private bool isAttacking = false;
     private bool isHurt = false;
     private bool isInvulnerable = false;
+    private bool isKnockbackTrajectoryActive = false;
+    private bool isKnockbackControlLocked = false;
     [SerializeField] private float dodgeInvulnerabilityFallbackDuration = 0.5f;
     [SerializeField] private float respawnInvulnerabilityDuration = 1.5f;
     [Header("Hurt Animation")]
@@ -82,6 +84,30 @@ public class Character : MonoBehaviour
 
     public void SetOwner(Player player) { owner = player; }
 
+    public bool CanAcceptActions => !isDead && !isKnockbackControlLocked;
+
+    public bool IsAttackAnimationActive()
+    {
+        if (animator == null)
+        {
+            return false;
+        }
+
+        AnimatorStateInfo currentState = animator.GetCurrentAnimatorStateInfo(0);
+        if (IsAttackState(currentState))
+        {
+            return true;
+        }
+
+        if (!animator.IsInTransition(0))
+        {
+            return false;
+        }
+
+        AnimatorStateInfo nextState = animator.GetNextAnimatorStateInfo(0);
+        return IsAttackState(nextState);
+    }
+
     public void SetInitialFacing(int direction)
     {
         int clamped = direction >= 0 ? 1 : -1;
@@ -92,6 +118,12 @@ public class Character : MonoBehaviour
     public virtual void Move(Vector2 direction)
     {
         moveInput = direction;
+
+        if (isDead || isKnockbackControlLocked)
+        {
+            return;
+        }
+
         isWalking = Mathf.Abs(direction.x) > 0.01f;
 
         if (direction.x > 0.01f)       FaceDirection(1);
@@ -100,6 +132,8 @@ public class Character : MonoBehaviour
 
     public virtual void Jump()
     {
+        if (isDead || isKnockbackControlLocked) return;
+
         if (isGrounded || jumpsRemaining > 0)
         {
             ReproduceJumpClip();
@@ -157,6 +191,8 @@ public class Character : MonoBehaviour
 
         queuedAttack = QueuedAttackType.None;
         isAttacking = false;
+        isKnockbackTrajectoryActive = true;
+        isKnockbackControlLocked = true;
         DeactivateAllHitboxes();
         ReproduceHurtClip();
         damageReceived += dmg;
@@ -176,13 +212,6 @@ public class Character : MonoBehaviour
                 animator.speed = clipLen / hurtDuration;
             }
         }
-
-        if (hurtRecoveryRoutine != null)
-        {
-            StopCoroutine(hurtRecoveryRoutine);
-            hurtRecoveryRoutine = null;
-        }
-        hurtRecoveryRoutine = StartCoroutine(HurtRecoverySequence(hurtDuration));
     }
 
     public float GetDamageReceived()
@@ -193,6 +222,8 @@ public class Character : MonoBehaviour
     private void ApplyKnockback(Vector3 attackerPosition)
     {
         if (rb == null) return;
+
+        isGrounded = false;
 
         float directionX = transform.position.x - attackerPosition.x;
         directionX = directionX >= 0f ? 1f : -1f;
@@ -275,6 +306,7 @@ public class Character : MonoBehaviour
 
     void Update()
     {
+        UpdateKnockbackState();
         UpdateAttackState();
         UpdateLandingState();
 
@@ -439,10 +471,21 @@ public class Character : MonoBehaviour
     private void ApplyHorizontalMovement()
     {
         if (rb == null) return;
-        if (isHurt) return;
 
         Vector3 vel = rb.linearVelocity;
-        vel.x = moveInput.x * speed;
+
+        if (isKnockbackTrajectoryActive && !isKnockbackControlLocked)
+        {
+            if (Mathf.Abs(moveInput.x) > 0.01f)
+            {
+                vel.x = moveInput.x * speed;
+            }
+        }
+        else
+        {
+            vel.x = moveInput.x * speed;
+        }
+
         rb.linearVelocity = vel;
     }
 
@@ -461,6 +504,51 @@ public class Character : MonoBehaviour
         hurtRecoveryRoutine = null;
     }
 
+    private void UpdateKnockbackState()
+    {
+        if (!isKnockbackTrajectoryActive)
+        {
+            return;
+        }
+
+        if (rb == null)
+        {
+            isKnockbackTrajectoryActive = false;
+            isKnockbackControlLocked = false;
+            isHurt = false;
+
+            if (animator != null)
+            {
+                animator.speed = previousAnimatorSpeed;
+            }
+
+            return;
+        }
+
+        if (isKnockbackControlLocked && rb.linearVelocity.y <= 0f)
+        {
+            isKnockbackControlLocked = false;
+            isHurt = false;
+
+            if (animator != null)
+            {
+                animator.speed = previousAnimatorSpeed;
+            }
+        }
+
+        if (isGrounded)
+        {
+            isKnockbackTrajectoryActive = false;
+            isKnockbackControlLocked = false;
+            isHurt = false;
+
+            if (animator != null)
+            {
+                animator.speed = previousAnimatorSpeed;
+            }
+        }
+    }
+
     private float TriggerDeathAnimationIfAvailable()
     {
         if (animator == null || !HasAnimatorTrigger(PARAM_DEATH))
@@ -477,6 +565,8 @@ public class Character : MonoBehaviour
 
     private void ExecuteAttack1()
     {
+        if (isKnockbackControlLocked) return;
+
         ReproduceAttack1Clip();
         lastAttackTime = Time.time;
         isAttacking = true;
@@ -498,6 +588,8 @@ public class Character : MonoBehaviour
 
     private void ExecuteAttack2()
     {
+        if (isKnockbackControlLocked) return;
+
         ReproduceAttack2Clip();
         lastAttackTime = Time.time;
         isAttacking = true;
@@ -654,6 +746,14 @@ public class Character : MonoBehaviour
     {
         isGrounded = true;
         jumpsRemaining = 2;
+        isKnockbackTrajectoryActive = false;
+        isKnockbackControlLocked = false;
+        isHurt = false;
+
+        if (animator != null)
+        {
+            animator.speed = previousAnimatorSpeed;
+        }
     }
 
     public void ReproduceJumpClip()    { if (jumpClip    != null) sfxSource.PlayOneShot(jumpClip); }
