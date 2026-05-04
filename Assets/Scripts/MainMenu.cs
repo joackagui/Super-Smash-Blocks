@@ -77,7 +77,7 @@ public class MainMenu : MonoBehaviour
 
         if (_state == MenuState.Intro)
         {
-            if (WasEnterPressed())
+            if (WasConfirmPressed())
                 EnterOptionsMenu();
 
             return;
@@ -85,13 +85,13 @@ public class MainMenu : MonoBehaviour
 
         if (_state == MenuState.Options)
         {
-            if (WasWPressed())
+            if (WasUpPressed())
                 MoveSelection(-1);
 
-            if (WasSPressed())
+            if (WasDownPressed())
                 MoveSelection(1);
 
-            if (WasEnterPressed())
+            if (WasConfirmPressed())
                 ConfirmSelection();
         }
     }
@@ -316,19 +316,27 @@ public class MainMenu : MonoBehaviour
         tmp.color = c;
     }
 
-    private bool WasEnterPressed()
+    private bool WasConfirmPressed()
     {
         return Keyboard.current != null &&
-               (Keyboard.current.enterKey.wasPressedThisFrame || Keyboard.current.numpadEnterKey.wasPressedThisFrame);
+               (Keyboard.current.enterKey.wasPressedThisFrame ||
+                Keyboard.current.numpadEnterKey.wasPressedThisFrame ||
+                Keyboard.current.cKey.wasPressedThisFrame) ||
+               Mouse.current != null &&
+               Mouse.current.leftButton.wasPressedThisFrame;
     }
 
-    private bool WasWPressed()
+    private bool WasUpPressed()
     {
-        return Keyboard.current != null && Keyboard.current.wKey.wasPressedThisFrame;
+        return Keyboard.current != null &&
+               (Keyboard.current.wKey.wasPressedThisFrame ||
+                Keyboard.current.upArrowKey.wasPressedThisFrame);
     }
 
-    private bool WasSPressed()
+    private bool WasDownPressed()
     {
-        return Keyboard.current != null && Keyboard.current.sKey.wasPressedThisFrame;
+        return Keyboard.current != null &&
+               (Keyboard.current.sKey.wasPressedThisFrame ||
+                Keyboard.current.downArrowKey.wasPressedThisFrame);
     }
 }
