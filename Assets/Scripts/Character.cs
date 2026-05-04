@@ -78,6 +78,13 @@ public class Character : MonoBehaviour
     private const string GROUND_DODGE_CLIP_NAME = "GroundDodge";
     private const string AIR_DODGE_CLIP_NAME = "AirDodge";
     private Hitbox[] hitboxes;
+    private MeshRenderer[] meshRenderers;
+    private Color[] originalColors;
+
+    [SerializeField] private float hitFlashDuration = 0.5f;
+    [SerializeField] private Color hitFlashColor = Color.red;
+
+    private Coroutine hitFlashRoutine;
     private Coroutine timedInvulnerabilityRoutine;
     private Coroutine hurtRecoveryRoutine;
 
@@ -160,6 +167,7 @@ public class Character : MonoBehaviour
         isAttacking = false;
         DeactivateAllHitboxes();
         ReproduceHurtClip();
+        FlashRed();
         damageReceived += dmg;
         isHurt = true;
         // isInvulnerable = true;
@@ -242,6 +250,13 @@ public class Character : MonoBehaviour
 
     void Awake()
     {
+        meshRenderers = GetComponentsInChildren<MeshRenderer>();
+        originalColors = new Color[meshRenderers.Length];
+
+        for (int i = 0; i < meshRenderers.Length; i++)
+        {
+            originalColors[i] = meshRenderers[i].material.color;
+        }
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
 
@@ -276,6 +291,35 @@ public class Character : MonoBehaviour
         }
         fixedZPosition = transform.position.z;
     }
+
+    private void FlashRed()
+{
+    if (hitFlashRoutine != null)
+    {
+        StopCoroutine(hitFlashRoutine);
+    }
+
+    hitFlashRoutine = StartCoroutine(HitFlashCoroutine());
+}
+
+private IEnumerator HitFlashCoroutine()
+{
+    // Turn red
+    for (int i = 0; i < meshRenderers.Length; i++)
+    {
+        meshRenderers[i].material.color = hitFlashColor;
+    }
+
+    yield return new WaitForSeconds(hitFlashDuration);
+
+    // Restore colors
+    for (int i = 0; i < meshRenderers.Length; i++)
+    {
+        meshRenderers[i].material.color = originalColors[i];
+    }
+
+    hitFlashRoutine = null;
+}
 
     void Update()
     {
