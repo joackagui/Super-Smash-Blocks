@@ -164,7 +164,6 @@ public class CharacterSelection : MonoBehaviour
         MusicManager.Instance?.PlayMenuSelect();
         RegisterSelection();
         UpdateUIText();
-        Debug.Log($"Player1 selection: {GetCharacterName(player1Position)}");
         TryLoadNextScene();
     }
 
@@ -177,7 +176,6 @@ public class CharacterSelection : MonoBehaviour
         MusicManager.Instance?.PlayMenuSelect();
         RegisterSelection();
         UpdateUIText();
-        Debug.Log($"Player2 selection: {GetCharacterName(player2Position)}");
         TryLoadNextScene();
     }
 
@@ -189,7 +187,6 @@ public class CharacterSelection : MonoBehaviour
         MusicManager.Instance?.PlayMenuBack();
         RegisterSelection();
         UpdateUIText();
-        Debug.Log("Player1 selection: None");
     }
 
     private void OnPlayer2DeselectPerformed(InputAction.CallbackContext context)
@@ -200,7 +197,6 @@ public class CharacterSelection : MonoBehaviour
         MusicManager.Instance?.PlayMenuBack();
         RegisterSelection();
         UpdateUIText();
-        Debug.Log("Player2 selection: None");
     }
 
     private void OnBackPerformed(InputAction.CallbackContext context)
@@ -257,7 +253,6 @@ public class CharacterSelection : MonoBehaviour
     {
         if (GetCharacterName(position) != "Blocked") return false;
 
-        Debug.Log($"{playerLabel}: this character is blocked!");
         MusicManager.Instance?.PlayMenuError();
         return true;
     }

@@ -25,7 +25,6 @@ public class Character : MonoBehaviour
     private bool isInvulnerable = false;
     [SerializeField] private float dodgeInvulnerabilityFallbackDuration = 0.5f;
     [SerializeField] private float respawnInvulnerabilityDuration = 1.5f;
-    // private float invulnerabilityDuration = 1.5f;
     [Header("Hurt Animation")]
     [SerializeField] private float hurtDurationPerDamage = 0.008f;
     [SerializeField] private float minHurtDuration = 0.05f;
@@ -170,11 +169,8 @@ public class Character : MonoBehaviour
         FlashRed();
         damageReceived += dmg;
         isHurt = true;
-        // isInvulnerable = true;
         ClearAllTriggers();
         animator.SetTrigger(PARAM_HURT);
-
-        Debug.Log($"[{gameObject.name}] TakeDamage: +{dmg} | damageReceived total: {damageReceived}");
 
         ApplyKnockback(attackerPosition);
 

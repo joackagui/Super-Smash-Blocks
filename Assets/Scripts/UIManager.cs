@@ -98,8 +98,6 @@ public class UIManager : MonoBehaviour
         string stageSelection = GameManager.Instance != null ? GameManager.Instance.GetStageSelection() : "None";
         stageSelection = Normalize(stageSelection);
 
-        Debug.Log("Stage seleccionado en GameManager: " + stageSelection);
-
         Texture selectedTexture = defaultBackground;
 
         if (stageBackgrounds != null)
