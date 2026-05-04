@@ -425,7 +425,7 @@ private IEnumerator HitFlashCoroutine()
             rb.constraints = RigidbodyConstraints.FreezeAll;
         }
         DeactivateAllHitboxes();
-        float deathAnimationDuration = TriggerDeathAnimationIfAvailable();
+        float deathAnimationDuration = TriggerDeathAnimationIfAvailable() - 0.4f;
         ReproduceDeathClip();
         if (MusicManager.Instance != null)
         {
