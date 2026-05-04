@@ -27,9 +27,9 @@ public class Character : MonoBehaviour
     [SerializeField] private float respawnInvulnerabilityDuration = 1.5f;
     // private float invulnerabilityDuration = 1.5f;
     [Header("Hurt Animation")]
-    [SerializeField] private float hurtDurationPerDamage = 0.1f;
-    [SerializeField] private float minHurtDuration = 0.01f;
-    [SerializeField] private float maxHurtDuration = 2.0f;
+    [SerializeField] private float hurtDurationPerDamage = 0.008f;
+    [SerializeField] private float minHurtDuration = 0.05f;
+    [SerializeField] private float maxHurtDuration = 1f;   
     private float previousAnimatorSpeed = 1f;
 
     public AudioClip hurtClip;
@@ -170,7 +170,7 @@ public class Character : MonoBehaviour
 
         ApplyKnockback(attackerPosition);
 
-        float hurtDuration = Mathf.Clamp(dmg * hurtDurationPerDamage, minHurtDuration, maxHurtDuration);
+        float hurtDuration = Mathf.Clamp(damageReceived * hurtDurationPerDamage, minHurtDuration, maxHurtDuration);
         if (animator != null)
         {
             float clipLen = GetAnimationClipLength("Hurt");
@@ -453,10 +453,15 @@ public class Character : MonoBehaviour
     private IEnumerator HurtRecoverySequence(float duration)
     {
         yield return new WaitForSeconds(duration);
+        
+        while (rb != null && Mathf.Abs(rb.linearVelocity.x) > 0.5f)
+        {
+            yield return null;
+        }
+
         isHurt = false;
         if (animator != null)
             animator.speed = previousAnimatorSpeed;
-        // isInvulnerable = false;
         hurtRecoveryRoutine = null;
     }
 
