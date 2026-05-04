@@ -21,8 +21,7 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private TextMeshProUGUI[] optionTexts = new TextMeshProUGUI[3];
     [SerializeField] private float selectedScale = 1.15f;
     [SerializeField] private float unselectedScale = 1f;
-    [SerializeField] private Color blinkColor = Color.black;
-    [SerializeField] private float blinkInterval = 0.12f;
+    [SerializeField] private float blinkSpeed = 4f;
 
     [SerializeField] private string characterSelectionSceneName = "CharacterSelection";
 
@@ -243,21 +242,21 @@ public class MainMenu : MonoBehaviour
             yield break;
 
         TextMeshProUGUI txt = optionTexts[index];
-        Color normalColor = (_optionBaseColors != null && index < _optionBaseColors.Length)
+        Color baseColor = (_optionBaseColors != null && index < _optionBaseColors.Length)
             ? _optionBaseColors[index]
             : txt.color;
 
         while (_state == MenuState.Options && _selectedIndex == index)
         {
-            txt.color = normalColor;
-            yield return new WaitForSeconds(blinkInterval);
-
-            txt.color = blinkColor;
-            yield return new WaitForSeconds(blinkInterval);
+            float alpha = Mathf.Abs(Mathf.Sin(Time.time * blinkSpeed));
+            Color c = baseColor;
+            c.a = alpha;
+            txt.color = c;
+            yield return null;
         }
 
         if (txt != null)
-            txt.color = normalColor;
+            txt.color = baseColor;
     }
 
     private void CacheOptionData()
