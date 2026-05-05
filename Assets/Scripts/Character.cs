@@ -21,7 +21,6 @@ public class Character : MonoBehaviour
     private bool isGrounded = true;
     private int jumpsRemaining = 2;
     private bool isAttacking = false;
-    private bool isHurt = false;
     private bool isInvulnerable = false;
     private bool isKnockbackTrajectoryActive = false;
     private bool isKnockbackControlLocked = false;
@@ -196,7 +195,6 @@ public class Character : MonoBehaviour
         DeactivateAllHitboxes();
         ReproduceHurtClip();
         damageReceived += dmg;
-        isHurt = true;
         ClearAllTriggers();
         animator.SetTrigger(PARAM_HURT);
 
@@ -398,7 +396,6 @@ public class Character : MonoBehaviour
         CancelTimedInvulnerability();
         queuedAttack = QueuedAttackType.None;
         isAttacking = false;
-        isHurt = false;
         isInvulnerable = true;
         moveInput = Vector2.zero;
         if (rb != null)
@@ -446,7 +443,6 @@ public class Character : MonoBehaviour
         jumpsRemaining = 2;
         isAttacking = false;
         queuedAttack = QueuedAttackType.None;
-        isHurt = false;
         isInvulnerable = true;
         damageReceived = 0;
         DeactivateAllHitboxes();
@@ -489,21 +485,6 @@ public class Character : MonoBehaviour
         rb.linearVelocity = vel;
     }
 
-    private IEnumerator HurtRecoverySequence(float duration)
-    {
-        yield return new WaitForSeconds(duration);
-        
-        while (rb != null && Mathf.Abs(rb.linearVelocity.x) > 0.5f)
-        {
-            yield return null;
-        }
-
-        isHurt = false;
-        if (animator != null)
-            animator.speed = previousAnimatorSpeed;
-        hurtRecoveryRoutine = null;
-    }
-
     private void UpdateKnockbackState()
     {
         if (!isKnockbackTrajectoryActive)
@@ -515,7 +496,6 @@ public class Character : MonoBehaviour
         {
             isKnockbackTrajectoryActive = false;
             isKnockbackControlLocked = false;
-            isHurt = false;
 
             if (animator != null)
             {
@@ -528,7 +508,6 @@ public class Character : MonoBehaviour
         if (isKnockbackControlLocked && rb.linearVelocity.y <= 0f)
         {
             isKnockbackControlLocked = false;
-            isHurt = false;
 
             if (animator != null)
             {
@@ -540,7 +519,6 @@ public class Character : MonoBehaviour
         {
             isKnockbackTrajectoryActive = false;
             isKnockbackControlLocked = false;
-            isHurt = false;
 
             if (animator != null)
             {
@@ -748,7 +726,6 @@ public class Character : MonoBehaviour
         jumpsRemaining = 2;
         isKnockbackTrajectoryActive = false;
         isKnockbackControlLocked = false;
-        isHurt = false;
 
         if (animator != null)
         {
