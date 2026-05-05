@@ -13,18 +13,22 @@ public class MainMenu : MonoBehaviour
         Options
     }
 
+    [Header("UI")]
     [SerializeField] private Image blackScreen;
     [SerializeField] private RawImage diffuseImage;
     [SerializeField] private RawImage logoImage;
     [SerializeField] private TextMeshProUGUI promptText;
 
-    [SerializeField] private TextMeshProUGUI[] optionTexts = new TextMeshProUGUI[3];
+    [Header("Options")]
+    [SerializeField] private TextMeshProUGUI[] optionTexts;
     [SerializeField] private float selectedScale = 1.15f;
     [SerializeField] private float unselectedScale = 1f;
     [SerializeField] private float blinkSpeed = 4f;
 
+    [Header("Scenes")]
     [SerializeField] private string characterSelectionSceneName = "CharacterSelection";
 
+    [Header("Timings")]
     [SerializeField] private float delayBeforeFade = 2f;
     [SerializeField] private float fadeDuration = 2f;
     [SerializeField] private float logoExtraDelay = 1f;
@@ -46,8 +50,7 @@ public class MainMenu : MonoBehaviour
 
     private void Start()
     {
-        if (MusicManager.Instance != null)
-            MusicManager.Instance.PlayMusic(MusicManager.Instance.mainMenuMusic);
+        MusicManager.Instance?.PlayMusic(MusicManager.Instance.mainMenuMusic);
 
         SetAlpha(blackScreen, 1f);
 
@@ -138,7 +141,8 @@ public class MainMenu : MonoBehaviour
             promptText.gameObject.SetActive(false);
 
         ShowOptions();
-        _selectedIndex = 0;
+
+        _selectedIndex = 0; // SIEMPRE empieza en la primera opción
         UpdateOptionVisuals();
     }
 
@@ -160,47 +164,47 @@ public class MainMenu : MonoBehaviour
 
     private void ConfirmSelection()
     {
-        if (_selectedIndex == 1)
+        if (_isTransitioning)
+            return;
+
+        _isTransitioning = true;
+        MusicManager.Instance?.PlayMenuSelect();
+
+        switch (_selectedIndex)
         {
-            _isTransitioning = true;
-            MusicManager.Instance?.PlayMenuSelect();
-            SceneManager.LoadScene(characterSelectionSceneName);
+            case 0: // Singleplayer
+                GameManager.Instance?.SetGameMode(GameMode.SinglePlayer);
+                break;
+
+            case 1: // Multiplayer
+                GameManager.Instance?.SetGameMode(GameMode.Multiplayer);
+                break;
+
+            default:
+                _isTransitioning = false;
+                MusicManager.Instance?.PlayMenuError();
+                return;
         }
-        else
-        {
-            MusicManager.Instance?.PlayMenuError();
-        }
+
+        SceneManager.LoadScene(characterSelectionSceneName);
     }
 
     private void ShowOptions()
     {
-        if (optionTexts == null)
-            return;
-
-        for (int i = 0; i < optionTexts.Length; i++)
-        {
-            if (optionTexts[i] != null)
-                optionTexts[i].gameObject.SetActive(true);
-        }
+        foreach (var txt in optionTexts)
+            if (txt != null)
+                txt.gameObject.SetActive(true);
     }
 
     private void HideOptions()
     {
-        if (optionTexts == null)
-            return;
-
-        for (int i = 0; i < optionTexts.Length; i++)
-        {
-            if (optionTexts[i] != null)
-                optionTexts[i].gameObject.SetActive(false);
-        }
+        foreach (var txt in optionTexts)
+            if (txt != null)
+                txt.gameObject.SetActive(false);
     }
 
     private void UpdateOptionVisuals()
     {
-        if (optionTexts == null || optionTexts.Length == 0)
-            return;
-
         if (_blinkCoroutine != null)
         {
             StopCoroutine(_blinkCoroutine);
@@ -209,12 +213,9 @@ public class MainMenu : MonoBehaviour
 
         for (int i = 0; i < optionTexts.Length; i++)
         {
-            if (optionTexts[i] == null)
-                continue;
+            if (optionTexts[i] == null) continue;
 
-            Vector3 baseScale = (_optionBaseScales != null && i < _optionBaseScales.Length)
-                ? _optionBaseScales[i]
-                : Vector3.one;
+            Vector3 baseScale = _optionBaseScales[i];
 
             if (i == _selectedIndex)
             {
@@ -223,28 +224,17 @@ public class MainMenu : MonoBehaviour
             else
             {
                 optionTexts[i].transform.localScale = baseScale * unselectedScale;
-
-                Color baseColor = (_optionBaseColors != null && i < _optionBaseColors.Length)
-                    ? _optionBaseColors[i]
-                    : optionTexts[i].color;
-
-                optionTexts[i].color = baseColor;
+                optionTexts[i].color = _optionBaseColors[i];
             }
         }
 
-        if (optionTexts[_selectedIndex] != null)
-            _blinkCoroutine = StartCoroutine(BlinkSelectedOption(_selectedIndex));
+        _blinkCoroutine = StartCoroutine(BlinkSelectedOption(_selectedIndex));
     }
 
     private IEnumerator BlinkSelectedOption(int index)
     {
-        if (optionTexts == null || index < 0 || index >= optionTexts.Length || optionTexts[index] == null)
-            yield break;
-
         TextMeshProUGUI txt = optionTexts[index];
-        Color baseColor = (_optionBaseColors != null && index < _optionBaseColors.Length)
-            ? _optionBaseColors[index]
-            : txt.color;
+        Color baseColor = _optionBaseColors[index];
 
         while (_state == MenuState.Options && _selectedIndex == index)
         {
@@ -255,15 +245,11 @@ public class MainMenu : MonoBehaviour
             yield return null;
         }
 
-        if (txt != null)
-            txt.color = baseColor;
+        txt.color = baseColor;
     }
 
     private void CacheOptionData()
     {
-        if (optionTexts == null)
-            return;
-
         _optionBaseScales = new Vector3[optionTexts.Length];
         _optionBaseColors = new Color[optionTexts.Length];
 
@@ -284,9 +270,6 @@ public class MainMenu : MonoBehaviour
 
     private IEnumerator FadeImage(Graphic img, float from, float to)
     {
-        if (img == null)
-            yield break;
-
         float t = 0f;
 
         while (t < fadeDuration)
@@ -302,7 +285,6 @@ public class MainMenu : MonoBehaviour
 
     private void SetAlpha(Graphic img, float alpha)
     {
-        if (img == null) return;
         Color c = img.color;
         c.a = alpha;
         img.color = c;
@@ -310,7 +292,6 @@ public class MainMenu : MonoBehaviour
 
     private void SetAlphaTMP(TextMeshProUGUI tmp, float alpha)
     {
-        if (tmp == null) return;
         Color c = tmp.color;
         c.a = alpha;
         tmp.color = c;
