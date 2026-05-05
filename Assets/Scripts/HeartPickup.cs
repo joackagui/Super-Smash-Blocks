@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
+
 public class HeartPickup : MonoBehaviour
 {
     [SerializeField] private float fleeDistance = 6f;
@@ -10,6 +11,19 @@ public class HeartPickup : MonoBehaviour
     [SerializeField] private int healAmount = 1;
     [SerializeField] private float minimumHoverHeight = 1f;
     [SerializeField] private float navMeshSampleRadius = 12f;
+    [SerializeField] private float rotationSpeed = 90f;
+
+    [SerializeField] private GameObject pickupEffect;
+    [SerializeField] private AudioClip pickupSound;
+
+    [Header("Behavior")]
+    [SerializeField] private float panicDistance = 3f;
+    [SerializeField] private float panicSpeedMultiplier = 2f;
+
+    [Header("Visual")]
+    [SerializeField] private float hoverAmplitude = 0.25f;
+    [SerializeField] private float hoverFrequency = 2f;
+    private float baseY;
 
     private NavMeshAgent agent;
     private float nextRepathTime;
@@ -37,6 +51,7 @@ public class HeartPickup : MonoBehaviour
 
     private void Update()
     {
+        transform.Rotate(Vector3.up * rotationSpeed * Time.deltaTime, Space.World);
         if (collected || !agent.isOnNavMesh) return;
 
         if (Time.time > nextTargetSwitch || currentTarget == null)
@@ -51,12 +66,27 @@ public class HeartPickup : MonoBehaviour
             ? currentTarget.character.transform.position 
             : currentTarget.transform.position;
 
+        float distanceToPlayer = Vector3.Distance(transform.position, playerPos);
+
+        if (distanceToPlayer < panicDistance)
+        {
+            agent.speed = 3f * panicSpeedMultiplier;
+        }
+        else
+        {
+            agent.speed = 3f;
+        }
+
         if (Time.time >= nextRepathTime)
         {
             nextRepathTime = Time.time + repathRate;
 
             Vector3 awayDirection = GetPlanarDirectionAwayFrom(playerPos);
-            Vector3 targetPos = agent.nextPosition + awayDirection * fleeDistance;
+            Vector3 randomOffset = Random.insideUnitSphere * 0.5f;
+            randomOffset.z = 0f;
+            awayDirection = (awayDirection + randomOffset).normalized;
+            Vector3 strafe = Vector3.Cross(awayDirection, Vector3.up) * Random.Range(-2f, 2f);
+            Vector3 targetPos = agent.nextPosition + awayDirection * fleeDistance + strafe;
 
             if (NavMesh.SamplePosition(targetPos, out NavMeshHit hit, navMeshSampleRadius, NavMesh.AllAreas))
             {
@@ -65,15 +95,25 @@ public class HeartPickup : MonoBehaviour
         }
 
         TryPickup(currentTarget, playerPos);
+        HandleHover();
+    }
+
+    private void HandleHover()
+    {
+        float hover = Mathf.Sin(Time.time * hoverFrequency) * hoverAmplitude;
+        agent.baseOffset = hoverHeight + hover;
     }
 
     private void TryPickup(Player player, Vector3 playerPos)
     {
         if (player == null) return;
 
-        float distance = Vector3.Distance(transform.position, playerPos);
+        float distance = GetPlanarDistance(transform.position, playerPos);
 
-        if (distance < pickupRadius)
+        float planarDistance = GetPlanarDistance(transform.position, playerPos);
+        float verticalDistance = Mathf.Abs(transform.position.y - playerPos.y);
+
+        if (planarDistance < pickupRadius && verticalDistance < 2f)
         {
             if (player.lives < 3)
             {
@@ -81,6 +121,15 @@ public class HeartPickup : MonoBehaviour
             }
 
             collected = true;
+            if (pickupEffect != null)
+            {
+                Instantiate(pickupEffect, transform.position, Quaternion.identity);
+            }
+
+            if (pickupSound != null)
+            {
+                AudioSource.PlayClipAtPoint(pickupSound, transform.position);
+            }
             Destroy(gameObject);
         }
     }
@@ -123,7 +172,7 @@ public class HeartPickup : MonoBehaviour
     private Vector3 GetPlanarDirectionAwayFrom(Vector3 targetPosition)
     {
         Vector3 awayDirection = transform.position - targetPosition;
-        awayDirection.y = 0f;
+        awayDirection.z = 0f;
 
         if (awayDirection.sqrMagnitude < 0.0001f)
         {
@@ -137,8 +186,8 @@ public class HeartPickup : MonoBehaviour
 
     private float GetPlanarDistance(Vector3 a, Vector3 b)
     {
-        a.y = 0f;
-        b.y = 0f;
+        a.z = 0f;
+        b.z = 0f;
         return Vector3.Distance(a, b);
     }
 }

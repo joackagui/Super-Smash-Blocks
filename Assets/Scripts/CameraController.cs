@@ -22,6 +22,9 @@ public class CameraController : MonoBehaviour
 
     private Camera cam;
 
+    private float refreshTimer = 0f;
+    [SerializeField] private float refreshRate = 1f;
+
     void Start()
     {
         cam = GetComponent<Camera>();
@@ -33,14 +36,24 @@ public class CameraController : MonoBehaviour
 
     void LateUpdate()
     {
-        RefreshCharacters();
+        // Refresh characters only every X seconds
+        refreshTimer += Time.deltaTime;
+        if (refreshTimer >= refreshRate)
+        {
+            RefreshCharacters();
+            refreshTimer = 0f;
+        }
 
         if (characters == null || characters.Length == 0)
             return;
 
         Vector3 midpoint = GetMidpoint();
+
         MoveTowardsMidpoint(midpoint);
         AdjustZoom();
+
+        // Make camera look at players
+        transform.LookAt(midpoint);
     }
 
     private void RefreshCharacters()
@@ -90,10 +103,18 @@ public class CameraController : MonoBehaviour
         return maxDist;
     }
 
+    private Vector3 velocity;
+
     private void MoveTowardsMidpoint(Vector3 midpoint)
     {
         Vector3 targetPos = midpoint + offset;
-        transform.position = Vector3.Lerp(transform.position, targetPos, followSpeed * Time.deltaTime);
+
+        transform.position = Vector3.SmoothDamp(
+            transform.position,
+            targetPos,
+            ref velocity,
+            1f / followSpeed
+        );
     }
 
     private void AdjustZoom()
