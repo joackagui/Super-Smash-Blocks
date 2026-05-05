@@ -587,7 +587,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.4811321, g: 0.4811321, b: 0.4811321, a: 0}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 1
@@ -708,6 +708,7 @@ MonoBehaviour:
   zoomDistanceMin: 15
   zoomDistanceMax: 20
   offset: {x: 0, y: 3, z: -10}
+  refreshRate: 1
 --- !u!1001 &358032644
 PrefabInstance:
   m_ObjectHideFlags: 0
