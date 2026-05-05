@@ -1,5 +1,12 @@
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.SceneManagement;
+
+public enum GameMode
+{
+    SinglePlayer,
+    Multiplayer
+}
 
 public class GameManager : MonoBehaviour
 {
@@ -7,6 +14,8 @@ public class GameManager : MonoBehaviour
 
     private const string FightSceneName = "FightScene";
     private const string WinnerSceneName = "VictoryScene";
+
+    [SerializeField] private GameMode currentMode = GameMode.Multiplayer;
 
     public Player player1;
     public Player player2;
@@ -24,6 +33,14 @@ public class GameManager : MonoBehaviour
     private string winnerSelection = "None";
 
     private bool isVictoryLoading = false;
+
+    public GameMode CurrentMode
+    {
+        get => currentMode;
+        set => currentMode = value;
+    }
+
+    public bool IsSinglePlayer => currentMode == GameMode.SinglePlayer;
 
     private void Awake()
     {
@@ -142,6 +159,11 @@ public class GameManager : MonoBehaviour
         isVictoryLoading = false;
     }
 
+    public void SetGameMode(GameMode mode)
+    {
+        currentMode = mode;
+    }
+
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if (scene.name == FightSceneName)
@@ -176,7 +198,7 @@ public class GameManager : MonoBehaviour
         player1 = null;
         player2 = null;
 
-        Player[] scenePlayers = FindObjectsByType<Player>();
+        Player[] scenePlayers = FindObjectsByType<Player>(FindObjectsSortMode.None);
 
         foreach (Player scenePlayer in scenePlayers)
         {
@@ -280,6 +302,7 @@ public class GameManager : MonoBehaviour
 
         string selection = GetSelectionForPlayer(player);
         GameObject playerSpawnPoint = player.GetSpawnPoint();
+
         Vector3 spawnPosition = playerSpawnPoint != null
             ? playerSpawnPoint.transform.position
             : player.transform.position;
@@ -297,6 +320,55 @@ public class GameManager : MonoBehaviour
         }
 
         player.SetCharacter(character);
+
+        if (IsSinglePlayer && player.Slot == Player.PlayerSlot.Player2)
+        {
+            EnsureNavMeshAgent(character);
+            EnsureEnemyAI(character);
+        }
+    }
+
+    private void EnsureNavMeshAgent(Character character)
+    {
+        if (character == null)
+        {
+            return;
+        }
+
+        NavMeshAgent agent = character.GetComponent<NavMeshAgent>();
+
+        if (agent == null)
+        {
+            agent = character.gameObject.AddComponent<NavMeshAgent>();
+        }
+
+        agent.speed = 4f;
+        agent.acceleration = 10f;
+        agent.angularSpeed = 0f;
+        agent.stoppingDistance = 1.7f;
+        agent.autoBraking = false;
+        agent.autoTraverseOffMeshLink = false;
+        agent.updatePosition = false;
+        agent.updateRotation = false;
+        agent.baseOffset = 0f;
+
+        if (NavMesh.SamplePosition(character.transform.position, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+        {
+            agent.Warp(hit.position);
+        }
+    }
+
+    private void EnsureEnemyAI(Character character)
+    {
+        if (character == null)
+        {
+            return;
+        }
+
+        if (character.GetComponent<NavMeshEnemyAI>() == null)
+        {
+            character.gameObject.AddComponent<NavMeshEnemyAI>();
+        }
     }
 
     private string GetSelectionForPlayer(Player player)

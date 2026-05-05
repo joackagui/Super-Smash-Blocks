@@ -217,6 +217,13 @@ public class Player : MonoBehaviour
             return;
         }
 
+        if (GameManager.Instance != null &&
+            GameManager.Instance.IsSinglePlayer &&
+            playerSlot == PlayerSlot.Player2)
+        {
+            return;
+        }
+
         Vector2 move = ReadMovement();
         character.Move(move);
 

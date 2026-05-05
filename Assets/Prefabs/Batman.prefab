@@ -249,6 +249,11 @@ MonoBehaviour:
   jumpForce: 8
   faceRightYRotation: 90
   faceLeftYRotation: -90
+  dodgeInvulnerabilityFallbackDuration: 0.5
+  respawnInvulnerabilityDuration: 1.5
+  hurtDurationPerDamage: 0.008
+  minHurtDuration: 0.05
+  maxHurtDuration: 1
   hurtClip: {fileID: 8300000, guid: cf959a3866f8d46548c6540bff94dd45, type: 3}
   attack1Clip: {fileID: 8300000, guid: 8108f23828fb94ad0bf0bc1825af3a5a, type: 3}
   attack2Clip: {fileID: 8300000, guid: cfa9e979306074f88a6ee8228b0c6a0d, type: 3}

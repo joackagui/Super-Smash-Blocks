@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -55,9 +56,13 @@ public class CharacterSelection : MonoBehaviour
     private bool player2Selected;
     private bool isTransitioning;
 
+    private bool IsSinglePlayer => GameManager.Instance != null && GameManager.Instance.IsSinglePlayer;
+
     private void Awake()
     {
         ValidateGameManager();
+        player1Selected = false;
+        player2Selected = false;
     }
 
     private void OnEnable()
@@ -137,47 +142,64 @@ public class CharacterSelection : MonoBehaviour
 
     private void OnPlayer2UpPerformed(InputAction.CallbackContext context)
     {
+        if (IsSinglePlayer) return;
         MovePlayer(ref player2Position, player1Position, player2Selected, new Vector2Int(0, -1));
     }
 
     private void OnPlayer2DownPerformed(InputAction.CallbackContext context)
     {
+        if (IsSinglePlayer) return;
         MovePlayer(ref player2Position, player1Position, player2Selected, new Vector2Int(0, 1));
     }
 
     private void OnPlayer2LeftPerformed(InputAction.CallbackContext context)
     {
+        if (IsSinglePlayer) return;
         MovePlayer(ref player2Position, player1Position, player2Selected, Vector2Int.left);
     }
 
     private void OnPlayer2RightPerformed(InputAction.CallbackContext context)
     {
+        if (IsSinglePlayer) return;
         MovePlayer(ref player2Position, player1Position, player2Selected, Vector2Int.right);
     }
 
     private void OnPlayer1SelectPerformed(InputAction.CallbackContext context)
     {
+        if (isTransitioning) return;
         if (player1Selected) return;
         if (IsBlockedSelection(player1Position, "Player1")) return;
 
         player1Selected = true;
         MusicManager.Instance?.PlayMenuSelect();
+
+        if (IsSinglePlayer)
+        {
+            AssignRandomPlayer2();
+            player2Selected = true;
+        }
+
         RegisterSelection();
         UpdateUIText();
-        Debug.Log($"Player1 selection: {GetCharacterName(player1Position)}");
+        UpdatePlayerPreview();
+
         TryLoadNextScene();
     }
 
     private void OnPlayer2SelectPerformed(InputAction.CallbackContext context)
     {
+        if (IsSinglePlayer) return;
+        if (isTransitioning) return;
         if (player2Selected) return;
         if (IsBlockedSelection(player2Position, "Player2")) return;
 
         player2Selected = true;
         MusicManager.Instance?.PlayMenuSelect();
+
         RegisterSelection();
         UpdateUIText();
-        Debug.Log($"Player2 selection: {GetCharacterName(player2Position)}");
+        UpdatePlayerPreview();
+
         TryLoadNextScene();
     }
 
@@ -187,31 +209,36 @@ public class CharacterSelection : MonoBehaviour
 
         player1Selected = false;
         MusicManager.Instance?.PlayMenuBack();
+
         RegisterSelection();
         UpdateUIText();
-        Debug.Log("Player1 selection: None");
     }
 
     private void OnPlayer2DeselectPerformed(InputAction.CallbackContext context)
     {
+        if (IsSinglePlayer) return;
         if (!player2Selected) return;
 
         player2Selected = false;
         MusicManager.Instance?.PlayMenuBack();
+
         RegisterSelection();
         UpdateUIText();
-        Debug.Log("Player2 selection: None");
     }
 
     private void OnBackPerformed(InputAction.CallbackContext context)
     {
         if (isTransitioning) return;
+
         MusicManager.Instance?.PlayMenuBack();
 
-        if (GameManager.Instance != null) GameManager.Instance.ClearSelections();
+        if (GameManager.Instance != null)
+            GameManager.Instance.ClearSelections();
 
         isTransitioning = true;
+
         int previousSceneIndex = SceneManager.GetActiveScene().buildIndex - 1;
+
         if (previousSceneIndex >= 0)
             SceneManager.LoadScene(previousSceneIndex);
         else
@@ -224,13 +251,44 @@ public class CharacterSelection : MonoBehaviour
 
         Vector2Int nextPosition = currentPosition + delta;
 
-        if (nextPosition.x < 0 || nextPosition.x > 1 || nextPosition.y < 0 || nextPosition.y > 1) return;
-        if (nextPosition == otherPlayerPosition) return;
+        if (nextPosition.x < 0 || nextPosition.x > 1 || nextPosition.y < 0 || nextPosition.y > 1)
+            return;
+
+        if (!IsSinglePlayer && nextPosition == otherPlayerPosition)
+            return;
 
         currentPosition = nextPosition;
+
         MusicManager.Instance?.PlayMenuMove();
+
         RefreshMarkers();
         UpdatePlayerPreview();
+    }
+
+    private void AssignRandomPlayer2()
+    {
+        List<int> availableSlots = new List<int>();
+
+        int player1Index = player1Position.y * 2 + player1Position.x;
+
+        for (int i = 0; i < characterSlots.Length; i++)
+        {
+            CharacterSlot slot = characterSlots[i];
+            if (slot == null) continue;
+
+            if (string.Equals(slot.characterName, "Blocked", System.StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (i == player1Index)
+                continue;
+
+            availableSlots.Add(i);
+        }
+
+        if (availableSlots.Count == 0) return;
+
+        int randomIndex = availableSlots[Random.Range(0, availableSlots.Count)];
+        player2Position = new Vector2Int(randomIndex % 2, randomIndex / 2);
     }
 
     private void RegisterSelection()
@@ -238,35 +296,52 @@ public class CharacterSelection : MonoBehaviour
         if (GameManager.Instance == null) return;
 
         GameManager.Instance.SetPlayer1Selection(player1Selected ? GetCharacterName(player1Position) : "None");
-        GameManager.Instance.SetPlayer2Selection(player2Selected ? GetCharacterName(player2Position) : "None");
+
+        if (IsSinglePlayer)
+            GameManager.Instance.SetPlayer2Selection(GetCharacterName(player2Position));
+        else
+            GameManager.Instance.SetPlayer2Selection(player2Selected ? GetCharacterName(player2Position) : "None");
     }
 
     private string GetCharacterName(Vector2Int position)
     {
-        int slotIndex = position.y * 2 + position.x;
+        int index = position.y * 2 + position.x;
 
-        if (slotIndex < 0 || slotIndex >= characterSlots.Length) return "None";
+        if (index < 0 || index >= characterSlots.Length)
+            return "None";
 
-        CharacterSlot slot = characterSlots[slotIndex];
-        if (slot == null) return "None";
+        CharacterSlot slot = characterSlots[index];
+
+        if (slot == null)
+            return "None";
 
         return slot.characterName;
     }
 
     private bool IsBlockedSelection(Vector2Int position, string playerLabel)
     {
-        if (GetCharacterName(position) != "Blocked") return false;
+        if (GetCharacterName(position) != "Blocked")
+            return false;
 
-        Debug.Log($"{playerLabel}: this character is blocked!");
         MusicManager.Instance?.PlayMenuError();
         return true;
     }
 
     private void TryLoadNextScene()
     {
-        if (isTransitioning || !player1Selected || !player2Selected) return;
+        if (isTransitioning) return;
+
+        if (IsSinglePlayer)
+        {
+            if (!player1Selected) return;
+        }
+        else
+        {
+            if (!player1Selected || !player2Selected) return;
+        }
 
         isTransitioning = true;
+
         int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
 
         if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
@@ -282,27 +357,34 @@ public class CharacterSelection : MonoBehaviour
             CharacterSlot slot = characterSlots[i];
             if (slot == null) continue;
 
-            Vector2Int slotPosition = GetSlotPosition(i);
-            bool showPlayer1 = slotPosition == player1Position;
-            bool showPlayer2 = slotPosition == player2Position;
+            Vector2Int slotPosition = new Vector2Int(i % 2, i / 2);
 
-            if (slot.player1Marker != null) slot.player1Marker.enabled = showPlayer1;
-            if (slot.player2Marker != null) slot.player2Marker.enabled = showPlayer2;
+            if (slot.player1Marker != null)
+                slot.player1Marker.enabled = slotPosition == player1Position;
+
+            if (slot.player2Marker != null)
+                slot.player2Marker.enabled = slotPosition == player2Position;
         }
-    }
-
-    private static Vector2Int GetSlotPosition(int slotIndex)
-    {
-        return new Vector2Int(slotIndex % 2, slotIndex / 2);
     }
 
     private void UpdateUIText()
     {
-        if (player1SelectText != null) player1SelectText.gameObject.SetActive(!player1Selected);
-        if (player1DeselectText != null) player1DeselectText.gameObject.SetActive(player1Selected);
+        if (player1SelectText != null)
+            player1SelectText.gameObject.SetActive(!player1Selected);
 
-        if (player2SelectText != null) player2SelectText.gameObject.SetActive(!player2Selected);
-        if (player2DeselectText != null) player2DeselectText.gameObject.SetActive(player2Selected);
+        if (player1DeselectText != null)
+            player1DeselectText.gameObject.SetActive(player1Selected);
+
+        if (IsSinglePlayer)
+        {
+            if (player2SelectText != null) player2SelectText.gameObject.SetActive(false);
+            if (player2DeselectText != null) player2DeselectText.gameObject.SetActive(false);
+        }
+        else
+        {
+            if (player2SelectText != null) player2SelectText.gameObject.SetActive(!player2Selected);
+            if (player2DeselectText != null) player2DeselectText.gameObject.SetActive(player2Selected);
+        }
     }
 
     private void UpdatePlayerPreview()
