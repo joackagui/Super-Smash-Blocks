@@ -378,6 +378,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04aaa93f1f05e41f39c0144e55fefae6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  currentMode: 1
   player1: {fileID: 795750628}
   player2: {fileID: 161870804}
   character1: {fileID: 0}
