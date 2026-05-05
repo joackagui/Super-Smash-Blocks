@@ -69,6 +69,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         InitializeFightScene(SceneManager.GetActiveScene());
+        Cursor.visible = false;
     }
 
     public Player GetPlayer1()
@@ -198,7 +199,7 @@ public class GameManager : MonoBehaviour
         player1 = null;
         player2 = null;
 
-        Player[] scenePlayers = FindObjectsByType<Player>(FindObjectsSortMode.None);
+        Player[] scenePlayers = FindObjectsByType<Player>(FindObjectsInactive.Exclude);
 
         foreach (Player scenePlayer in scenePlayers)
         {

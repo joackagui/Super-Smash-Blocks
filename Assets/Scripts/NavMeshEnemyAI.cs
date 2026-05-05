@@ -21,7 +21,6 @@ public class NavMeshEnemyAI : MonoBehaviour
 
     [Header("Return To Platform")]
     [SerializeField] private LayerMask groundLayerMask;
-    [SerializeField] private float returnToPlatformDistance = 1f;
     [SerializeField] private float platformCenterArriveDistance = 0.75f;
     [SerializeField] private float platformNavMeshSampleRadius = 6f;
 
@@ -262,7 +261,7 @@ public class NavMeshEnemyAI : MonoBehaviour
 
     private void CacheMainPlatformCenter()
     {
-        Collider[] colliders = FindObjectsOfType<Collider>();
+        Collider[] colliders = FindObjectsByType<Collider>(FindObjectsInactive.Exclude);
 
         bool found = false;
         float bestArea = -1f;
