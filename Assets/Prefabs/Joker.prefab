@@ -1007,11 +1007,16 @@ MonoBehaviour:
   faceLeftYRotation: -90
   dodgeInvulnerabilityFallbackDuration: 0.5
   respawnInvulnerabilityDuration: 1.5
+  hurtDurationPerDamage: 0.008
+  minHurtDuration: 0.05
+  maxHurtDuration: 1
   hurtClip: {fileID: 8300000, guid: 61f16167afbe545799ef48df68b862f1, type: 3}
   attack1Clip: {fileID: 8300000, guid: 59d44ff6e66304f13aeb98c01d8dfe24, type: 3}
   attack2Clip: {fileID: 8300000, guid: a9f0d009f3e8d402b93b7e6a7faf9754, type: 3}
   jumpClip: {fileID: 8300000, guid: 59490852bd44c494fa39e37c664c4ef0, type: 3}
   deathClip: {fileID: 8300000, guid: cdde6e3d989a74a94aebeabdb435bda4, type: 3}
+  hitFlashDuration: 0.5
+  hitFlashColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!95 &5740207655200998889
 Animator:
   serializedVersion: 7
