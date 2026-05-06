@@ -27,6 +27,18 @@ public class NavMeshEnemyAI : MonoBehaviour
     [Header("Chase Offset")]
     [SerializeField] private float targetSideOffset = 0.6f;
 
+    [Header("Head Escape")]
+    [SerializeField] private float headAlignThreshold = 0.15f;
+    [SerializeField] private float headHeightThreshold = 0.5f;
+    [SerializeField] private float headPushOffset = 1.2f;
+    [SerializeField] private float headEscapeDuration = 0.4f;
+
+    [Header("Random Retreat")]
+    [SerializeField] private float retreatIntervalMin = 6f;
+    [SerializeField] private float retreatIntervalMax = 12f;
+    [SerializeField] private float retreatDuration = 0.4f;
+    [SerializeField] private float retreatOffset = 1.0f;
+
     private NavMeshAgent agent;
     private Character character;
     private Transform target;
@@ -42,11 +54,19 @@ public class NavMeshEnemyAI : MonoBehaviour
     private Vector3 mainPlatformCenter;
     private Vector3 mainPlatformNavPoint;
 
+    private float headEscapeUntil;
+    private float headEscapeDir;
+
+    private float retreatUntil;
+    private float retreatDir;
+    private float nextRetreatTime;
+
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         character = GetComponent<Character>();
         CacheMainPlatformCenter();
+        nextRetreatTime = Time.time + Random.Range(retreatIntervalMin, retreatIntervalMax);
     }
 
     private void OnEnable()
@@ -69,6 +89,7 @@ public class NavMeshEnemyAI : MonoBehaviour
 
         TrySnapToNavMesh();
         CacheMainPlatformCenter();
+        nextRetreatTime = Time.time + Random.Range(retreatIntervalMin, retreatIntervalMax);
     }
 
     private void Update()
@@ -106,11 +127,57 @@ public class NavMeshEnemyAI : MonoBehaviour
 
         agent.nextPosition = transform.position;
 
+        float deltaX = currentTargetPosition.x - transform.position.x;
+
+        bool targetAbove =
+            Mathf.Abs(deltaX) < headAlignThreshold &&
+            currentTargetPosition.y > transform.position.y + headHeightThreshold;
+
+        bool aiAbove =
+            Mathf.Abs(deltaX) < headAlignThreshold &&
+            transform.position.y > currentTargetPosition.y + headHeightThreshold;
+
+        bool isStacked = targetAbove || aiAbove;
+
+        if (!returningToPlatform && Time.time >= nextRetreatTime && Time.time >= retreatUntil)
+        {
+            retreatUntil = Time.time + retreatDuration;
+
+            float dir = Mathf.Sign(transform.position.x - currentTargetPosition.x);
+            if (dir == 0f)
+                dir = Random.value < 0.5f ? -1f : 1f;
+
+            retreatDir = dir;
+            nextRetreatTime = Time.time + Random.Range(retreatIntervalMin, retreatIntervalMax);
+        }
+
+        if (isStacked && Time.time >= headEscapeUntil)
+        {
+            headEscapeUntil = Time.time + headEscapeDuration;
+
+            float dir = Mathf.Sign(transform.position.x - currentTargetPosition.x);
+            if (dir == 0f)
+                dir = Random.value < 0.5f ? -1f : 1f;
+
+            headEscapeDir = dir;
+        }
+
+        bool retreating = Time.time < retreatUntil;
+        bool escapingHead = Time.time < headEscapeUntil;
+
         if (Time.time >= nextRetargetTime)
         {
             Vector3 offsetTarget = currentTargetPosition;
 
-            if (!returningToPlatform)
+            if (retreating)
+            {
+                offsetTarget.x += retreatDir * retreatOffset;
+            }
+            else if (escapingHead)
+            {
+                offsetTarget.x += headEscapeDir * headPushOffset;
+            }
+            else if (!returningToPlatform)
             {
                 float dir = Mathf.Sign(transform.position.x - currentTargetPosition.x);
                 offsetTarget.x += dir * targetSideOffset;
@@ -120,18 +187,37 @@ public class NavMeshEnemyAI : MonoBehaviour
             nextRetargetTime = Time.time + retargetInterval;
         }
 
-        float deltaX = currentTargetPosition.x - transform.position.x;
-        float moveX = Mathf.Abs(deltaX) > 0.1f ? Mathf.Sign(deltaX) : 0f;
+        float moveX;
+
+        if (retreating)
+        {
+            moveX = retreatDir;
+        }
+        else if (escapingHead)
+        {
+            moveX = headEscapeDir;
+        }
+        else if (isStacked)
+        {
+            float dir = Mathf.Sign(transform.position.x - currentTargetPosition.x);
+            if (dir == 0f)
+                dir = Random.value < 0.5f ? -1f : 1f;
+            moveX = dir;
+        }
+        else
+        {
+            moveX = Mathf.Abs(deltaX) > 0.1f ? Mathf.Sign(deltaX) : 0f;
+        }
 
         character.Move(new Vector2(moveX, 0f));
 
-        if (ShouldJumpTowardsTarget(currentTargetPosition, returningToPlatform) && Time.time >= nextJumpTime)
+        if (!retreating && !escapingHead && ShouldJumpTowardsTarget(currentTargetPosition, returningToPlatform) && Time.time >= nextJumpTime)
         {
             character.Jump();
             nextJumpTime = Time.time + jumpCooldown;
         }
 
-        if (!returningToPlatform && heartTarget == null && currentTarget != null)
+        if (!retreating && !escapingHead && !returningToPlatform && heartTarget == null && currentTarget != null)
         {
             float distanceToTarget = Vector3.Distance(transform.position, currentTarget.position);
 
