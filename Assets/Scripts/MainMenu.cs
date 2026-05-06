@@ -7,6 +7,17 @@ using TMPro;
 
 public class MainMenu : MonoBehaviour
 {
+    [System.Serializable]
+    private class PlayerInputBindings
+    {
+        public InputActionReference up;
+        public InputActionReference down;
+        public InputActionReference left;
+        public InputActionReference right;
+        public InputActionReference select;
+        public InputActionReference deselect;
+    }
+
     private enum MenuState
     {
         Intro,
@@ -33,6 +44,11 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private float fadeDuration = 2f;
     [SerializeField] private float logoExtraDelay = 1f;
     [SerializeField] private float textDelayAfterLogo = 0.8f;
+    [SerializeField] private float optionInputCooldown = 0.2f;
+
+    [Header("Input")]
+    [SerializeField] private InputActionReference introNextAction;
+    [SerializeField] private PlayerInputBindings player1Input;
 
     private MenuState _state = MenuState.Intro;
     private bool _isTransitioning;
@@ -42,10 +58,38 @@ public class MainMenu : MonoBehaviour
     private Vector3[] _optionBaseScales;
     private Color[] _optionBaseColors;
     private Coroutine _blinkCoroutine;
+    private float _optionInputUnlockTime;
 
     private void Awake()
     {
         CacheOptionData();
+    }
+
+    private void OnEnable()
+    {
+        ApplyInputRouting();
+        InputSystem.onDeviceChange += OnDeviceChange;
+
+        BindAction(introNextAction, OnIntroNextPerformed);
+        BindAction(player1Input.up, OnNavigateUpPerformed);
+        BindAction(player1Input.down, OnNavigateDownPerformed);
+        BindAction(player1Input.left, OnNavigateUpPerformed);
+        BindAction(player1Input.right, OnNavigateDownPerformed);
+        BindAction(player1Input.select, OnSelectPerformed);
+        BindAction(player1Input.deselect, OnBackPerformed);
+    }
+
+    private void OnDisable()
+    {
+        InputSystem.onDeviceChange -= OnDeviceChange;
+
+        UnbindAction(introNextAction, OnIntroNextPerformed);
+        UnbindAction(player1Input.up, OnNavigateUpPerformed);
+        UnbindAction(player1Input.down, OnNavigateDownPerformed);
+        UnbindAction(player1Input.left, OnNavigateUpPerformed);
+        UnbindAction(player1Input.right, OnNavigateDownPerformed);
+        UnbindAction(player1Input.select, OnSelectPerformed);
+        UnbindAction(player1Input.deselect, OnBackPerformed);
     }
 
     private void Start()
@@ -71,32 +115,6 @@ public class MainMenu : MonoBehaviour
 
         HideOptions();
         StartCoroutine(IntroSequence());
-    }
-
-    private void Update()
-    {
-        if (!_canInteract || _isTransitioning)
-            return;
-
-        if (_state == MenuState.Intro)
-        {
-            if (WasConfirmPressed())
-                EnterOptionsMenu();
-
-            return;
-        }
-
-        if (_state == MenuState.Options)
-        {
-            if (WasUpPressed())
-                MoveSelection(-1);
-
-            if (WasDownPressed())
-                MoveSelection(1);
-
-            if (WasConfirmPressed())
-                ConfirmSelection();
-        }
     }
 
     private IEnumerator IntroSequence()
@@ -142,8 +160,34 @@ public class MainMenu : MonoBehaviour
 
         ShowOptions();
 
-        _selectedIndex = 0; // SIEMPRE empieza en la primera opción
+        _selectedIndex = 0;
+        _optionInputUnlockTime = Time.unscaledTime + optionInputCooldown;
         UpdateOptionVisuals();
+    }
+
+    private void ReturnToIntroMenu()
+    {
+        if (_isTransitioning)
+            return;
+
+        _state = MenuState.Intro;
+
+        HideOptions();
+
+        if (logoImage != null)
+            logoImage.gameObject.SetActive(true);
+
+        if (promptText != null)
+            promptText.gameObject.SetActive(true);
+
+        if (_blinkCoroutine != null)
+        {
+            StopCoroutine(_blinkCoroutine);
+            _blinkCoroutine = null;
+        }
+
+        RestoreOptionVisuals();
+        MusicManager.Instance?.PlayMenuBack();
     }
 
     private void MoveSelection(int direction)
@@ -231,6 +275,18 @@ public class MainMenu : MonoBehaviour
         _blinkCoroutine = StartCoroutine(BlinkSelectedOption(_selectedIndex));
     }
 
+    private void RestoreOptionVisuals()
+    {
+        for (int i = 0; i < optionTexts.Length; i++)
+        {
+            if (optionTexts[i] == null)
+                continue;
+
+            optionTexts[i].transform.localScale = _optionBaseScales[i];
+            optionTexts[i].color = _optionBaseColors[i];
+        }
+    }
+
     private IEnumerator BlinkSelectedOption(int index)
     {
         TextMeshProUGUI txt = optionTexts[index];
@@ -297,27 +353,97 @@ public class MainMenu : MonoBehaviour
         tmp.color = c;
     }
 
-    private bool WasConfirmPressed()
+    private void ApplyInputRouting()
     {
-        return Keyboard.current != null &&
-               (Keyboard.current.enterKey.wasPressedThisFrame ||
-                Keyboard.current.numpadEnterKey.wasPressedThisFrame ||
-                Keyboard.current.cKey.wasPressedThisFrame) ||
-               Mouse.current != null &&
-               Mouse.current.leftButton.wasPressedThisFrame;
+        PlayerInputDeviceRouter.AssignDevices(introNextAction, Player.PlayerSlot.Player1);
+        PlayerInputDeviceRouter.AssignDevices(player1Input.up, Player.PlayerSlot.Player1);
+        PlayerInputDeviceRouter.AssignDevices(player1Input.down, Player.PlayerSlot.Player1);
+        PlayerInputDeviceRouter.AssignDevices(player1Input.left, Player.PlayerSlot.Player1);
+        PlayerInputDeviceRouter.AssignDevices(player1Input.right, Player.PlayerSlot.Player1);
+        PlayerInputDeviceRouter.AssignDevices(player1Input.select, Player.PlayerSlot.Player1);
+        PlayerInputDeviceRouter.AssignDevices(player1Input.deselect, Player.PlayerSlot.Player1);
     }
 
-    private bool WasUpPressed()
+    private void OnDeviceChange(InputDevice device, InputDeviceChange change)
     {
-        return Keyboard.current != null &&
-               (Keyboard.current.wKey.wasPressedThisFrame ||
-                Keyboard.current.upArrowKey.wasPressedThisFrame);
+        if (device is not Gamepad && device is not Keyboard && device is not Mouse)
+        {
+            return;
+        }
+
+        switch (change)
+        {
+            case InputDeviceChange.Added:
+            case InputDeviceChange.Removed:
+            case InputDeviceChange.Disconnected:
+            case InputDeviceChange.Reconnected:
+            case InputDeviceChange.Enabled:
+            case InputDeviceChange.Disabled:
+            case InputDeviceChange.ConfigurationChanged:
+                ApplyInputRouting();
+                break;
+        }
     }
 
-    private bool WasDownPressed()
+    private static void BindAction(InputActionReference actionReference, System.Action<InputAction.CallbackContext> onPerformed)
     {
-        return Keyboard.current != null &&
-               (Keyboard.current.sKey.wasPressedThisFrame ||
-                Keyboard.current.downArrowKey.wasPressedThisFrame);
+        if (actionReference == null || actionReference.action == null)
+            return;
+
+        actionReference.action.performed += onPerformed;
+        actionReference.action.Enable();
+    }
+
+    private static void UnbindAction(InputActionReference actionReference, System.Action<InputAction.CallbackContext> onPerformed)
+    {
+        if (actionReference == null || actionReference.action == null)
+            return;
+
+        actionReference.action.performed -= onPerformed;
+    }
+
+    private void OnIntroNextPerformed(InputAction.CallbackContext context)
+    {
+        if (!_canInteract || _isTransitioning || _state != MenuState.Intro)
+            return;
+
+        EnterOptionsMenu();
+    }
+
+    private void OnNavigateUpPerformed(InputAction.CallbackContext context)
+    {
+        if (!_canInteract || _isTransitioning || _state != MenuState.Options || !CanUseOptionInputs())
+            return;
+
+        MoveSelection(-1);
+    }
+
+    private void OnNavigateDownPerformed(InputAction.CallbackContext context)
+    {
+        if (!_canInteract || _isTransitioning || _state != MenuState.Options || !CanUseOptionInputs())
+            return;
+
+        MoveSelection(1);
+    }
+
+    private void OnSelectPerformed(InputAction.CallbackContext context)
+    {
+        if (!_canInteract || _isTransitioning || _state != MenuState.Options || !CanUseOptionInputs())
+            return;
+
+        ConfirmSelection();
+    }
+
+    private void OnBackPerformed(InputAction.CallbackContext context)
+    {
+        if (!_canInteract || _isTransitioning || _state != MenuState.Options || !CanUseOptionInputs())
+            return;
+
+        ReturnToIntroMenu();
+    }
+
+    private bool CanUseOptionInputs()
+    {
+        return Time.unscaledTime >= _optionInputUnlockTime;
     }
 }

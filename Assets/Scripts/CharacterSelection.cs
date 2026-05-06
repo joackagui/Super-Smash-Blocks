@@ -67,6 +67,9 @@ public class CharacterSelection : MonoBehaviour
 
     private void OnEnable()
     {
+        ApplyInputRouting();
+        InputSystem.onDeviceChange += OnDeviceChange;
+
         BindAction(player1Input.up, OnPlayer1UpPerformed);
         BindAction(player1Input.down, OnPlayer1DownPerformed);
         BindAction(player1Input.left, OnPlayer1LeftPerformed);
@@ -90,6 +93,8 @@ public class CharacterSelection : MonoBehaviour
 
     private void OnDisable()
     {
+        InputSystem.onDeviceChange -= OnDeviceChange;
+
         UnbindAction(player1Input.up, OnPlayer1UpPerformed);
         UnbindAction(player1Input.down, OnPlayer1DownPerformed);
         UnbindAction(player1Input.left, OnPlayer1LeftPerformed);
@@ -118,6 +123,48 @@ public class CharacterSelection : MonoBehaviour
     {
         if (actionReference == null || actionReference.action == null) return;
         actionReference.action.performed -= onPerformed;
+    }
+
+    private void ApplyInputRouting()
+    {
+        ApplyBindingsForPlayer(player1Input, Player.PlayerSlot.Player1);
+        ApplyBindingsForPlayer(player2Input, Player.PlayerSlot.Player2, false);
+    }
+
+    private static void ApplyBindingsForPlayer(PlayerInputBindings bindings, Player.PlayerSlot slot, bool includeKeyboardAndMouseForPlayerOne = true)
+    {
+        if (bindings == null)
+        {
+            return;
+        }
+
+        PlayerInputDeviceRouter.AssignDevices(bindings.up, slot, includeKeyboardAndMouseForPlayerOne);
+        PlayerInputDeviceRouter.AssignDevices(bindings.down, slot, includeKeyboardAndMouseForPlayerOne);
+        PlayerInputDeviceRouter.AssignDevices(bindings.left, slot, includeKeyboardAndMouseForPlayerOne);
+        PlayerInputDeviceRouter.AssignDevices(bindings.right, slot, includeKeyboardAndMouseForPlayerOne);
+        PlayerInputDeviceRouter.AssignDevices(bindings.select, slot, includeKeyboardAndMouseForPlayerOne);
+        PlayerInputDeviceRouter.AssignDevices(bindings.deselect, slot, includeKeyboardAndMouseForPlayerOne);
+    }
+
+    private void OnDeviceChange(InputDevice device, InputDeviceChange change)
+    {
+        if (device is not Gamepad && device is not Keyboard && device is not Mouse)
+        {
+            return;
+        }
+
+        switch (change)
+        {
+            case InputDeviceChange.Added:
+            case InputDeviceChange.Removed:
+            case InputDeviceChange.Disconnected:
+            case InputDeviceChange.Reconnected:
+            case InputDeviceChange.Enabled:
+            case InputDeviceChange.Disabled:
+            case InputDeviceChange.ConfigurationChanged:
+                ApplyInputRouting();
+                break;
+        }
     }
 
     private void OnPlayer1UpPerformed(InputAction.CallbackContext context)

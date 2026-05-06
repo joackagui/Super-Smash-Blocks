@@ -104,6 +104,17 @@
                 },
                 {
                     "name": "",
+                    "id": "5a1b0472-8e1c-447e-a63b-530ca8c07a71",
+                    "path": "<DualSenseGamepadHID>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Action1",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "8c266b05-ca33-4ef8-a9ca-b6064eeaa3a7",
                     "path": "<Keyboard>/v",
                     "interactions": "",
@@ -126,6 +137,17 @@
                 },
                 {
                     "name": "",
+                    "id": "741260a7-9b48-41ee-bc33-ae19b0ee66bb",
+                    "path": "<DualSenseGamepadHID>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Action2",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "dc4263c2-f9a2-4d48-ae46-6f0881bd9905",
                     "path": "<Keyboard>/leftShift",
                     "interactions": "",
@@ -138,7 +160,18 @@
                 {
                     "name": "",
                     "id": "0c4d9095-34ac-4de7-939d-ac737a898ff5",
-                    "path": "<DualSenseGamepadHID>/buttonEast",
+                    "path": "<DualSenseGamepadHID>/rightTriggerButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Dodge",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "08893beb-1fd6-4d4c-84be-da6adfbd657b",
+                    "path": "<DualSenseGamepadHID>/leftTriggerButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

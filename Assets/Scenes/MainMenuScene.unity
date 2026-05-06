@@ -830,13 +830,21 @@ MonoBehaviour:
   - {fileID: 636614760}
   selectedScale: 1.15
   unselectedScale: 1
-  blinkColor: {r: 1, g: 1, b: 1, a: 1}
-  blinkInterval: 0.08
+  blinkSpeed: 4
   characterSelectionSceneName: CharacterSelectionScene
   delayBeforeFade: 1
   fadeDuration: 1
   logoExtraDelay: 1
   textDelayAfterLogo: 0.3
+  optionInputCooldown: 0.2
+  introNextAction: {fileID: -4645664107522570380, guid: d69f5cc184bdc4cf9a4ebb857954208a, type: 3}
+  player1Input:
+    up: {fileID: -8080568523068587970, guid: 7704f01f7968f4491bb44bfd42f06be7, type: 3}
+    down: {fileID: -8636454652108121678, guid: 7704f01f7968f4491bb44bfd42f06be7, type: 3}
+    left: {fileID: -6086142847131883179, guid: 7704f01f7968f4491bb44bfd42f06be7, type: 3}
+    right: {fileID: 303562441187682275, guid: 7704f01f7968f4491bb44bfd42f06be7, type: 3}
+    select: {fileID: 310677176593949835, guid: 7704f01f7968f4491bb44bfd42f06be7, type: 3}
+    deselect: {fileID: -6001212597897504926, guid: 7704f01f7968f4491bb44bfd42f06be7, type: 3}
 --- !u!1 &1046822657
 GameObject:
   m_ObjectHideFlags: 0
@@ -928,6 +936,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04aaa93f1f05e41f39c0144e55fefae6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  currentMode: 1
   player1: {fileID: 0}
   player2: {fileID: 0}
   character1: {fileID: 0}

@@ -39,8 +39,30 @@
                 },
                 {
                     "name": "",
+                    "id": "5f922c5a-46f0-42b4-b883-2500df942ac4",
+                    "path": "<DualSenseGamepadHID>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Return",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "f1440eff-f032-4ee9-b04d-53b2c921f258",
                     "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Next",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "90d405de-362f-408a-91d8-4f8a671eb035",
+                    "path": "<DualSenseGamepadHID>/buttonSouth",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

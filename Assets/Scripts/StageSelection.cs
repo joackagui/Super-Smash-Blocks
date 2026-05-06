@@ -51,6 +51,9 @@ public class StageSelection : MonoBehaviour
 
     private void OnEnable()
     {
+        ApplyInputRouting();
+        InputSystem.onDeviceChange += OnDeviceChange;
+
         BindAction(player1Input.up, OnUpPerformed);
         BindAction(player1Input.down, OnDownPerformed);
         BindAction(player1Input.left, OnLeftPerformed);
@@ -66,6 +69,8 @@ public class StageSelection : MonoBehaviour
 
     private void OnDisable()
     {
+        InputSystem.onDeviceChange -= OnDeviceChange;
+
         UnbindAction(player1Input.up, OnUpPerformed);
         UnbindAction(player1Input.down, OnDownPerformed);
         UnbindAction(player1Input.left, OnLeftPerformed);
@@ -85,6 +90,37 @@ public class StageSelection : MonoBehaviour
     {
         if (actionReference == null || actionReference.action == null) return;
         actionReference.action.performed -= onPerformed;
+    }
+
+    private void ApplyInputRouting()
+    {
+        PlayerInputDeviceRouter.AssignDevices(player1Input.up, Player.PlayerSlot.Player1);
+        PlayerInputDeviceRouter.AssignDevices(player1Input.down, Player.PlayerSlot.Player1);
+        PlayerInputDeviceRouter.AssignDevices(player1Input.left, Player.PlayerSlot.Player1);
+        PlayerInputDeviceRouter.AssignDevices(player1Input.right, Player.PlayerSlot.Player1);
+        PlayerInputDeviceRouter.AssignDevices(player1Input.select, Player.PlayerSlot.Player1);
+        PlayerInputDeviceRouter.AssignDevices(backAction, Player.PlayerSlot.Player1);
+    }
+
+    private void OnDeviceChange(InputDevice device, InputDeviceChange change)
+    {
+        if (device is not Gamepad && device is not Keyboard && device is not Mouse)
+        {
+            return;
+        }
+
+        switch (change)
+        {
+            case InputDeviceChange.Added:
+            case InputDeviceChange.Removed:
+            case InputDeviceChange.Disconnected:
+            case InputDeviceChange.Reconnected:
+            case InputDeviceChange.Enabled:
+            case InputDeviceChange.Disabled:
+            case InputDeviceChange.ConfigurationChanged:
+                ApplyInputRouting();
+                break;
+        }
     }
 
     private void OnUpPerformed(InputAction.CallbackContext context)

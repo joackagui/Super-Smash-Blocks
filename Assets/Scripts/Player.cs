@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
+using System.Collections.Generic;
 
 public class Player : MonoBehaviour
 {
@@ -17,6 +18,7 @@ public class Player : MonoBehaviour
     [SerializeField] private GameObject spawnPoint;
     [SerializeField] private TextMeshProUGUI damageText;
 
+    private InputActionMap actionMap;
     private InputAction moveAction;
     private InputAction leftAction;
     private InputAction rightAction;
@@ -190,11 +192,15 @@ public class Player : MonoBehaviour
             GameManager.Instance.RegisterPlayer(this);
         }
 
+        ApplyDeviceRouting();
+        InputSystem.onDeviceChange += OnDeviceChange;
         EnableActions(true);
     }
 
     private void OnDisable()
     {
+        InputSystem.onDeviceChange -= OnDeviceChange;
+
         if (GameManager.Instance != null)
         {
             GameManager.Instance.UnregisterPlayer(this);
@@ -274,6 +280,7 @@ public class Player : MonoBehaviour
             return;
         }
 
+        actionMap = map;
         moveAction = map.FindAction("Move", false) ?? map.FindAction("Movement", false);
         leftAction = map.FindAction("Left", false);
         rightAction = map.FindAction("Right", false);
@@ -283,6 +290,32 @@ public class Player : MonoBehaviour
         dodgeAction = map.FindAction("Dodge", false);
 
         map.Enable();
+    }
+
+    private void ApplyDeviceRouting()
+    {
+        PlayerInputDeviceRouter.AssignDevices(actionMap, playerSlot);
+    }
+
+    private void OnDeviceChange(InputDevice device, InputDeviceChange change)
+    {
+        if (device is not Gamepad && device is not Keyboard && device is not Mouse)
+        {
+            return;
+        }
+
+        switch (change)
+        {
+            case InputDeviceChange.Added:
+            case InputDeviceChange.Removed:
+            case InputDeviceChange.Disconnected:
+            case InputDeviceChange.Reconnected:
+            case InputDeviceChange.Enabled:
+            case InputDeviceChange.Disabled:
+            case InputDeviceChange.ConfigurationChanged:
+                ApplyDeviceRouting();
+                break;
+        }
     }
 
     private void EnableActions(bool enable)
@@ -350,5 +383,68 @@ public class Player : MonoBehaviour
         }
 
         damageText.text = character.GetDamageReceived().ToString("0") + "%";
+    }
+}
+
+public static class PlayerInputDeviceRouter
+{
+    public static void AssignDevices(InputActionMap actionMap, Player.PlayerSlot playerSlot, bool includeKeyboardAndMouseForPlayerOne = true)
+    {
+        if (actionMap == null)
+        {
+            return;
+        }
+
+        actionMap.devices = GetDevicesForPlayer(playerSlot, includeKeyboardAndMouseForPlayerOne);
+    }
+
+    public static void AssignDevices(InputAction action, Player.PlayerSlot playerSlot, bool includeKeyboardAndMouseForPlayerOne = true)
+    {
+        if (action == null)
+        {
+            return;
+        }
+
+        AssignDevices(action.actionMap, playerSlot, includeKeyboardAndMouseForPlayerOne);
+    }
+
+    public static void AssignDevices(InputActionReference actionReference, Player.PlayerSlot playerSlot, bool includeKeyboardAndMouseForPlayerOne = true)
+    {
+        if (actionReference == null)
+        {
+            return;
+        }
+
+        AssignDevices(actionReference.action, playerSlot, includeKeyboardAndMouseForPlayerOne);
+    }
+
+    public static InputDevice[] GetDevicesForPlayer(Player.PlayerSlot playerSlot, bool includeKeyboardAndMouseForPlayerOne = true)
+    {
+        List<InputDevice> devices = new List<InputDevice>();
+        int gamepadIndex = playerSlot == Player.PlayerSlot.Player1 ? 0 : 1;
+
+        if (Gamepad.all.Count > gamepadIndex)
+        {
+            Gamepad assignedGamepad = Gamepad.all[gamepadIndex];
+            if (assignedGamepad != null)
+            {
+                devices.Add(assignedGamepad);
+            }
+        }
+
+        if (includeKeyboardAndMouseForPlayerOne && playerSlot == Player.PlayerSlot.Player1)
+        {
+            if (Keyboard.current != null)
+            {
+                devices.Add(Keyboard.current);
+            }
+
+            if (Mouse.current != null)
+            {
+                devices.Add(Mouse.current);
+            }
+        }
+
+        return devices.ToArray();
     }
 }
