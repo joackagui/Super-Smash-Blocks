@@ -168,7 +168,7 @@ public class CharacterSelection : MonoBehaviour
     {
         if (isTransitioning) return;
         if (player1Selected) return;
-        if (IsBlockedSelection(player1Position, "Player1")) return;
+        if (IsBlockedSelection(player1Position)) return;
 
         player1Selected = true;
         MusicManager.Instance?.PlayMenuSelect();
@@ -190,7 +190,7 @@ public class CharacterSelection : MonoBehaviour
         if (IsSinglePlayer) return;
         if (isTransitioning) return;
         if (player2Selected) return;
-        if (IsBlockedSelection(player2Position, "Player2")) return;
+        if (IsBlockedSelection(player2Position)) return;
 
         player2Selected = true;
         MusicManager.Instance?.PlayMenuSelect();
@@ -316,7 +316,7 @@ public class CharacterSelection : MonoBehaviour
         return slot.characterName;
     }
 
-    private bool IsBlockedSelection(Vector2Int position, string playerLabel)
+    private bool IsBlockedSelection(Vector2Int position)
     {
         if (GetCharacterName(position) != "Blocked")
             return false;
@@ -361,7 +361,7 @@ public class CharacterSelection : MonoBehaviour
                 slot.player1Marker.enabled = slotPosition == player1Position;
 
             if (slot.player2Marker != null)
-                slot.player2Marker.enabled = slotPosition == player2Position;
+                slot.player2Marker.enabled = !IsSinglePlayer && slotPosition == player2Position;
         }
     }
 
