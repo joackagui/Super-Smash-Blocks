@@ -20,6 +20,10 @@ public class CameraController : MonoBehaviour
     [Header("Camera Offset")]
     [SerializeField] private Vector3 offset = new Vector3(0f, 3f, -10f);
 
+    [SerializeField] private Vector2 xLimits = new Vector2(-10f, 10f);
+    [SerializeField] private Vector2 yLimits = new Vector2(1f, 10f);
+    [SerializeField] private float fixedZ = -10f;
+
     private Camera cam;
 
     private float refreshTimer = 0f;
@@ -51,9 +55,7 @@ public class CameraController : MonoBehaviour
 
         MoveTowardsMidpoint(midpoint);
         AdjustZoom();
-
-        // Make camera look at players
-        transform.LookAt(midpoint);
+        transform.rotation = Quaternion.identity;
     }
 
     private void RefreshCharacters()
@@ -109,6 +111,11 @@ public class CameraController : MonoBehaviour
     {
         Vector3 targetPos = midpoint + offset;
 
+        // Clamp position so camera doesn't go out of bounds
+        targetPos.x = Mathf.Clamp(targetPos.x, xLimits.x, xLimits.y);
+        targetPos.y = Mathf.Clamp(targetPos.y, yLimits.x, yLimits.y);
+        targetPos.z = fixedZ; // lock Z so it never shifts forward/back
+
         transform.position = Vector3.SmoothDamp(
             transform.position,
             targetPos,
@@ -128,6 +135,7 @@ public class CameraController : MonoBehaviour
             baseFOV * maxFOVPercent,
             t
         );
+        targetFOV = Mathf.Clamp(targetFOV, 50f, 80f);
 
         cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, targetFOV, zoomSpeed * Time.deltaTime);
     }
