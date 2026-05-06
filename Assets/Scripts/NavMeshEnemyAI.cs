@@ -36,8 +36,8 @@ public class NavMeshEnemyAI : MonoBehaviour
     [Header("Random Retreat")]
     [SerializeField] private float retreatIntervalMin = 6f;
     [SerializeField] private float retreatIntervalMax = 12f;
-    [SerializeField] private float retreatDuration = 0.4f;
-    [SerializeField] private float retreatOffset = 1.0f;
+    [SerializeField] private float retreatDuration = 0.7f;
+    [SerializeField] private float retreatOffset = 1.3f;
 
     private NavMeshAgent agent;
     private Character character;
