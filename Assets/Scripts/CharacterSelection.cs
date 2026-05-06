@@ -50,11 +50,26 @@ public class CharacterSelection : MonoBehaviour
     [SerializeField] private RawImage player2Icon;
     [SerializeField] private TextMeshProUGUI player2Name;
 
+    [Header("Difficulty UI")]
+    [SerializeField] private GameObject difficultyCanvas;
+    [SerializeField] private TextMeshProUGUI normalDifficultyText;
+    [SerializeField] private TextMeshProUGUI hardDifficultyText;
+    [SerializeField] private float selectedScale = 1.15f;
+    [SerializeField] private float unselectedScale = 1f;
+    [SerializeField] private float blinkSpeed = 4f;
+
     private Vector2Int player1Position = new Vector2Int(0, 0);
     private Vector2Int player2Position = new Vector2Int(1, 1);
     private bool player1Selected;
     private bool player2Selected;
     private bool isTransitioning;
+    private bool isDifficultySelectionActive;
+    private int difficultyIndex;
+
+    private TextMeshProUGUI[] difficultyTexts;
+    private Vector3[] difficultyBaseScales;
+    private Color[] difficultyBaseColors;
+    private Coroutine difficultyBlinkCoroutine;
 
     private bool IsSinglePlayer => GameManager.Instance != null && GameManager.Instance.IsSinglePlayer;
 
@@ -63,6 +78,19 @@ public class CharacterSelection : MonoBehaviour
         ValidateGameManager();
         player1Selected = false;
         player2Selected = false;
+        isDifficultySelectionActive = false;
+        difficultyIndex = 0;
+
+        if (difficultyCanvas != null)
+            difficultyCanvas.SetActive(false);
+
+        if (normalDifficultyText != null)
+            normalDifficultyText.gameObject.SetActive(false);
+
+        if (hardDifficultyText != null)
+            hardDifficultyText.gameObject.SetActive(false);
+
+        CacheDifficultyData();
     }
 
     private void OnEnable()
@@ -86,6 +114,7 @@ public class CharacterSelection : MonoBehaviour
         RefreshMarkers();
         UpdateUIText();
         UpdatePlayerPreview();
+        RefreshDifficultyUI();
     }
 
     private void OnDisable()
@@ -105,6 +134,8 @@ public class CharacterSelection : MonoBehaviour
         UnbindAction(player2Input.deselect, OnPlayer2DeselectPerformed);
 
         UnbindAction(backAction, OnBackPerformed);
+
+        StopDifficultyBlink();
     }
 
     private static void BindAction(InputActionReference actionReference, System.Action<InputAction.CallbackContext> onPerformed)
@@ -122,51 +153,86 @@ public class CharacterSelection : MonoBehaviour
 
     private void OnPlayer1UpPerformed(InputAction.CallbackContext context)
     {
+        if (isDifficultySelectionActive)
+        {
+            SetDifficulty(0);
+            return;
+        }
+
         MovePlayer(ref player1Position, player2Position, player1Selected, new Vector2Int(0, -1));
     }
 
     private void OnPlayer1DownPerformed(InputAction.CallbackContext context)
     {
+        if (isDifficultySelectionActive)
+        {
+            SetDifficulty(1);
+            return;
+        }
+
         MovePlayer(ref player1Position, player2Position, player1Selected, new Vector2Int(0, 1));
     }
 
     private void OnPlayer1LeftPerformed(InputAction.CallbackContext context)
     {
+        if (isDifficultySelectionActive)
+        {
+            SetDifficulty(0);
+            return;
+        }
+
         MovePlayer(ref player1Position, player2Position, player1Selected, Vector2Int.left);
     }
 
     private void OnPlayer1RightPerformed(InputAction.CallbackContext context)
     {
+        if (isDifficultySelectionActive)
+        {
+            SetDifficulty(1);
+            return;
+        }
+
         MovePlayer(ref player1Position, player2Position, player1Selected, Vector2Int.right);
     }
 
     private void OnPlayer2UpPerformed(InputAction.CallbackContext context)
     {
         if (IsSinglePlayer) return;
+        if (isDifficultySelectionActive) return;
         MovePlayer(ref player2Position, player1Position, player2Selected, new Vector2Int(0, -1));
     }
 
     private void OnPlayer2DownPerformed(InputAction.CallbackContext context)
     {
         if (IsSinglePlayer) return;
+        if (isDifficultySelectionActive) return;
         MovePlayer(ref player2Position, player1Position, player2Selected, new Vector2Int(0, 1));
     }
 
     private void OnPlayer2LeftPerformed(InputAction.CallbackContext context)
     {
         if (IsSinglePlayer) return;
+        if (isDifficultySelectionActive) return;
         MovePlayer(ref player2Position, player1Position, player2Selected, Vector2Int.left);
     }
 
     private void OnPlayer2RightPerformed(InputAction.CallbackContext context)
     {
         if (IsSinglePlayer) return;
+        if (isDifficultySelectionActive) return;
         MovePlayer(ref player2Position, player1Position, player2Selected, Vector2Int.right);
     }
 
     private void OnPlayer1SelectPerformed(InputAction.CallbackContext context)
     {
         if (isTransitioning) return;
+
+        if (isDifficultySelectionActive)
+        {
+            ConfirmDifficulty();
+            return;
+        }
+
         if (player1Selected) return;
         if (IsBlockedSelection(player1Position)) return;
 
@@ -189,6 +255,7 @@ public class CharacterSelection : MonoBehaviour
     {
         if (IsSinglePlayer) return;
         if (isTransitioning) return;
+        if (isDifficultySelectionActive) return;
         if (player2Selected) return;
         if (IsBlockedSelection(player2Position)) return;
 
@@ -203,6 +270,7 @@ public class CharacterSelection : MonoBehaviour
 
     private void OnPlayer1DeselectPerformed(InputAction.CallbackContext context)
     {
+        if (isDifficultySelectionActive) return;
         if (!player1Selected) return;
 
         player1Selected = false;
@@ -215,6 +283,7 @@ public class CharacterSelection : MonoBehaviour
     private void OnPlayer2DeselectPerformed(InputAction.CallbackContext context)
     {
         if (IsSinglePlayer) return;
+        if (isDifficultySelectionActive) return;
         if (!player2Selected) return;
 
         player2Selected = false;
@@ -227,6 +296,7 @@ public class CharacterSelection : MonoBehaviour
     private void OnBackPerformed(InputAction.CallbackContext context)
     {
         if (isTransitioning) return;
+        if (isDifficultySelectionActive) return;
 
         MusicManager.Instance?.PlayMenuBack();
 
@@ -331,12 +401,65 @@ public class CharacterSelection : MonoBehaviour
 
         if (IsSinglePlayer)
         {
-            if (!player1Selected) return;
-        }
-        else
-        {
             if (!player1Selected || !player2Selected) return;
+            ShowDifficultySelection();
+            return;
         }
+
+        if (!player1Selected || !player2Selected)
+            return;
+
+        LoadNextScene();
+    }
+
+    private void ShowDifficultySelection()
+    {
+        isDifficultySelectionActive = true;
+        difficultyIndex = 0;
+
+        if (difficultyCanvas != null)
+            difficultyCanvas.SetActive(true);
+
+        if (normalDifficultyText != null)
+            normalDifficultyText.gameObject.SetActive(true);
+
+        if (hardDifficultyText != null)
+            hardDifficultyText.gameObject.SetActive(true);
+
+        RefreshDifficultyUI();
+    }
+
+    private void SetDifficulty(int index)
+    {
+        if (index < 0 || index > 1)
+            return;
+
+        if (difficultyIndex == index)
+            return;
+
+        difficultyIndex = index;
+        MusicManager.Instance?.PlayMenuMove();
+        RefreshDifficultyUI();
+    }
+
+    private void ConfirmDifficulty()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.SetEnemyDifficulty(difficultyIndex == 0 ? EnemyDifficulty.Normal : EnemyDifficulty.Hard);
+        }
+
+        MusicManager.Instance?.PlayMenuSelect();
+
+        isDifficultySelectionActive = false;
+        StopDifficultyBlink();
+
+        LoadNextScene();
+    }
+
+    private void LoadNextScene()
+    {
+        if (isTransitioning) return;
 
         isTransitioning = true;
 
@@ -346,6 +469,100 @@ public class CharacterSelection : MonoBehaviour
             SceneManager.LoadScene(nextSceneIndex);
         else
             isTransitioning = false;
+    }
+
+    private void RefreshDifficultyUI()
+    {
+        if (difficultyTexts == null || difficultyTexts.Length == 0)
+            return;
+
+        for (int i = 0; i < difficultyTexts.Length; i++)
+        {
+            TextMeshProUGUI txt = difficultyTexts[i];
+            if (txt == null) continue;
+
+            if (i == difficultyIndex)
+            {
+                txt.transform.localScale = difficultyBaseScales[i] * selectedScale;
+            }
+            else
+            {
+                txt.transform.localScale = difficultyBaseScales[i] * unselectedScale;
+                txt.color = difficultyBaseColors[i];
+            }
+        }
+
+        StartDifficultyBlink();
+    }
+
+    private void StartDifficultyBlink()
+    {
+        StopDifficultyBlink();
+        difficultyBlinkCoroutine = StartCoroutine(BlinkSelectedDifficulty(difficultyIndex));
+    }
+
+    private void StopDifficultyBlink()
+    {
+        if (difficultyBlinkCoroutine != null)
+        {
+            StopCoroutine(difficultyBlinkCoroutine);
+            difficultyBlinkCoroutine = null;
+        }
+
+        if (difficultyTexts == null) return;
+
+        for (int i = 0; i < difficultyTexts.Length; i++)
+        {
+            if (difficultyTexts[i] != null)
+                difficultyTexts[i].color = difficultyBaseColors[i];
+        }
+    }
+
+    private System.Collections.IEnumerator BlinkSelectedDifficulty(int index)
+    {
+        if (difficultyTexts == null || index < 0 || index >= difficultyTexts.Length)
+            yield break;
+
+        TextMeshProUGUI txt = difficultyTexts[index];
+        if (txt == null)
+            yield break;
+
+        Color baseColor = difficultyBaseColors[index];
+
+        while (isDifficultySelectionActive && difficultyIndex == index)
+        {
+            float alpha = Mathf.Abs(Mathf.Sin(Time.time * blinkSpeed));
+            Color c = baseColor;
+            c.a = alpha;
+            txt.color = c;
+            yield return null;
+        }
+
+        txt.color = baseColor;
+    }
+
+    private void CacheDifficultyData()
+    {
+        difficultyTexts = new TextMeshProUGUI[2];
+        difficultyTexts[0] = normalDifficultyText;
+        difficultyTexts[1] = hardDifficultyText;
+
+        difficultyBaseScales = new Vector3[difficultyTexts.Length];
+        difficultyBaseColors = new Color[difficultyTexts.Length];
+
+        for (int i = 0; i < difficultyTexts.Length; i++)
+        {
+            if (difficultyTexts[i] != null)
+            {
+                difficultyBaseScales[i] = difficultyTexts[i].transform.localScale;
+                difficultyBaseColors[i] = difficultyTexts[i].color;
+            }
+            else
+            {
+                difficultyBaseScales[i] = Vector3.one;
+                difficultyBaseColors[i] = Color.white;
+            }
+        }
     }
 
     private void RefreshMarkers()

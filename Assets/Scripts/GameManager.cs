@@ -8,6 +8,12 @@ public enum GameMode
     Multiplayer
 }
 
+public enum EnemyDifficulty
+{
+    Normal,
+    Hard
+}
+
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
@@ -31,6 +37,7 @@ public class GameManager : MonoBehaviour
     private string player2Selection = "None";
     private string stageSelection = "None";
     private string winnerSelection = "None";
+    private EnemyDifficulty enemyDifficulty = EnemyDifficulty.Normal;
 
     private bool isVictoryLoading = false;
 
@@ -41,6 +48,8 @@ public class GameManager : MonoBehaviour
     }
 
     public bool IsSinglePlayer => currentMode == GameMode.SinglePlayer;
+
+    public EnemyDifficulty EnemyAILevel => enemyDifficulty;
 
     private void Awake()
     {
@@ -142,11 +151,22 @@ public class GameManager : MonoBehaviour
         winnerSelection = selection;
     }
 
+    public void SetEnemyDifficulty(EnemyDifficulty difficulty)
+    {
+        enemyDifficulty = difficulty;
+    }
+
+    public EnemyDifficulty GetEnemyDifficulty()
+    {
+        return enemyDifficulty;
+    }
+
     public void ClearSelections()
     {
         player1Selection = "None";
         player2Selection = "None";
         stageSelection = "None";
+        enemyDifficulty = EnemyDifficulty.Normal;
     }
 
     public void ClearStageSelection()
@@ -339,10 +359,10 @@ public class GameManager : MonoBehaviour
             agent = character.gameObject.AddComponent<NavMeshAgent>();
         }
 
-        agent.speed = 4f;
-        agent.acceleration = 10f;
+        agent.speed = enemyDifficulty == EnemyDifficulty.Hard ? 5.5f : 4f;
+        agent.acceleration = enemyDifficulty == EnemyDifficulty.Hard ? 14f : 10f;
         agent.angularSpeed = 0f;
-        agent.stoppingDistance = 1.7f;
+        agent.stoppingDistance = enemyDifficulty == EnemyDifficulty.Hard ? 1.3f : 1.7f;
         agent.autoBraking = false;
         agent.autoTraverseOffMeshLink = false;
         agent.updatePosition = false;
@@ -362,10 +382,14 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        if (character.GetComponent<NavMeshEnemyAI>() == null)
+        NavMeshEnemyAI ai = character.GetComponent<NavMeshEnemyAI>();
+
+        if (ai == null)
         {
-            character.gameObject.AddComponent<NavMeshEnemyAI>();
+            ai = character.gameObject.AddComponent<NavMeshEnemyAI>();
         }
+
+        ai.SetDifficulty(enemyDifficulty);
     }
 
     private string GetSelectionForPlayer(Player player)
