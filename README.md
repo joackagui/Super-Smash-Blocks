@@ -37,7 +37,7 @@ Juego de combate local 2.5D estilo plataforma inspirado en Super Smash Bros, des
 
 ## Requisitos
 
-- **Unity** 2021.3 LTS o superior (ver versión exacta en `ProjectSettings/ProjectVersion.txt`)
+- **Unity** 6.0.4.0f1 (ver versión exacta en `ProjectSettings/ProjectVersion.txt`)
 - **Paquetes Unity** requeridos:
   - `Input System` — para gestión de controles y bindings
   - `TextMeshPro` — para textos de UI y HUD
@@ -255,7 +255,6 @@ Abrir un **Issue** en el repositorio con:
 
 - [ ] `Assets/Scripts/Throwable.cs` está vacío — implementar si se requieren proyectiles genéricos lanzables.
 - [ ] Las clases `Batman`, `Joker` y `RedHood` extienden `Character` sin lógica propia — agregar habilidades especiales, animaciones únicas y estadísticas diferenciadas.
-- [ ] Documentar la versión exacta de Unity en este README (leer `ProjectSettings/ProjectVersion.txt`).
 - [ ] Crear `CONTRIBUTING.md` con pasos de setup, normas de commit y guía de estilo.
 - [ ] Considerar añadir tests con **Unity Test Framework** para lógica crítica (daño, knockback, condición de victoria).
 - [ ] Agregar soporte para más de 2 jugadores si se desea expandir.
