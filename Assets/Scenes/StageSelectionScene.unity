@@ -488,7 +488,7 @@ MonoBehaviour:
     icon: {fileID: 2800000, guid: b8da0cc1268f7409ea6485f6ffd145dd, type: 3}
     stageImage: {fileID: 1151911975}
     marker: {fileID: 1945894050}
-  - stageName: ArkhamAsylum
+  - stageName: Arkham Asylum
     icon: {fileID: 2800000, guid: b24cc76ddabd5474799bb67606e1b628, type: 3}
     stageImage: {fileID: 1236875538}
     marker: {fileID: 1007775399}
@@ -496,7 +496,7 @@ MonoBehaviour:
     icon: {fileID: 2800000, guid: d65324abf6edff0459a62af7a4c58f1c, type: 3}
     stageImage: {fileID: 1212272563}
     marker: {fileID: 1471438121}
-  - stageName: Funhouse
+  - stageName: Joker's Funhouse
     icon: {fileID: 2800000, guid: 85758b6099df12e46a3c729d4ffb09af, type: 3}
     stageImage: {fileID: 228597622}
     marker: {fileID: 1870529183}
