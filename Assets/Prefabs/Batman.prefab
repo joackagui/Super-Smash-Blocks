@@ -264,6 +264,10 @@ MonoBehaviour:
   deathClip: {fileID: 8300000, guid: c04cfa3c544e544e681a3c206c3cf240, type: 3}
   hitFlashDuration: 0.5
   hitFlashColor: {r: 1, g: 0, b: 0, a: 1}
+  batarangPrefab: {fileID: 1200010422218545471, guid: b5f609c2776694af38fc010f6f60f6be, type: 3}
+  batarangDamage: 9
+  batarangImpulse: 10
+  batarangScale: {x: 10, y: 10, z: 10}
 --- !u!95 &3124989798947129554
 Animator:
   serializedVersion: 7

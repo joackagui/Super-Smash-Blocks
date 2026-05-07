@@ -231,9 +231,10 @@ MonoBehaviour:
   inputActions: {fileID: -944628639613478452, guid: eb37b8e8d3035486c91ba746d52fbf6f, type: 3}
   actionMapName: New action map
   playerSlot: 1
+  initialSpawnPoint: {fileID: 0}
   spawnPoint: {fileID: 1776948371}
   damageText: {fileID: 0}
-  character: {fileID: 223827404}
+  character: {fileID: 2055930165}
   lives: 3
 --- !u!4 &161870805
 Transform:
@@ -250,74 +251,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &223827404 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3349470597532080213, guid: 64766d94e4505404a9cc881d9d3b9e0a, type: 3}
-  m_PrefabInstance: {fileID: 306472775}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 163cb725d4fa845319b5d0b8a6ef38d3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Joker
---- !u!1001 &306472775
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 5670371311957609786, guid: 64766d94e4505404a9cc881d9d3b9e0a, type: 3}
-      propertyPath: m_Name
-      value: Joker
-      objectReference: {fileID: 0}
-    - target: {fileID: 5797267527835185579, guid: 64766d94e4505404a9cc881d9d3b9e0a, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 5797267527835185579, guid: 64766d94e4505404a9cc881d9d3b9e0a, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 2.48
-      objectReference: {fileID: 0}
-    - target: {fileID: 5797267527835185579, guid: 64766d94e4505404a9cc881d9d3b9e0a, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5797267527835185579, guid: 64766d94e4505404a9cc881d9d3b9e0a, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5797267527835185579, guid: 64766d94e4505404a9cc881d9d3b9e0a, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5797267527835185579, guid: 64766d94e4505404a9cc881d9d3b9e0a, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5797267527835185579, guid: 64766d94e4505404a9cc881d9d3b9e0a, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5797267527835185579, guid: 64766d94e4505404a9cc881d9d3b9e0a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5797267527835185579, guid: 64766d94e4505404a9cc881d9d3b9e0a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5797267527835185579, guid: 64766d94e4505404a9cc881d9d3b9e0a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 64766d94e4505404a9cc881d9d3b9e0a, type: 3}
 --- !u!1 &356343787
 GameObject:
   m_ObjectHideFlags: 0
@@ -439,7 +372,7 @@ MonoBehaviour:
   player1: {fileID: 795750628}
   player2: {fileID: 161870804}
   character1: {fileID: 0}
-  character2: {fileID: 223827404}
+  character2: {fileID: 0}
   batmanPrefab: {fileID: 0}
   redHoodPrefab: {fileID: 0}
   jokerPrefab: {fileID: 0}
@@ -490,6 +423,7 @@ MonoBehaviour:
   inputActions: {fileID: -944628639613478452, guid: 7704f01f7968f4491bb44bfd42f06be7, type: 3}
   actionMapName: New action map
   playerSlot: 0
+  initialSpawnPoint: {fileID: 0}
   spawnPoint: {fileID: 356343787}
   damageText: {fileID: 0}
   character: {fileID: 17500172}
@@ -918,6 +852,74 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &2055930164
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 469325181975475139, guid: 4e7a8fcaf53164b35828071bee8846fc, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 469325181975475139, guid: 4e7a8fcaf53164b35828071bee8846fc, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 469325181975475139, guid: 4e7a8fcaf53164b35828071bee8846fc, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 469325181975475139, guid: 4e7a8fcaf53164b35828071bee8846fc, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 469325181975475139, guid: 4e7a8fcaf53164b35828071bee8846fc, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 469325181975475139, guid: 4e7a8fcaf53164b35828071bee8846fc, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 469325181975475139, guid: 4e7a8fcaf53164b35828071bee8846fc, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 469325181975475139, guid: 4e7a8fcaf53164b35828071bee8846fc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 469325181975475139, guid: 4e7a8fcaf53164b35828071bee8846fc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 469325181975475139, guid: 4e7a8fcaf53164b35828071bee8846fc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 993237681401719161, guid: 4e7a8fcaf53164b35828071bee8846fc, type: 3}
+      propertyPath: m_Name
+      value: Batman
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4e7a8fcaf53164b35828071bee8846fc, type: 3}
+--- !u!114 &2055930165 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: -7480556011662419441, guid: 4e7a8fcaf53164b35828071bee8846fc, type: 3}
+  m_PrefabInstance: {fileID: 2055930164}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b443600ce0ed4f91977981d766184e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Batman
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -929,8 +931,8 @@ SceneRoots:
   - {fileID: 1776948372}
   - {fileID: 795750629}
   - {fileID: 161870805}
-  - {fileID: 306472775}
   - {fileID: 568701}
   - {fileID: 658605476}
   - {fileID: 1105295112}
   - {fileID: 494455857}
+  - {fileID: 2055930164}

@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 5078983083799512807}
   - component: {fileID: 8848392333918446145}
   - component: {fileID: 5751964125008189716}
+  - component: {fileID: 3947998522272150328}
   m_Layer: 0
   m_Name: Batarang
   m_TagString: Untagged
@@ -31,7 +32,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0.49999997, y: 0.5000001, z: 0.49999997, w: -0.49999994}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 100, y: 100, z: 100}
+  m_LocalScale: {x: 10, y: 10, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -154,3 +155,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43e97067cfcde4463a34cd61e9188f60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Batarang
+  lifeTimeSeconds: 6
+  spinStateName: Base Layer.Spin
+--- !u!65 &3947998522272150328
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1200010422218545471}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.29946, y: 0.032000005, z: 0.059780028}
+  m_Center: {x: 3.1650055e-10, y: -3.1650063e-10, z: 0.00354}

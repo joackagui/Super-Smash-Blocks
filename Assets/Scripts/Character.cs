@@ -12,7 +12,7 @@ public class Character : MonoBehaviour
 
     [Header("Movement")]
     [SerializeField] private float speed = 10f;
-    [SerializeField] private float jumpForce = 12f;
+    [SerializeField] private float jumpForce = 20f;
     [SerializeField] private float faceRightYRotation = 90f;
     [SerializeField] private float faceLeftYRotation = -90f;
 

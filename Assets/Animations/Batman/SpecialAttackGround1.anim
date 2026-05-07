@@ -3833,7 +3833,7 @@ AnimationClip:
   m_Events:
   - time: 0.16666667
     functionName: ActivateHitboxByName
-    data: LeftFoot
+    data: RightFoot
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
