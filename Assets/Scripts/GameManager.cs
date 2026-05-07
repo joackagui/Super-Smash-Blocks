@@ -357,11 +357,6 @@ public class GameManager : MonoBehaviour
 
         player.SetCharacter(character);
 
-        if (IsSinglePlayer && player.Slot == Player.PlayerSlot.Player2)
-        {
-            EnsureNavMeshAgent(character);
-            EnsureEnemyAI(character);
-        }
     }
 
     private IEnumerator PlayFightIntroSequence()
@@ -401,8 +396,21 @@ public class GameManager : MonoBehaviour
             cameraController.RefreshCharacters();
         }
 
+        ActivateSinglePlayerEnemy();
+
         SetFightInputState(true);
         fightIntroRoutine = null;
+    }
+
+    private void ActivateSinglePlayerEnemy()
+    {
+        if (!IsSinglePlayer || player2 == null || player2.character == null)
+        {
+            return;
+        }
+
+        EnsureNavMeshAgent(player2.character);
+        EnsureEnemyAI(player2.character);
     }
 
     private void SetFightInputState(bool enabled)
