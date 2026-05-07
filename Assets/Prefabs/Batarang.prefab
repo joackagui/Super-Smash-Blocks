@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 839841541986318570}
   - component: {fileID: 5078983083799512807}
   - component: {fileID: 8848392333918446145}
+  - component: {fileID: 5751964125008189716}
   m_Layer: 0
   m_Name: Batarang
   m_TagString: Untagged
@@ -141,3 +142,15 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &5751964125008189716
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1200010422218545471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43e97067cfcde4463a34cd61e9188f60, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Batarang

@@ -869,7 +869,7 @@ Transform:
   m_GameObject: {fileID: 410087039}
   serializedVersion: 2
   m_LocalRotation: {x: 0.38268343, y: 0, z: 0, w: 0.92387956}
-  m_LocalPosition: {x: 0, y: 10, z: -15}
+  m_LocalPosition: {x: 0, y: 10, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3046,20 +3046,20 @@ MonoBehaviour:
   stageBackgrounds:
   - stageName: Gotham
     texture: {fileID: 2800000, guid: b9c1fc12ab8df40dab56eb0481f089b6, type: 3}
-  - stageName: ArkhamAsylum
+  - stageName: Arkham Asylum
     texture: {fileID: 2800000, guid: fc564ed49c5da4ad9a458e464487b33d, type: 3}
   - stageName: ACE
     texture: {fileID: 2800000, guid: 380aeedd7f9a882409d5400b33790976, type: 3}
-  - stageName: Funhouse
+  - stageName: Joker's Funhouse
     texture: {fileID: 2800000, guid: 34c0f176373e8fc45b4ab1659290e0ea, type: 3}
   stageColors:
   - stageName: Gotham
     color: {r: 0.23529412, g: 0.23529412, b: 0.23529412, a: 0.6666667}
   - stageName: ACE
     color: {r: 0.08575116, g: 0.38679248, b: 0.110837914, a: 0.6666667}
-  - stageName: ArkhamAsylum
+  - stageName: Arkham Asylum
     color: {r: 0.3529412, g: 0.43137255, b: 0.39215687, a: 0.6666667}
-  - stageName: Funhouse
+  - stageName: Joker's Funhouse
     color: {r: 0.4056604, g: 0.07079922, b: 0.29922828, a: 0.6666667}
   platforms:
   - {fileID: 1265934803}
