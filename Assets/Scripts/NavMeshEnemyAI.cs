@@ -61,11 +61,17 @@ public class NavMeshEnemyAI : MonoBehaviour
     private float retreatDir;
     private float nextRetreatTime;
 
+    private EnemyDifficulty currentDifficulty = EnemyDifficulty.Normal;
+
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         character = GetComponent<Character>();
         CacheMainPlatformCenter();
+
+        Debug.Log("[NavMeshEnemyAI] Awake - default difficulty: " + currentDifficulty);
+
+        ApplyDifficulty();
         nextRetreatTime = Time.time + Random.Range(retreatIntervalMin, retreatIntervalMax);
     }
 
@@ -87,9 +93,90 @@ public class NavMeshEnemyAI : MonoBehaviour
             return;
         }
 
+        Debug.Log("[NavMeshEnemyAI] Start - GameManager difficulty: " + GameManager.Instance.GetEnemyDifficulty());
+
         TrySnapToNavMesh();
         CacheMainPlatformCenter();
         nextRetreatTime = Time.time + Random.Range(retreatIntervalMin, retreatIntervalMax);
+    }
+
+    public void SetDifficulty(EnemyDifficulty difficulty)
+    {
+        currentDifficulty = difficulty;
+        Debug.Log("[NavMeshEnemyAI] SetDifficulty called: " + difficulty);
+        ApplyDifficulty();
+        nextRetreatTime = Time.time + Random.Range(retreatIntervalMin, retreatIntervalMax);
+        nextHeartSearchTime = 0f;
+    }
+
+    private void ApplyDifficulty()
+    {
+        Debug.Log("[NavMeshEnemyAI] Applying difficulty: " + currentDifficulty);
+
+        switch (currentDifficulty)
+        {
+            case EnemyDifficulty.Normal:
+                Debug.Log("[NavMeshEnemyAI] Mode NORMAL");
+
+                retargetInterval = 0.16f;
+                heartSearchInterval = 0.18f;
+                attackRange = 1.95f;
+                jumpHeightThreshold = 0.95f;
+                jumpCooldown = 0.55f;
+                attackCooldown = 1.15f;
+                specialAttackChance = 0.2f;
+                visionDistance = 4.5f;
+                platformCenterArriveDistance = 0.9f;
+                platformNavMeshSampleRadius = 5.5f;
+                targetSideOffset = 0.45f;
+                headAlignThreshold = 0.12f;
+                headHeightThreshold = 0.45f;
+                headPushOffset = 0.95f;
+                headEscapeDuration = 0.32f;
+                retreatIntervalMin = 4.5f;
+                retreatIntervalMax = 9f;
+                retreatDuration = 0.85f;
+                retreatOffset = 1.1f;
+
+                if (agent != null)
+                {
+                    agent.speed = 3.7f;
+                    agent.acceleration = 9f;
+                    agent.stoppingDistance = 1.9f;
+                }
+                break;
+
+            case EnemyDifficulty.Hard:
+                Debug.Log("[NavMeshEnemyAI] Mode HARD");
+
+                retargetInterval = 0.06f;
+                heartSearchInterval = 0.45f;
+                attackRange = 2.85f;
+                jumpHeightThreshold = 0.55f;
+                jumpCooldown = 0.22f;
+                attackCooldown = 0.45f;
+                specialAttackChance = 0.65f;
+                visionDistance = 7.25f;
+                platformCenterArriveDistance = 0.55f;
+                platformNavMeshSampleRadius = 7.5f;
+                targetSideOffset = 0.9f;
+                headAlignThreshold = 0.2f;
+                headHeightThreshold = 0.6f;
+                headPushOffset = 1.45f;
+                headEscapeDuration = 0.2f;
+                retreatIntervalMin = 4.5f;
+                retreatIntervalMax = 9f;
+                retreatDuration = 0.85f;
+                retreatOffset = 1.1f;
+
+                if (agent != null)
+                {
+                    agent.speed = 5.75f;
+                    agent.acceleration = 14f;
+                    agent.stoppingDistance = 1.25f;
+                }
+                break;
+        }
     }
 
     private void Update()
@@ -101,9 +188,22 @@ public class NavMeshEnemyAI : MonoBehaviour
         UpdateReturnState();
 
         if (returningToPlatform)
+        {
             heartTarget = null;
+        }
         else
+        {
             FindHeart();
+
+            if (currentDifficulty == EnemyDifficulty.Hard && heartTarget != null && target != null)
+            {
+                float distToPlayer = Vector3.Distance(transform.position, target.position);
+                float distToHeart = Vector3.Distance(transform.position, heartTarget.position);
+
+                if (distToPlayer < 6f || distToHeart > distToPlayer)
+                    heartTarget = null;
+            }
+        }
 
         Vector3 currentTargetPosition;
         Transform currentTarget = null;
@@ -257,6 +357,13 @@ public class NavMeshEnemyAI : MonoBehaviour
 
         nextHeartSearchTime = Time.time + heartSearchInterval;
         heartTarget = null;
+
+        if (currentDifficulty == EnemyDifficulty.Hard && target != null)
+        {
+            float distanceToPlayer = Vector3.Distance(transform.position, target.position);
+            if (distanceToPlayer < 5.5f)
+                return;
+        }
 
         HeartPickup heart = FindAnyObjectByType<HeartPickup>();
         if (heart != null)
