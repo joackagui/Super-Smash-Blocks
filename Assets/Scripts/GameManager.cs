@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public enum GameMode
 {
@@ -26,6 +27,13 @@ public class GameManager : MonoBehaviour
     public GameObject jokerPrefab;
 
     private bool firstTimeFightSceneLoaded = true;
+    private Coroutine fightIntroRoutine;
+    private CameraController fightCameraController;
+
+    private const float FightIntroDuration = 4f;
+    private static readonly Vector3 FightIntroCameraPosition = new Vector3(0f, 3f, 0f);
+    private static readonly Quaternion FightIntroPlayer1Rotation = Quaternion.Euler(0f, -90f, 0f);
+    private static readonly Quaternion FightIntroPlayer2Rotation = Quaternion.Euler(0f, 90f, 0f);
 
     private string player1Selection = "None";
     private string player2Selection = "None";
@@ -147,6 +155,7 @@ public class GameManager : MonoBehaviour
         player1Selection = "None";
         player2Selection = "None";
         stageSelection = "None";
+        currentMode = GameMode.Multiplayer;
     }
 
     public void ClearStageSelection()
@@ -181,7 +190,10 @@ public class GameManager : MonoBehaviour
         }
 
         isVictoryLoading = false;
+        fightCameraController = FindAnyObjectByType<CameraController>();
         CacheFightScenePlayers();
+
+        SetFightInputState(false);
 
         if (player1 != null)
         {
@@ -192,6 +204,13 @@ public class GameManager : MonoBehaviour
         {
             SpawnCharacter(player2);
         }
+
+        if (fightIntroRoutine != null)
+        {
+            StopCoroutine(fightIntroRoutine);
+        }
+
+        fightIntroRoutine = StartCoroutine(PlayFightIntroSequence());
     }
 
     private void CacheFightScenePlayers()
@@ -323,6 +342,71 @@ public class GameManager : MonoBehaviour
             EnsureNavMeshAgent(character);
             EnsureEnemyAI(character);
         }
+    }
+
+    private IEnumerator PlayFightIntroSequence()
+    {
+        yield return null;
+
+        CameraController cameraController = GetFightCameraController();
+
+        if (cameraController != null)
+        {
+            cameraController.SetIntroActive(true);
+            cameraController.SetIntroPose(FightIntroCameraPosition, FightIntroPlayer1Rotation);
+        }
+
+        if (player1 != null && player1.character != null)
+        {
+            player1.character.PlayIntroAnimation();
+        }
+
+        yield return new WaitForSeconds(FightIntroDuration);
+
+        if (cameraController != null)
+        {
+            cameraController.SetIntroPose(FightIntroCameraPosition, FightIntroPlayer2Rotation);
+        }
+
+        if (player2 != null && player2.character != null)
+        {
+            player2.character.PlayIntroAnimation();
+        }
+
+        yield return new WaitForSeconds(FightIntroDuration);
+
+        if (cameraController != null)
+        {
+            cameraController.SetIntroActive(false);
+            cameraController.RefreshCharacters();
+        }
+
+        SetFightInputState(true);
+        fightIntroRoutine = null;
+    }
+
+    private void SetFightInputState(bool enabled)
+    {
+        if (player1 != null)
+        {
+            player1.SetKeybinds(enabled);
+        }
+
+        if (player2 != null)
+        {
+            player2.SetKeybinds(enabled);
+        }
+    }
+
+    private CameraController GetFightCameraController()
+    {
+        if (fightCameraController != null)
+        {
+            return fightCameraController;
+        }
+
+        fightCameraController = FindAnyObjectByType<CameraController>();
+        return fightCameraController;
     }
 
     private void EnsureNavMeshAgent(Character character)

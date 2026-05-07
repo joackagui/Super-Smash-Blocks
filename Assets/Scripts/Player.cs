@@ -57,6 +57,11 @@ public class Player : MonoBehaviour
         SpawnCharacter(this.character);
     }
 
+    public void SetKeybinds(bool enabled)
+    {
+        EnableActions(enabled);
+    }
+
     public void SpawnCharacter(Character newCharacter)
     {
         if (newCharacter == null)

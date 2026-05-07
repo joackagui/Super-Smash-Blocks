@@ -29,17 +29,24 @@ public class CameraController : MonoBehaviour
     private float refreshTimer = 0f;
     [SerializeField] private float refreshRate = 1f;
 
+    private bool isIntroActive;
+
     void Start()
     {
-        cam = GetComponent<Camera>();
-        if (cam == null)
-            cam = gameObject.AddComponent<Camera>();
+        EnsureCamera();
 
         RefreshCharacters();
     }
 
     void LateUpdate()
     {
+        EnsureCamera();
+
+        if (isIntroActive)
+        {
+            return;
+        }
+
         // Refresh characters only every X seconds
         refreshTimer += Time.deltaTime;
         if (refreshTimer >= refreshRate)
@@ -58,7 +65,39 @@ public class CameraController : MonoBehaviour
         transform.rotation = Quaternion.identity;
     }
 
-    private void RefreshCharacters()
+    public void SetIntroActive(bool active)
+    {
+        isIntroActive = active;
+    }
+
+    public void SetIntroPose(Vector3 position, Quaternion rotation)
+    {
+        EnsureCamera();
+        transform.position = position;
+        transform.rotation = rotation;
+        velocity = Vector3.zero;
+    }
+
+    public void RefreshCharacters()
+    {
+        RefreshCharactersInternal();
+    }
+
+    private void EnsureCamera()
+    {
+        if (cam != null)
+        {
+            return;
+        }
+
+        cam = GetComponent<Camera>();
+        if (cam == null)
+        {
+            cam = gameObject.AddComponent<Camera>();
+        }
+    }
+
+    private void RefreshCharactersInternal()
     {
         GameObject[] objs = GameObject.FindGameObjectsWithTag(characterTag);
         characters = new Character[objs.Length];

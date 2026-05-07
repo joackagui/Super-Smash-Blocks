@@ -64,6 +64,7 @@ public class Character : MonoBehaviour
     private static readonly int PARAM_ATTACK1_AIR     = Animator.StringToHash("Attack1Air");
     private static readonly int PARAM_ATTACK2_GROUND  = Animator.StringToHash("Attack2Ground");
     private static readonly int PARAM_ATTACK2_AIR     = Animator.StringToHash("Attack2Air");
+    private static readonly int PARAM_INTRO           = Animator.StringToHash("Intro");
     private static readonly int PARAM_DODGE           = Animator.StringToHash("Dodge");
     private static readonly int PARAM_HURT            = Animator.StringToHash("Hurt");
     private static readonly int PARAM_DEATH           = Animator.StringToHash("Death");
@@ -782,4 +783,15 @@ private IEnumerator HitFlashCoroutine()
     public void ReproduceAttack2Clip() { if (attack2Clip != null) sfxSource.PlayOneShot(attack2Clip); }
     public void ReproduceHurtClip()    { if (hurtClip    != null) sfxSource.PlayOneShot(hurtClip); }
     public void ReproduceDeathClip()   { if (deathClip   != null) sfxSource.PlayOneShot(deathClip); }
+
+    public void PlayIntroAnimation()
+    {
+        if (animator == null || !HasAnimatorTrigger(PARAM_INTRO))
+        {
+            return;
+        }
+
+        ClearAllTriggers();
+        animator.SetTrigger(PARAM_INTRO);
+    }
 }
