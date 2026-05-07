@@ -515,12 +515,11 @@ private IEnumerator HitFlashCoroutine()
 
         Vector3 vel = rb.linearVelocity;
 
-        if (isKnockbackTrajectoryActive && !isKnockbackControlLocked)
+        // Prevent all horizontal input during knockback
+        if (isKnockbackTrajectoryActive)
         {
-            if (Mathf.Abs(moveInput.x) > 0.01f)
-            {
-                vel.x = moveInput.x * speed;
-            }
+            // Do not allow player to influence horizontal velocity
+            // Keep current velocity.x (from knockback)
         }
         else
         {
