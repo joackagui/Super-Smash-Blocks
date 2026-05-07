@@ -908,6 +908,44 @@ private IEnumerator HitFlashCoroutine()
         ReproduceIntroClip();
     }
 
+    public void EnableCombatConstraints()
+    {
+        if (rb == null)
+        {
+            return;
+        }
+
+        rb.useGravity = true;
+        rb.constraints = defaultConstraints;
+    }
+
+    public void DisableConstraintsForExit()
+    {
+        if (rb == null)
+        {
+            return;
+        }
+
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.useGravity = false;
+        rb.constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezePositionZ;
+    }
+
+    public void SetForcedRotation(Quaternion rotation)
+    {
+        desiredRotation = rotation;
+
+        if (rb != null)
+        {
+            rb.MoveRotation(desiredRotation);
+        }
+        else
+        {
+            transform.rotation = desiredRotation;
+        }
+    }
+
     public void PlayExitAnimation()
     {
         if (animator == null || !HasAnimatorTrigger(PARAM_EXIT))

@@ -1,99 +1,56 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 
 public class WinnerScreenUI : MonoBehaviour
 {
-    [Header("UI")]
-    [SerializeField] private Image blackScreen;
-    [SerializeField] private RawImage winnerImage;
     [SerializeField] private TextMeshProUGUI promptText;
-
-    [Header("Winner Textures")]
-    [SerializeField] private Texture batmanImage;
-    [SerializeField] private Texture jokerImage;
-    [SerializeField] private Texture redHoodImage;
-    [SerializeField] private Texture defaultImage;
-
-    [Header("Timing")]
-    [SerializeField] private float delayBeforeFade = 1f;
-    [SerializeField] private float fadeDuration = 2f;
-
-    [Header("Blink")]
+    [SerializeField] private InputActionReference nextAction;
     [SerializeField] private float blinkSpeed = 1.2f;
 
-    [SerializeField] private InputActionReference returnAction;
-
     private bool isLoading;
-    private bool _canInteract;
+    private bool canInteract;
+    private Coroutine blinkRoutine;
 
     private void Awake()
     {
-        if (GameManager.Instance == null)
-        {
-            SceneManager.LoadScene(0);
-            return;
-        }
-        ApplyWinnerImage();
-    }
-
-    private void Start()
-    {
-        SetAlpha(blackScreen, 1f);
-        winnerImage.gameObject.SetActive(true);
-        SetAlpha(winnerImage, 0f);
-
+        // Ensure promptText is hidden at start
         if (promptText != null)
+        {
             SetAlphaTMP(promptText, 0f);
-
-        StartCoroutine(IntroSequence());
-    }
-
-    private IEnumerator IntroSequence()
-    {
-        _canInteract = false;
-
-        yield return new WaitForSeconds(delayBeforeFade);
-
-        if (promptText != null)
-            yield return FadeMultiple(0f, 1f, winnerImage, promptText);
-        else
-            yield return FadeGraphic(winnerImage, 0f, 1f);
-
-        if (promptText != null)
-            StartCoroutine(BlinkText(promptText));
-
-        _canInteract = true;
-    }
-
-    private IEnumerator FadeGraphic(Graphic img, float from, float to)
-    {
-        float t = 0f;
-        while (t < fadeDuration)
-        {
-            t += Time.deltaTime;
-            SetAlpha(img, Mathf.Lerp(from, to, t / fadeDuration));
-            yield return null;
+            promptText.gameObject.SetActive(false);
         }
-        SetAlpha(img, to);
+        
+        canInteract = false;
     }
 
-    private IEnumerator FadeMultiple(float from, float to, params Graphic[] images)
+    private void OnEnable()
     {
-        float t = 0f;
-        while (t < fadeDuration)
+        BindAction(nextAction, OnNextPerformed);
+    }
+
+    private void OnDisable()
+    {
+        UnbindAction(nextAction, OnNextPerformed);
+    }
+
+    public void ShowPrompt()
+    {
+        if (promptText != null)
         {
-            t += Time.deltaTime;
-            float alpha = Mathf.Lerp(from, to, t / fadeDuration);
-            foreach (var img in images)
-                SetAlpha(img, alpha);
-            yield return null;
+            promptText.gameObject.SetActive(true);
+            SetAlphaTMP(promptText, 1f);
+            
+            if (blinkRoutine != null)
+            {
+                StopCoroutine(blinkRoutine);
+            }
+            
+            blinkRoutine = StartCoroutine(BlinkText(promptText));
+            canInteract = true;
         }
-        foreach (var img in images)
-            SetAlpha(img, to);
     }
 
     private IEnumerator BlinkText(TextMeshProUGUI tmp)
@@ -106,14 +63,6 @@ public class WinnerScreenUI : MonoBehaviour
         }
     }
 
-    private void SetAlpha(Graphic img, float alpha)
-    {
-        if (img == null) return;
-        Color c = img.color;
-        c.a = alpha;
-        img.color = c;
-    }
-
     private void SetAlphaTMP(TextMeshProUGUI tmp, float alpha)
     {
         if (tmp == null) return;
@@ -121,23 +70,6 @@ public class WinnerScreenUI : MonoBehaviour
         c.a = alpha;
         tmp.color = c;
     }
-
-    private void ApplyWinnerImage()
-    {
-        if (winnerImage == null || GameManager.Instance == null) return;
-
-        string winner = GameManager.Instance.GetWinnerSelection();
-        Texture selected = defaultImage;
-
-        if (winner == "Batman")       selected = batmanImage;
-        else if (winner == "Joker")   selected = jokerImage;
-        else if (winner == "RedHood") selected = redHoodImage;
-
-        winnerImage.texture = selected;
-    }
-
-    private void OnEnable()  => BindAction(returnAction, OnReturnPerformed);
-    private void OnDisable() => UnbindAction(returnAction, OnReturnPerformed);
 
     private static void BindAction(InputActionReference r, System.Action<InputAction.CallbackContext> cb)
     {
@@ -152,9 +84,9 @@ public class WinnerScreenUI : MonoBehaviour
         r.action.performed -= cb;
     }
 
-    private void OnReturnPerformed(InputAction.CallbackContext context)
+    private void OnNextPerformed(InputAction.CallbackContext context)
     {
-        if (isLoading || !_canInteract) return;
+        if (isLoading || !canInteract) return;
         isLoading = true;
 
         if (GameManager.Instance != null)

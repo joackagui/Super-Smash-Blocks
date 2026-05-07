@@ -23,6 +23,7 @@ public class GameManager : MonoBehaviour
     private const string WinnerSceneName = "VictoryScene";
 
     [SerializeField] private GameMode currentMode = GameMode.Multiplayer;
+    [SerializeField] private GameObject winnerSpawnPoint;
 
     public Player player1;
     public Player player2;
@@ -34,12 +35,19 @@ public class GameManager : MonoBehaviour
 
     private bool firstTimeFightSceneLoaded = true;
     private Coroutine fightIntroRoutine;
+    private Coroutine victoryRoutine;
     private CameraController fightCameraController;
 
     private const float FightIntroDuration = 4f;
     private static readonly Vector3 FightIntroCameraPosition = new Vector3(0f, 3f, 0f);
     private static readonly Quaternion FightIntroPlayer1Rotation = Quaternion.Euler(0f, -90f, 0f);
     private static readonly Quaternion FightIntroPlayer2Rotation = Quaternion.Euler(0f, 90f, 0f);
+    private static readonly Vector3 JokerVictoryPosition = new Vector3(0f, 2.22f, 0f);
+    private static readonly Vector3 OtherCharacterVictoryPosition = new Vector3(0f, 0.5f, 0f);
+    private static readonly Vector3 VictoryCameraPosition = new Vector3(0f, 3f, -5f);
+    private static readonly Quaternion VictoryCameraRotation = Quaternion.identity;
+    private static readonly Quaternion VictoryCharacterRotation = Quaternion.Euler(0f, 90f, 0f);
+    private const float VictorySceneDelayFallback = 1.5f;
 
     private string player1Selection = "None";
     private string player2Selection = "None";
@@ -211,18 +219,34 @@ public class GameManager : MonoBehaviour
 
         isVictoryLoading = false;
         fightCameraController = FindAnyObjectByType<CameraController>();
+        
+        // Find winnerspawnpoint if not assigned
+        if (winnerSpawnPoint == null)
+        {
+            winnerSpawnPoint = GameObject.Find("winnerspawnpoint");
+        }
+        
         CacheFightScenePlayers();
 
+        PauseMenuManager.SetPauseDisabled(false);
         SetFightInputState(false);
 
         if (player1 != null)
         {
             SpawnCharacter(player1, true);
+            if (player1.character != null)
+            {
+                player1.character.EnableCombatConstraints();
+            }
         }
 
         if (player2 != null)
         {
             SpawnCharacter(player2, true);
+            if (player2.character != null)
+            {
+                player2.character.EnableCombatConstraints();
+            }
         }
 
         if (fightIntroRoutine != null)
@@ -491,6 +515,87 @@ public class GameManager : MonoBehaviour
         ai.SetDifficulty(enemyDifficulty);
     }
 
+    private void DisableEnemyMovement(Character character)
+    {
+        if (character == null)
+        {
+            return;
+        }
+
+        NavMeshEnemyAI ai = character.GetComponent<NavMeshEnemyAI>();
+        if (ai != null)
+        {
+            ai.enabled = false;
+        }
+    }
+
+    private void PositionCharacterForVictory(Character character)
+    {
+        if (character == null)
+        {
+            return;
+        }
+
+        // Determine position based on character type
+        Vector3 targetPosition = OtherCharacterVictoryPosition;
+        
+        // Check if the character is Joker
+        if (character.gameObject.name.Contains("Joker") || winnerSelection == "Joker")
+        {
+            targetPosition = JokerVictoryPosition;
+        }
+        else
+        {
+            targetPosition = OtherCharacterVictoryPosition;
+        }
+        
+        // Use winnerSpawnPoint if available
+        if (winnerSpawnPoint != null)
+        {
+            targetPosition = winnerSpawnPoint.transform.position;
+        }
+
+        // Rotation: turn right 90 degrees on Y axis for Exit
+        Quaternion targetRotation = VictoryCharacterRotation;
+
+        Rigidbody body = character.GetComponent<Rigidbody>();
+        if (body != null)
+        {
+            character.DisableConstraintsForExit();
+            body.position = targetPosition;
+            character.SetForcedRotation(targetRotation);
+        }
+        else
+        {
+            character.transform.position = targetPosition;
+            character.transform.rotation = targetRotation;
+        }
+    }
+
+    private float GetAnimationClipLength(Character character, string clipName)
+    {
+        if (character == null)
+        {
+            return 0f;
+        }
+
+        Animator animator = character.GetComponent<Animator>();
+        if (animator == null || animator.runtimeAnimatorController == null)
+        {
+            return 0f;
+        }
+
+        foreach (AnimationClip clip in animator.runtimeAnimatorController.animationClips)
+        {
+            if (clip != null && clip.name == clipName)
+            {
+                return clip.length;
+            }
+        }
+
+        return 0f;
+    }
+
     private string GetSelectionForPlayer(Player player)
     {
         if (player == player1)
@@ -514,6 +619,8 @@ public class GameManager : MonoBehaviour
         }
 
         isVictoryLoading = true;
+        PauseMenuManager.SetPauseDisabled(true);
+        SetFightInputState(false);
 
         if (defeatedPlayer == player1)
         {
@@ -528,6 +635,75 @@ public class GameManager : MonoBehaviour
             winnerSelection = "None";
         }
 
-        SceneManager.LoadScene(WinnerSceneName);
+        if (fightIntroRoutine != null)
+        {
+            StopCoroutine(fightIntroRoutine);
+            fightIntroRoutine = null;
+        }
+
+        if (victoryRoutine != null)
+        {
+            StopCoroutine(victoryRoutine);
+        }
+
+        victoryRoutine = StartCoroutine(PlayVictorySequence(defeatedPlayer));
+    }
+
+    private IEnumerator PlayVictorySequence(Player defeatedPlayer)
+    {
+        PauseMenuManager.SetPauseDisabled(true);
+        SetFightInputState(false);
+
+        Player winnerPlayer = GetWinnerPlayer(defeatedPlayer);
+        Character winnerCharacter = winnerPlayer != null ? winnerPlayer.character : null;
+
+        CameraController cameraController = GetFightCameraController();
+        if (cameraController != null)
+        {
+            cameraController.SetIntroActive(true);
+            cameraController.SetIntroPose(VictoryCameraPosition, VictoryCameraRotation);
+        }
+
+        if (winnerCharacter != null)
+        {
+            PositionCharacterForVictory(winnerCharacter);
+            DisableEnemyMovement(winnerCharacter);
+            winnerCharacter.PlayExitAnimation();
+        }
+
+        float waitTime = VictorySceneDelayFallback;
+        if (winnerCharacter != null)
+        {
+            waitTime = Mathf.Max(waitTime, GetAnimationClipLength(winnerCharacter, "Exit"));
+        }
+
+        yield return new WaitForSeconds(waitTime);
+        
+        // Activate WinnerScreenUI to show the prompt text
+        WinnerScreenUI winnerScreenUI = FindAnyObjectByType<WinnerScreenUI>();
+        if (winnerScreenUI != null)
+        {
+            winnerScreenUI.ShowPrompt();
+        }
+
+        // Keep camera in intro mode - don't deactivate it
+        // This maintains the victory camera pose (0, 5, -10)
+
+        victoryRoutine = null;
+    }
+
+    private Player GetWinnerPlayer(Player defeatedPlayer)
+    {
+        if (defeatedPlayer == player1)
+        {
+            return player2;
+        }
+
+        if (defeatedPlayer == player2)
+        {
+            return player1;
+        }
+
+        return null;
     }
 }

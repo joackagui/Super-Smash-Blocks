@@ -7,6 +7,7 @@ using TMPro;
 public class PauseMenuManager : MonoBehaviour
 {
     public static bool IsPaused { get; private set; }
+    public static bool IsPauseDisabled { get; private set; }
 
     [SerializeField] private GameObject pausePanel;
     [SerializeField] private GameObject hudObject;
@@ -31,6 +32,9 @@ public class PauseMenuManager : MonoBehaviour
 
     private void Update()
     {
+        if (IsPauseDisabled)
+            return;
+
         if (SceneManager.GetActiveScene().name != "FightScene")
             return;
 
@@ -72,6 +76,9 @@ public class PauseMenuManager : MonoBehaviour
 
     public void PauseGame()
     {
+        if (IsPauseDisabled)
+            return;
+
         if (pausePanel != null)
             pausePanel.SetActive(true);
 
@@ -129,6 +136,23 @@ public class PauseMenuManager : MonoBehaviour
         IsPaused = false;
     }
 
+    public static void SetPauseDisabled(bool disabled)
+    {
+        IsPauseDisabled = disabled;
+
+        if (disabled)
+        {
+            PauseMenuManager manager = FindAnyObjectByType<PauseMenuManager>();
+            if (manager != null)
+            {
+                manager.ResumeGame();
+            }
+
+            IsPaused = false;
+            Time.timeScale = 1f;
+        }
+    }
+
     public void OnReturnButton()
     {
         ResumeGame();
@@ -144,5 +168,6 @@ public class PauseMenuManager : MonoBehaviour
     {
         Time.timeScale = 1f;
         IsPaused = false;
+        IsPauseDisabled = false;
     }
 }
