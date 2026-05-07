@@ -190,6 +190,12 @@ public class Character : MonoBehaviour
         }
 
         ExecuteAttack2();
+        LongDistanceAttack();
+    }
+
+    protected virtual void LongDistanceAttack()
+    {
+        
     }
 
     public void TakeDamage(float dmg, Vector3 attackerPosition)
