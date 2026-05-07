@@ -510,7 +510,7 @@ private IEnumerator HitFlashCoroutine()
         }
 
         foreach (var r in GetComponentsInChildren<Renderer>()) r.enabled = true;
-        if (owner != null) owner.SpawnCharacter(this);
+        if (owner != null) owner.SpawnCharacter(this, false);
         if (MusicManager.Instance != null) MusicManager.Instance.PlayCharacterRespawn();
         StartTimedInvulnerability(respawnInvulnerabilityDuration);
     }

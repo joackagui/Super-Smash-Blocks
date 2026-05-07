@@ -15,6 +15,8 @@ public class Player : MonoBehaviour
     [SerializeField] private InputActionAsset inputActions;
     [SerializeField] private string actionMapName = "New action map";
     [SerializeField] private PlayerSlot playerSlot;
+    [Header("Spawn Points")]
+    [SerializeField] private GameObject initialSpawnPoint;
     [SerializeField] private GameObject spawnPoint;
     [SerializeField] private TextMeshProUGUI damageText;
 
@@ -36,7 +38,12 @@ public class Player : MonoBehaviour
 
     public GameObject GetSpawnPoint()
     {
-        return ResolveSpawnPoint();
+        return ResolveSpawnPoint(false);
+    }
+
+    public GameObject GetInitialSpawnPoint()
+    {
+        return ResolveSpawnPoint(true);
     }
 
     public void SetSpawnPoint(GameObject newSpawnPoint)
@@ -44,7 +51,17 @@ public class Player : MonoBehaviour
         spawnPoint = newSpawnPoint;
     }
 
+    public void SetInitialSpawnPoint(GameObject newInitialSpawnPoint)
+    {
+        initialSpawnPoint = newInitialSpawnPoint;
+    }
+
     public void SetCharacter(Character character)
+    {
+        SetCharacter(character, false);
+    }
+
+    public void SetCharacter(Character character, bool useInitialSpawnPoint)
     {
         this.character = character;
 
@@ -54,7 +71,7 @@ public class Player : MonoBehaviour
         }
 
         this.character.SetOwner(this);
-        SpawnCharacter(this.character);
+        SpawnCharacter(this.character, useInitialSpawnPoint);
     }
 
     public void SetKeybinds(bool enabled)
@@ -64,19 +81,30 @@ public class Player : MonoBehaviour
 
     public void SpawnCharacter(Character newCharacter)
     {
+        SpawnCharacter(newCharacter, false);
+    }
+
+    public void SpawnCharacter(Character newCharacter, bool useInitialSpawnPoint)
+    {
         if (newCharacter == null)
         {
             return;
         }
 
         character = newCharacter;
-        GameObject resolvedSpawnPoint = ResolveSpawnPoint();
+        GameObject resolvedSpawnPoint = ResolveSpawnPoint(useInitialSpawnPoint);
         Vector3 spawnPosition = transform.position;
         Quaternion spawnRotation = transform.rotation;
 
         if (resolvedSpawnPoint != null)
         {
-            spawnPosition = resolvedSpawnPoint.transform.position + Vector3.up * GetSpawnHeightOffset(character);
+            spawnPosition = resolvedSpawnPoint.transform.position;
+
+            if (!useInitialSpawnPoint)
+            {
+                spawnPosition += Vector3.up * GetSpawnHeightOffset(character);
+            }
+
             spawnRotation = resolvedSpawnPoint.transform.rotation;
 
             if (playerSlot == PlayerSlot.Player2)
@@ -103,21 +131,37 @@ public class Player : MonoBehaviour
         RefreshDamageText();
     }
 
-    private GameObject ResolveSpawnPoint()
+    private GameObject ResolveSpawnPoint(bool useInitialSpawnPoint)
     {
+        if (useInitialSpawnPoint && initialSpawnPoint != null)
+        {
+            return initialSpawnPoint;
+        }
+
         if (spawnPoint != null)
         {
             return spawnPoint;
         }
 
-        string preferredName = playerSlot == PlayerSlot.Player1
-            ? "Player1SpawnPoint"
-            : "Player2SpawnPoint";
+        string preferredName = useInitialSpawnPoint
+            ? (playerSlot == PlayerSlot.Player1 ? "Player1InitialSpawnPoint" : "Player2InitialSpawnPoint")
+            : (playerSlot == PlayerSlot.Player1 ? "Player1SpawnPoint" : "Player2SpawnPoint");
 
         GameObject foundSpawnPoint = GameObject.Find(preferredName);
         if (foundSpawnPoint != null)
         {
+            if (useInitialSpawnPoint)
+            {
+                initialSpawnPoint = foundSpawnPoint;
+                return initialSpawnPoint;
+            }
+
             spawnPoint = foundSpawnPoint;
+            return spawnPoint;
+        }
+
+        if (useInitialSpawnPoint)
+        {
             return spawnPoint;
         }
 

@@ -217,12 +217,12 @@ public class GameManager : MonoBehaviour
 
         if (player1 != null)
         {
-            SpawnCharacter(player1);
+            SpawnCharacter(player1, true);
         }
 
         if (player2 != null)
         {
-            SpawnCharacter(player2);
+            SpawnCharacter(player2, true);
         }
 
         if (fightIntroRoutine != null)
@@ -324,16 +324,21 @@ public class GameManager : MonoBehaviour
 
         if (player1 != null)
         {
-            SpawnCharacter(player1);
+            SpawnCharacter(player1, true);
         }
 
         if (player2 != null)
         {
-            SpawnCharacter(player2);
+            SpawnCharacter(player2, true);
         }
     }
 
     public void SpawnCharacter(Player player)
+    {
+        SpawnCharacter(player, false);
+    }
+
+    public void SpawnCharacter(Player player, bool useInitialSpawnPoint)
     {
         if (player == null)
         {
@@ -341,7 +346,9 @@ public class GameManager : MonoBehaviour
         }
 
         string selection = GetSelectionForPlayer(player);
-        GameObject playerSpawnPoint = player.GetSpawnPoint();
+        GameObject playerSpawnPoint = useInitialSpawnPoint
+            ? player.GetInitialSpawnPoint()
+            : player.GetSpawnPoint();
 
         Vector3 spawnPosition = playerSpawnPoint != null
             ? playerSpawnPoint.transform.position
@@ -355,7 +362,7 @@ public class GameManager : MonoBehaviour
 
         if (character == null) return;
 
-        player.SetCharacter(character);
+        player.SetCharacter(character, useInitialSpawnPoint);
 
     }
 
