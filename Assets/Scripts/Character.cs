@@ -40,6 +40,8 @@ public class Character : MonoBehaviour
     public AudioClip attack2Clip;
     public AudioClip jumpClip;
     public AudioClip deathClip;
+    public AudioClip introClip;
+    public AudioClip exitClip;
 
     private AudioSource sfxSource;
     private Rigidbody rb;
@@ -71,6 +73,7 @@ public class Character : MonoBehaviour
     private static readonly int PARAM_DODGE           = Animator.StringToHash("Dodge");
     private static readonly int PARAM_HURT            = Animator.StringToHash("Hurt");
     private static readonly int PARAM_DEATH           = Animator.StringToHash("Death");
+    private static readonly int PARAM_EXIT            = Animator.StringToHash("Exit");
     private static readonly int STATE_BASE_ATTACK_GROUND_1 = Animator.StringToHash("Base Layer.BaseAttackGround1");
     private static readonly int STATE_BASE_ATTACK_GROUND_2 = Animator.StringToHash("Base Layer.BaseAttackGround2");
     private static readonly int STATE_BASE_ATTACK_AIR      = Animator.StringToHash("Base Layer.BaseAttackAir");
@@ -890,6 +893,8 @@ private IEnumerator HitFlashCoroutine()
     public void ReproduceAttack2Clip() { if (attack2Clip != null) sfxSource.PlayOneShot(attack2Clip); }
     public void ReproduceHurtClip()    { if (hurtClip    != null) sfxSource.PlayOneShot(hurtClip); }
     public void ReproduceDeathClip()   { if (deathClip   != null) sfxSource.PlayOneShot(deathClip); }
+    public void ReproduceIntroClip()   { if (introClip   != null) sfxSource.PlayOneShot(introClip); }
+    public void ReproduceExitClip()    { if (exitClip    != null) sfxSource.PlayOneShot(exitClip); }
 
     public void PlayIntroAnimation()
     {
@@ -900,5 +905,18 @@ private IEnumerator HitFlashCoroutine()
 
         ClearAllTriggers();
         animator.SetTrigger(PARAM_INTRO);
+        ReproduceIntroClip();
+    }
+
+    public void PlayExitAnimation()
+    {
+        if (animator == null || !HasAnimatorTrigger(PARAM_EXIT))
+        {
+            return;
+        }
+
+        ClearAllTriggers();
+        animator.SetTrigger(PARAM_EXIT);
+        ReproduceExitClip();
     }
 }

@@ -1016,6 +1016,8 @@ MonoBehaviour:
   attack2Clip: {fileID: 8300000, guid: a9f0d009f3e8d402b93b7e6a7faf9754, type: 3}
   jumpClip: {fileID: 8300000, guid: 59490852bd44c494fa39e37c664c4ef0, type: 3}
   deathClip: {fileID: 8300000, guid: cdde6e3d989a74a94aebeabdb435bda4, type: 3}
+  introClip: {fileID: 8300000, guid: 41e740751c86b5a4180d542371c1b7bb, type: 3}
+  exitClip: {fileID: 8300000, guid: e1cd3ae2d9273a642a2e572ef5adaaf4, type: 3}
   hitFlashDuration: 0.5
   hitFlashColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!95 &5740207655200998889
