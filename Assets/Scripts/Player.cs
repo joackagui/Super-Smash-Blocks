@@ -426,19 +426,55 @@ public static class PlayerInputDeviceRouter
     public static InputDevice[] GetDevicesForPlayer(Player.PlayerSlot playerSlot, bool includeKeyboardAndMouseForPlayerOne = true)
     {
         List<InputDevice> devices = new List<InputDevice>();
-        int gamepadIndex = playerSlot == Player.PlayerSlot.Player1 ? 0 : 1;
+        int gamepadCount = Gamepad.all.Count;
 
-        if (Gamepad.all.Count > gamepadIndex)
+        if (gamepadCount >= 2)
         {
+            // 2+ mandos: cada player obtiene su propio mando
+            int gamepadIndex = playerSlot == Player.PlayerSlot.Player1 ? 0 : 1;
             Gamepad assignedGamepad = Gamepad.all[gamepadIndex];
             if (assignedGamepad != null)
             {
                 devices.Add(assignedGamepad);
             }
         }
-
-        if (includeKeyboardAndMouseForPlayerOne && playerSlot == Player.PlayerSlot.Player1)
+        else if (gamepadCount == 1)
         {
+            // 1 mando: Player1 obtiene el mando, Player2 obtiene teclado + mouse
+            if (playerSlot == Player.PlayerSlot.Player1)
+            {
+                devices.Add(Gamepad.all[0]);
+                
+                if (includeKeyboardAndMouseForPlayerOne)
+                {
+                    if (Keyboard.current != null)
+                    {
+                        devices.Add(Keyboard.current);
+                    }
+
+                    if (Mouse.current != null)
+                    {
+                        devices.Add(Mouse.current);
+                    }
+                }
+            }
+            else
+            {
+                // Player2 con 1 mando: teclado + mouse
+                if (Keyboard.current != null)
+                {
+                    devices.Add(Keyboard.current);
+                }
+
+                if (Mouse.current != null)
+                {
+                    devices.Add(Mouse.current);
+                }
+            }
+        }
+        else
+        {
+            // 0 mandos: ambos usan teclado + mouse
             if (Keyboard.current != null)
             {
                 devices.Add(Keyboard.current);
