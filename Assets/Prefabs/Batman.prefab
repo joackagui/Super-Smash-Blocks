@@ -267,6 +267,7 @@ MonoBehaviour:
   batarangPrefab: {fileID: 1200010422218545471, guid: b5f609c2776694af38fc010f6f60f6be, type: 3}
   batarangDamage: 9
   batarangImpulse: 10
+  batarangLaunchAngleDegrees: 45
   batarangScale: {x: 10, y: 10, z: 10}
 --- !u!95 &3124989798947129554
 Animator:

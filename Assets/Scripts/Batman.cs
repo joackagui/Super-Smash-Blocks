@@ -29,7 +29,13 @@ public class Batman : Character
         if (b != null)
         {
             b.Initialize(this, launchDirection, batarangDamage, batarangImpulse);
-            b.StartMoving();
+            StartCoroutine(DelayedLaunch(b, 0f));
         }
+    }
+
+    private System.Collections.IEnumerator DelayedLaunch(Batarang b, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (b != null) b.StartMoving();
     }
 }
