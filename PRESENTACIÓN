@@ -1,0 +1,42 @@
+Proyecto: Super Smash Blocks
+
+Resumen breve:
+Super Smash Blocks es un juego de combate local 2.5D desarrollado en Unity 6.0.4.0f1. El juego permite batallas entre dos jugadores en escenarios dinámicos, con personajes del universo DC, pickups de vida, mecánicas de knockback, esquiva, y una cámara que ajusta el zoom según la distancia entre combatientes.
+
+Objetivo de la presentación:
+Explicar de forma clara y atractiva los elementos técnicos y de diseño del juego para una audiencia que puede incluir desarrolladores, stakeholders o revisores de producto. Presentar la arquitectura del juego, el flujo de escenas, los sistemas de entrada, los principales scripts y las características más destacadas.
+
+Datos clave a incluir:
+- Motor: Unity 6.0.4.0f1
+- Lenguaje: C#
+- Plataforma: PC / Mac
+- Tipo de juego: Combate local multijugador 2.5D
+- Sistema de entrada: Unity Input System
+- Escenas principales: MainMenuScene, CharacterSelectionScene, StageSelectionScene, ControlsScene, FightScene, VictoryScene.
+- Personajes: Batman, Joker, Red Hood.
+- Mecánicas: movimiento horizontal, salto doble, ataques en combo, esquiva, daño acumulativo, knockback, pick ups de vida, HUD de corazones y pantalla de victoria.
+
+Sistemas técnicos relevantes:
+- `GameManager`: singleton global, conserva estado entre escenas, registra jugadores y administra transiciones y victoria.
+- `Player`: gestiona bindings de input por jugador, lectura de acciones, vidas, HUD de daño y spawn de personajes.
+- `PlayerInputDeviceRouter`: asigna dispositivos a los jugadores según cantidad de gamepads conectados.
+- `Character`: base de los personajes, físicas, animaciones, ataque, daño, knockback, invulnerabilidad.
+- `HitBox`: detección de colisiones de ataque, validación de hit line-of-sight, daño por tipo de hitbox.
+- `CameraController`: cámara dinámica que sigue el punto medio y ajusta FOV con límites.
+- `UIManager`: actualiza HUD, imágenes de personajes y fondo de escenario según selección.
+- `MusicManager`: música por escena y SFX, persistente entre escenas.
+- `HeartSpawner`: genera pickups de vida cuando ambos jugadores tienen 2 vidas o menos.
+
+Estructura sugerida de la presentación:
+1. Introducción al juego y al concepto de combate local 2.5D.
+2. Resumen de la experiencia de usuario y las escenas principales.
+3. Arquitectura técnica: managers, jugadores, personajes y UI.
+4. Mecánicas clave: input, attacks, knockback, salud y pickups.
+5. Aspectos adicionales: audio, cámara dinámica y persistencia de estado.
+6. Oportunidades de expansión: habilidades únicas, más de 2 jugadores, tests.
+
+Notas para Gamma:
+- Mantener el texto en español claro y conciso.
+- Usar viñetas y breves párrafos para la estructura.
+- Priorizar los aspectos técnicos que sean esenciales para comprender cómo funciona el juego.
+- Incluir ejemplos concretos de scripts y escenas para reforzar la presentación.
