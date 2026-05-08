@@ -3256,6 +3256,9 @@ MonoBehaviour:
   - {fileID: 992838585}
   - {fileID: 526775758}
   - {fileID: 1573243471}
+  pauseText: {fileID: 761753583}
+  player1border: {fileID: 1935206055}
+  player2border: {fileID: 824532918}
   batmanImage: {fileID: 2800000, guid: c555a7f130ce04a8e983ff8d09e97aa4, type: 3}
   jokerImage: {fileID: 2800000, guid: 84c6895dfe7774456b6e43b2ddf22d66, type: 3}
   redHoodImage: {fileID: 2800000, guid: d42d2fed4570f4df7839649de2351898, type: 3}

@@ -664,6 +664,24 @@ public class GameManager : MonoBehaviour
             cameraController.SetIntroPose(VictoryCameraPosition, VictoryCameraRotation);
         }
 
+        UIManager uiManager = FindAnyObjectByType<UIManager>();
+        if (uiManager != null)
+        {
+            uiManager.HidePlayerCharacterImages();
+            uiManager.HidePlayerHearts();
+            uiManager.HidePauseAndBorders();
+        }
+
+        if (player1 != null)
+        {
+            player1.SetDamageTextVisible(false);
+        }
+
+        if (player2 != null)
+        {
+            player2.SetDamageTextVisible(false);
+        }
+
         if (winnerCharacter != null)
         {
             PositionCharacterForVictory(winnerCharacter);

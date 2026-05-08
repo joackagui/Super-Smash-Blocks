@@ -433,6 +433,16 @@ public class Player : MonoBehaviour
 
         damageText.text = character.GetDamageReceived().ToString("0") + "%";
     }
+
+    public void SetDamageTextVisible(bool visible)
+    {
+        if (damageText == null)
+        {
+            return;
+        }
+
+        damageText.gameObject.SetActive(visible);
+    }
 }
 
 public static class PlayerInputDeviceRouter
