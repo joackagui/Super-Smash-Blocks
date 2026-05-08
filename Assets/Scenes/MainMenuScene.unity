@@ -310,6 +310,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Online Multiplayer
 
+    (Coming soon)
+
 '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b0cb21fae8f17424bb54666b335e3b1d, type: 2}
@@ -937,6 +939,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   currentMode: 1
+  winnerSpawnPoint: {fileID: 0}
   player1: {fileID: 0}
   player2: {fileID: 0}
   character1: {fileID: 0}
