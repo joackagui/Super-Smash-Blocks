@@ -616,14 +616,7 @@ private IEnumerator HitFlashCoroutine()
 
         Vector3 vel = rb.linearVelocity;
 
-        // Prevent horizontal input only while upward knockback is still locked.
-        // After the apex is reached, let the player control horizontal movement again.
-        if (isKnockbackControlLocked)
-        {
-            // Do not allow player to influence horizontal velocity
-            // Keep current velocity.x (from knockback)
-        }
-        else
+        if (!isKnockbackControlLocked)
         {
             vel.x = moveInput.x * speed;
         }
