@@ -216,11 +216,11 @@ public class MainMenu : MonoBehaviour
 
         switch (_selectedIndex)
         {
-            case 0: // Singleplayer
+            case 0:
                 GameManager.Instance?.SetGameMode(GameMode.SinglePlayer);
                 break;
 
-            case 1: // Multiplayer
+            case 1:
                 GameManager.Instance?.SetGameMode(GameMode.Multiplayer);
                 break;
 

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Character : MonoBehaviour
 {
@@ -95,6 +96,16 @@ public class Character : MonoBehaviour
     private Coroutine timedInvulnerabilityRoutine;
     private Coroutine hurtRecoveryRoutine;
     private Coroutine dodgeRoutine;
+    private Coroutine passThroughRoutine;
+
+    private struct ColliderPair
+    {
+        public Collider a;
+        public Collider b;
+        public ColliderPair(Collider a, Collider b) { this.a = a; this.b = b; }
+    }
+
+    private List<ColliderPair> ignoredCollisionPairs = new List<ColliderPair>();
 
     public void SetOwner(Player player) { owner = player; }
 
@@ -285,6 +296,7 @@ public class Character : MonoBehaviour
         animator.SetTrigger(PARAM_DODGE);
         float d = GetDodgeInvulnerabilityDuration();
         StartTimedInvulnerability(d);
+        StartTemporaryCharacterPassThrough(d);
         if (dodgeRoutine != null) StopCoroutine(dodgeRoutine);
         dodgeRoutine = StartCoroutine(EndDodgeAfter(d));
     }
@@ -294,6 +306,54 @@ public class Character : MonoBehaviour
         yield return new WaitForSeconds(duration);
         isDodging = false;
         dodgeRoutine = null;
+    }
+
+    private void StartTemporaryCharacterPassThrough(float duration)
+    {
+        if (passThroughRoutine != null) StopCoroutine(passThroughRoutine);
+        RestoreIgnoredCollisions();
+
+        ignoredCollisionPairs.Clear();
+
+        Collider[] myColliders = GetComponentsInChildren<Collider>(includeInactive: true);
+        Character[] others = FindObjectsByType<Character>();
+
+        foreach (var other in others)
+        {
+            if (other == this) continue;
+            Collider[] theirColliders = other.GetComponentsInChildren<Collider>(includeInactive: true);
+            foreach (var ca in myColliders)
+            {
+                if (ca == null) continue;
+                foreach (var cb in theirColliders)
+                {
+                    if (cb == null) continue;
+                    Physics.IgnoreCollision(ca, cb, true);
+                    ignoredCollisionPairs.Add(new ColliderPair(ca, cb));
+                }
+            }
+        }
+
+        passThroughRoutine = StartCoroutine(EndTemporaryCharacterPassThroughAfter(duration));
+    }
+
+    private IEnumerator EndTemporaryCharacterPassThroughAfter(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        RestoreIgnoredCollisions();
+        passThroughRoutine = null;
+    }
+
+    private void RestoreIgnoredCollisions()
+    {
+        foreach (var p in ignoredCollisionPairs)
+        {
+            if (p.a != null && p.b != null)
+            {
+                Physics.IgnoreCollision(p.a, p.b, false);
+            }
+        }
+        ignoredCollisionPairs.Clear();
     }
 
     private void ClearAllTriggers()
@@ -365,7 +425,6 @@ public class Character : MonoBehaviour
 
 private IEnumerator HitFlashCoroutine()
 {
-    // Turn red
     for (int i = 0; i < meshRenderers.Length; i++)
     {
         meshRenderers[i].material.color = hitFlashColor;
@@ -373,7 +432,6 @@ private IEnumerator HitFlashCoroutine()
 
     yield return new WaitForSeconds(hitFlashDuration);
 
-    // Restore colors
     for (int i = 0; i < meshRenderers.Length; i++)
     {
         meshRenderers[i].material.color = originalColors[i];
@@ -558,14 +616,7 @@ private IEnumerator HitFlashCoroutine()
 
         Vector3 vel = rb.linearVelocity;
 
-        // Prevent horizontal input only while upward knockback is still locked.
-        // After the apex is reached, let the player control horizontal movement again.
-        if (isKnockbackControlLocked)
-        {
-            // Do not allow player to influence horizontal velocity
-            // Keep current velocity.x (from knockback)
-        }
-        else
+        if (!isKnockbackControlLocked)
         {
             vel.x = moveInput.x * speed;
         }
@@ -768,8 +819,6 @@ private IEnumerator HitFlashCoroutine()
         bool isLandingAnimActive = currentState.fullPathHash == STATE_LANDING;
         isLanding = needsLanding || isLandingAnimActive;
 
-        // If we are currently in the landing animation, clear the animator flag
-        // and the landing state so inputs are accepted after landing finishes.
         if (isLandingAnimActive)
         {
             if (animator.GetBool(PARAM_NEEDS_LANDING))
@@ -792,7 +841,6 @@ private IEnumerator HitFlashCoroutine()
         AnimatorStateInfo nextState = animator.GetNextAnimatorStateInfo(0);
         if (nextState.fullPathHash == STATE_LANDING)
         {
-            // About to enter landing state: clear the flag so it doesn't block actions.
             if (animator.GetBool(PARAM_NEEDS_LANDING))
             {
                 animator.SetBool(PARAM_NEEDS_LANDING, false);

@@ -484,7 +484,6 @@ public static class PlayerInputDeviceRouter
 
         if (gamepadCount >= 2)
         {
-            // 2+ mandos: cada player obtiene su propio mando
             int gamepadIndex = playerSlot == Player.PlayerSlot.Player1 ? 0 : 1;
             Gamepad assignedGamepad = Gamepad.all[gamepadIndex];
             if (assignedGamepad != null)
@@ -494,7 +493,6 @@ public static class PlayerInputDeviceRouter
         }
         else if (gamepadCount == 1)
         {
-            // 1 mando: Player1 obtiene el mando, Player2 obtiene teclado + mouse
             if (playerSlot == Player.PlayerSlot.Player1)
             {
                 devices.Add(Gamepad.all[0]);
@@ -514,7 +512,6 @@ public static class PlayerInputDeviceRouter
             }
             else
             {
-                // Player2 con 1 mando: teclado + mouse
                 if (Keyboard.current != null)
                 {
                     devices.Add(Keyboard.current);
@@ -528,7 +525,6 @@ public static class PlayerInputDeviceRouter
         }
         else
         {
-            // 0 mandos: ambos usan teclado + mouse
             if (Keyboard.current != null)
             {
                 devices.Add(Keyboard.current);

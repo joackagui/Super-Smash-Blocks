@@ -47,7 +47,6 @@ public class CameraController : MonoBehaviour
             return;
         }
 
-        // Refresh characters only every X seconds
         refreshTimer += Time.deltaTime;
         if (refreshTimer >= refreshRate)
         {
@@ -150,10 +149,9 @@ public class CameraController : MonoBehaviour
     {
         Vector3 targetPos = midpoint + offset;
 
-        // Clamp position so camera doesn't go out of bounds
         targetPos.x = Mathf.Clamp(targetPos.x, xLimits.x, xLimits.y);
         targetPos.y = Mathf.Clamp(targetPos.y, yLimits.x, yLimits.y);
-        targetPos.z = fixedZ; // lock Z so it never shifts forward/back
+        targetPos.z = fixedZ;
 
         transform.position = Vector3.SmoothDamp(
             transform.position,
