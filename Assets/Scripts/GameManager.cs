@@ -220,7 +220,6 @@ public class GameManager : MonoBehaviour
         isVictoryLoading = false;
         fightCameraController = FindAnyObjectByType<CameraController>();
         
-        // Find winnerspawnpoint if not assigned
         if (winnerSpawnPoint == null)
         {
             winnerSpawnPoint = GameObject.Find("winnerspawnpoint");
@@ -536,10 +535,8 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        // Determine position based on character type
         Vector3 targetPosition = OtherCharacterVictoryPosition;
         
-        // Check if the character is Joker
         if (character.gameObject.name.Contains("Joker") || winnerSelection == "Joker")
         {
             targetPosition = JokerVictoryPosition;
@@ -549,13 +546,11 @@ public class GameManager : MonoBehaviour
             targetPosition = OtherCharacterVictoryPosition;
         }
         
-        // Use winnerSpawnPoint if available
         if (winnerSpawnPoint != null)
         {
             targetPosition = winnerSpawnPoint.transform.position;
         }
 
-        // Rotation: turn right 90 degrees on Y axis for Exit
         Quaternion targetRotation = VictoryCharacterRotation;
 
         Rigidbody body = character.GetComponent<Rigidbody>();
@@ -697,15 +692,11 @@ public class GameManager : MonoBehaviour
 
         yield return new WaitForSeconds(waitTime);
         
-        // Activate WinnerScreenUI to show the prompt text
         WinnerScreenUI winnerScreenUI = FindAnyObjectByType<WinnerScreenUI>();
         if (winnerScreenUI != null)
         {
             winnerScreenUI.ShowPrompt();
         }
-
-        // Keep camera in intro mode - don't deactivate it
-        // This maintains the victory camera pose (0, 5, -10)
 
         victoryRoutine = null;
     }

@@ -16,7 +16,6 @@ public class WinnerScreenUI : MonoBehaviour
 
     private void Awake()
     {
-        // Ensure promptText is hidden at start
         if (promptText != null)
         {
             SetAlphaTMP(promptText, 0f);
