@@ -1,261 +1,207 @@
 # Super Smash Blocks
 
-Juego de combate local 2.5D estilo plataforma inspirado en Super Smash Bros, desarrollado en Unity. Enfrenta a Batman, Joker y Red Hood en escenarios dinámicos con mecánicas de combate, combos, pickups y más.
+Super Smash Blocks is a local 2.5D platform fighter inspired by Super Smash Bros and built in Unity. The project features Batman, Joker, and Red Hood in fast-paced matches with combos, knockback, life pickups, cinematic intro animations, and end-of-match victory sequences.
 
----
+## Table of Contents
 
-## Tabla de contenidos
+- [Overview](#overview)
+- [Features](#features)
+- [Requirements](#requirements)
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+- [Game Flow and Scenes](#game-flow-and-scenes)
+- [Playable Characters](#playable-characters)
+- [Controls and Input](#controls-and-input)
+- [Core Systems](#core-systems)
+- [Build Notes](#build-notes)
+- [Development Notes](#development-notes)
 
-- [Vista general](#vista-general)
-- [Requisitos](#requisitos)
-- [Instalación y apertura del proyecto](#instalación-y-apertura-del-proyecto)
-- [Estructura del proyecto](#estructura-del-proyecto)
-- [Escenas](#escenas)
-- [Personajes](#personajes-jugables)
-- [Controles e Inputs](#controles-e-inputs)
-- [Scripts principales](#scripts-principales)
-- [Prefabs y assets](#prefabs-y-assets)
-- [Ejecución y build](#ejecución-y-build)
-- [Desarrollo y contribución](#desarrollo-y-contribución)
-- [Notas y TODOs](#notas-y-todos)
+## Overview
 
----
+Super Smash Blocks is designed as a local fighting game with both `SinglePlayer` and local `Multiplayer` modes.
 
-## Vista general
+| Field | Details |
+| --- | --- |
+| Engine | Unity 6.0.4.0f1 |
+| Genre | 2.5D Platform Fighter |
+| Modes | SinglePlayer, Local Multiplayer |
+| Target Platform | PC / Mac |
+| Language | C# |
 
-**Super Smash Blocks** es un juego de combate local para 2 jugadores. Los jugadores eligen entre tres personajes del universo DC, seleccionan un escenario y se enfrentan en peleas hasta agotar vidas. Incluye pickups de vida, plataformas unidireccionales, mecánicas de knockback, esquiva e invulnerabilidad.
+## Features
 
-| Campo | Detalle |
-| ------- | --------- |
-| Motor | Unity 2021.3 LTS o superior |
-| Género | Plataformas / Combate 2.5D |
-| Jugadores | 2 (local) |
-| Plataforma objetivo | PC / Mac |
-| Lenguaje | C# |
+- Local versus gameplay with two selectable modes: human vs human and human vs AI.
+- Three playable DC-inspired characters: Batman, Joker, and Red Hood.
+- Combo-based combat with knockback, dodge, respawn, and life-based elimination.
+- Dynamic camera that keeps both fighters visible and adjusts FOV in real time.
+- Character intro animations at the start of the match and victory animations at the end.
+- Heart pickups that can restore lives during battle.
+- Support for keyboard, standard gamepads, and PS5 `DualSense` controllers through Unity Input System.
+- `NavMesh`-driven enemy AI for `SinglePlayer`, with selectable difficulty levels.
 
----
+## Requirements
 
-## Requisitos
+- Unity `6000.4.0f1`
+- Unity Input System package
+- TextMeshPro
 
-- **Unity** 6.0.4.0f1 (ver versión exacta en `ProjectSettings/ProjectVersion.txt`)
-- **Paquetes Unity** requeridos:
-  - `Input System` — para gestión de controles y bindings
-  - `TextMeshPro` — para textos de UI y HUD
+The Unity editor version can be confirmed in [`ProjectSettings/ProjectVersion.txt`](/Users/joack/UPB/7th semester/Virtual Environment/Super Smash Blocks/ProjectSettings/ProjectVersion.txt).
 
-> ⚠️ Si al abrir el proyecto faltan paquetes, ve a **Window → Package Manager** e instálalos manualmente.
+## Getting Started
 
----
+1. Clone the repository:
 
-## Instalación y apertura del proyecto
+```bash
+git clone https://github.com/joackagui/Super-Smash-Blocks.git
+```
 
-1. Clonar el repositorio:
+2. Open Unity Hub.
+3. Add the project folder.
+4. Open it with Unity `6000.4.0f1`.
+5. Load the main scene:
 
-   ```bash
-   git clone https://github.com/joackagui/Super-Smash-Blocks.git
-   ```
+```text
+Assets/Scenes/MainMenuScene.unity
+```
 
-2. Abrir **Unity Hub**.
+6. Press Play in the editor.
 
-3. Hacer clic en **Add** y seleccionar la carpeta raíz del repositorio clonado.
-
-4. Asegurarse de que la versión de Unity coincide con la indicada en `ProjectSettings/ProjectVersion.txt`. Si no está instalada, Unity Hub la detectará y ofrecerá descargarla.
-
-5. Abrir el proyecto y luego cargar la escena principal:
-
-   ```text
-   Assets/Scenes/MainMenuScene.unity
-   ```
-
-6. Verificar en el inspector que los objetos `GameManager` y `MusicManager` estén presentes en la escena o se instancien correctamente por código.
-
----
-
-## Estructura del proyecto
+## Project Structure
 
 ```text
 Assets/
-├── Audios/          # Música y efectos de sonido
-├── Images/          # Sprites, íconos y texturas
-├── Inputs/          # Archivos .inputactions con bindings por jugador
-├── Prefabs/         # Personajes, armas, pickups y plataformas
-├── Scenes/          # Todas las escenas del juego
-└── Scripts/         # Lógica del juego (personajes, managers, UI, utilidades)
+├── Audios/      # Music and sound effects
+├── Images/      # UI images, textures, and victory artwork
+├── Inputs/      # Input System .inputactions assets
+├── Prefabs/     # Characters, props, pickups, and stage elements
+├── Scenes/      # Main game scenes
+├── Scripts/     # Gameplay, UI, and manager logic
+└── Animations/  # Character and object animation clips/controllers
 ```
 
----
+## Game Flow and Scenes
 
-## Escenas
+The current playable flow is:
 
-| Escena | Ruta | Descripción |
-| ------- | ------ | ------------- |
-| Menú principal | `Assets/Scenes/MainMenuScene.unity` | Introducción y transición a selección. Usa `MainMenu.cs`. |
-| Selección de personaje | `Assets/Scenes/CharacterSelectionScene.unity` | Cada jugador elige su personaje. |
-| Selección de escenario | `Assets/Scenes/StageSelectionScene.unity` | Grid de escenarios. Controlado por `StageSelection.cs`. |
-| Controles | `Assets/Scenes/ControlsScene.unity` | Pantalla informativa de controles antes de la pelea. Usa `ControlsSceneManager.cs`. |
-| Combate | `Assets/Scenes/FightScene.unity` | Escena principal de pelea. `GameManager` instancia personajes y administra la partida. |
-| Victoria | `Assets/Scenes/VictoryScene.unity` | Muestra al ganador. `WinnerScreenUI` gestiona el retorno al menú. |
-| Test | `Assets/Scenes/Test.unity` | Escena de pruebas internas. |
+`MainMenuScene` -> `CharacterSelectionScene` -> `StageSelectionScene` -> `ControlsScene` -> `FightScene`
 
----
+### Main scenes
 
-## Personajes jugables
+- `MainMenuScene`
+  Handles the menu intro and lets the player choose between `SinglePlayer` and `Multiplayer`.
+- `CharacterSelectionScene`
+  Lets players choose their characters. In `SinglePlayer`, it also shows AI difficulty selection (`Normal` / `Hard`).
+- `StageSelectionScene`
+  Lets the player choose the battle stage.
+- `ControlsScene`
+  Shows the control screen before entering the match.
+- `FightScene`
+  Runs the main battle, including HUD, dynamic camera, intro sequences, combat, AI activation, and the final victory presentation.
+- `TestScene`
+  Internal testing scene used during development.
 
-Los tres personajes del juego heredan de la clase base `Character`. Actualmente no tienen lógica diferenciada, pero están preparados para recibir habilidades y animaciones únicas.
+There is also a `VictoryScene` asset in the project, but it is not part of the final gameplay flow currently used. The actual victory sequence is resolved directly inside `FightScene`.
 
-| Personaje | Prefab | Clase |
-| ----------- | -------- | ------- |
-| Batman | `Assets/Prefabs/Batman.prefab` | `Batman.cs` |
-| Joker | `Assets/Prefabs/Joker.prefab` | `Joker.cs` |
-| Red Hood | `Assets/Prefabs/RedHood.prefab` | `RedHood.cs` |
+## Playable Characters
 
----
+All fighters inherit from the base `Character` class.
 
-## Controles e Inputs
+| Character | Prefab | Notes |
+| --- | --- | --- |
+| Batman | `Assets/Prefabs/Batman.prefab` | Uses the shared base combat system |
+| Joker | `Assets/Prefabs/Joker.prefab` | Includes intro and victory animation support |
+| Red Hood | `Assets/Prefabs/RedHood.prefab` | Includes intro and victory animation support |
 
-Los assets de input se encuentran en `Assets/Inputs/`. Se configuran mediante el **Input System** de Unity y soportan teclado y gamepad.
+The architecture is ready for future character-specific abilities and deeper differentiation.
 
-| Acción | Descripción |
-| ------- | ------------- |
-| `Move` / `Movement` | Movimiento horizontal (Vector2) |
-| `Left` / `Right` | Alternativas digitales para moverse |
-| `Jump` / `Up` | Salto |
-| `Action1` / `Action2` | Ataques |
-| `Dodge` | Esquiva |
-| `Return` / `Back` / `Select` | Entradas de menú |
+## Controls and Input
 
-Para reasignar controles, editar los archivos `.inputactions` en `Assets/Inputs/` desde el editor de Unity o directamente con el Input System.
+Input is managed with Unity's Input System through the assets in `Assets/Inputs/`.
 
----
+### Supported devices
 
-## Scripts principales
+- Keyboard
+- Standard gamepads
+- PS5 `DualSense` controllers
 
-### `Character.cs`
+### Main gameplay actions
 
-Clase base de todos los personajes. Gestiona:
+| Action | Description |
+| --- | --- |
+| `Move` / `Movement` | Horizontal movement |
+| `Left` / `Right` | Digital movement alternatives |
+| `Jump` / `Up` | Jump |
+| `Action1` | Primary attack |
+| `Action2` | Secondary / special attack |
+| `Dodge` | Evasive movement |
+| `Return` / `Back` / `Select` | Menu navigation |
 
-- Movimiento horizontal y saltos (incluyendo multisalto)
-- Sistema de ataques y combos
-- Recepción de daño, knockback e invulnerabilidad temporal
-- Muerte y respawn
+Each player uses separate input assets, which makes it easier to route controls independently.
 
-### `Player.cs`
+## Core Systems
 
-Conecta el `InputActionAsset` con el componente `Character`. Gestiona las vidas del jugador y actualiza el HUD de daño.
+### Combat
 
-### `GameManager.cs`
+`Character.cs` handles shared fighter behavior:
 
-Singleton que controla el flujo completo de la partida:
+- Movement and jumping
+- Combo attacks
+- Damage and knockback
+- Dodge and temporary invulnerability
+- Death and respawn
+- Intro (`Intro`) and victory (`Exit`) animation playback
 
-- Registra los jugadores activos
-- Instancia los personajes a partir de prefabs configurados
-- Detecta condición de victoria y gestiona transiciones de escena
+### Match flow
 
-### `CameraController.cs`
+`GameManager.cs` manages:
 
-Mantiene a ambos personajes en pantalla. Centra la cámara entre ellos y ajusta el FOV dinámicamente según la distancia entre jugadores.
+- Player registration
+- Character spawning from selected prefabs
+- Game mode state
+- Match intro sequence
+- Victory detection and winner presentation
 
-### `UIManager.cs`
+### Camera
 
-Administra el HUD en tiempo real:
+`CameraController.cs` keeps both fighters framed on screen and adjusts FOV dynamically. It also supports special camera poses for match intros and victory presentation.
 
-- Indicadores de vidas (corazones)
-- Imágenes de personajes
-- Fondo de escenario
+### Single-player AI
 
-### `MusicManager.cs`
+`NavMeshEnemyAI.cs` is used in `SinglePlayer` mode together with `NavMeshAgent`.
 
-Controla la reproducción de música por escena y los efectos de sonido (SFX).
+The AI can:
 
-### `Hitbox.cs`
+- Chase the player
+- Reposition on the platform
+- Look for heart pickups
+- Attack depending on range
+- Behave differently based on `Normal` or `Hard` difficulty
 
-Detecta colisiones activas durante ataques y aplica daño. Diferencia entre hitboxes de mano (`hand`) y pie (`foot`).
+### UI and audio
 
-### `HeartSpawner.cs`
+- `UIManager.cs` updates HUD elements such as lives and character visuals.
+- `WinnerScreenUI.cs` displays the final prompt after the victory sequence and returns to the main menu.
+- `MusicManager.cs` handles background music and SFX.
 
-Genera pickups de vida en el escenario según el estado de vidas de los jugadores.
+## Build Notes
 
----
+To build the game:
 
-## Prefabs y assets
+1. Open `File -> Build Settings`.
+2. Add the required scenes in the correct order.
+3. Select `PC, Mac & Linux Standalone`.
+4. Build for your preferred target architecture.
 
-### Personajes
+Recommended starting scene for testing in editor:
 
-- `Batman.prefab`
-- `Joker.prefab`
-- `RedHood.prefab`
+```text
+Assets/Scenes/MainMenuScene.unity
+```
 
-### Objetos y escenario
+## Development Notes
 
-- `Batarang.prefab` — Proyectil de Batman
-- `Gun.prefab` — Arma de Red Hood
-- `HeartPickup.prefab` — Pickup de vida
-- `Ground.prefab` — Suelo estándar
-- `Barrier.prefab` — Barrera de límite del escenario
-
-### Recursos multimedia
-
-- **Imágenes:** `Assets/Images/`
-- **Audio:** `Assets/Audios/`
-
----
-
-## Ejecución y build
-
-### Ejecución en el editor
-
-1. Abrir la escena `MainMenuScene` desde `Assets/Scenes/`.
-2. Presionar el botón **Play**.
-3. Verificar que `GameManager` y `MusicManager` están presentes en la escena.
-4. Asegurarse de que cada objeto `Player` tiene asignado un `InputActionAsset` válido en el inspector.
-
-### Build para PC / Mac
-
-1. **File → Build Settings**
-2. Hacer clic en **Add Open Scenes** (o agregar manualmente todas las escenas en el orden correcto).
-3. Seleccionar plataforma: **PC, Mac & Linux Standalone**.
-4. Configurar la arquitectura objetivo (x86_64 recomendado).
-5. Hacer clic en **Build and Run**.
-
-> 💡 Para Mac con chip Apple Silicon (M1/M2/M3/M5), seleccionar arquitectura **Apple Silicon** o **Universal** para mejor rendimiento.
-
----
-
-## Desarrollo y contribución
-
-### Estilo de código
-
-- Nombres de tipos públicos y métodos: `PascalCase`
-- Campos privados: `camelCase` (con prefijo `_` opcional: `_myField`)
-- Seguir las convenciones estándar de C# en proyectos Unity
-
-### Flujo de trabajo con Git
-
-1. Crear una rama por feature o fix:
-
-   ```bash
-   git checkout -b feature/nombre-del-feature
-   ```
-
-2. Realizar commits con mensajes descriptivos en español o inglés (consistente con el equipo).
-3. Abrir un Pull Request hacia `main` con descripción del cambio.
-4. Esperar revisión antes de hacer merge.
-
-### Reporte de bugs
-
-Abrir un **Issue** en el repositorio con:
-
-- Descripción del problema
-- Pasos para reproducirlo
-- Versión de Unity utilizada
-- Capturas o videos si aplica
-
----
-
-## Notas y TODOs
-
-- [ ] `Assets/Scripts/Throwable.cs` está vacío — implementar si se requieren proyectiles genéricos lanzables.
-- [ ] Las clases `Batman`, `Joker` y `RedHood` extienden `Character` sin lógica propia — agregar habilidades especiales, animaciones únicas y estadísticas diferenciadas.
-- [ ] Crear `CONTRIBUTING.md` con pasos de setup, normas de commit y guía de estilo.
-- [ ] Considerar añadir tests con **Unity Test Framework** para lógica crítica (daño, knockback, condición de victoria).
-- [ ] Agregar soporte para más de 2 jugadores si se desea expandir.
-- [ ] Implementar pantalla de pausa durante el combate.
+- The project follows a typical Unity structure with singleton-style global managers such as `GameManager` and `MusicManager`.
+- `Nav.cs` is currently unused and left as a placeholder.
+- Character classes are still mostly based on shared logic, so a natural next step would be adding unique abilities, balancing, and more differentiated animations.
+- The pause menu still has room for controller-focused UX improvements.
+- Online multiplayer is not implemented.
