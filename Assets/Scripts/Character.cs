@@ -21,6 +21,9 @@ public class Character : MonoBehaviour
     private bool isGrounded = true;
     private int jumpsRemaining = 2;
     private bool isAttacking = false;
+    private bool isDodging = false;
+    private bool isHurt = false;
+    private bool isLanding = false;
     private bool isInvulnerable = false;
     private bool isKnockbackTrajectoryActive = false;
     private bool isKnockbackControlLocked = false;
@@ -37,6 +40,8 @@ public class Character : MonoBehaviour
     public AudioClip attack2Clip;
     public AudioClip jumpClip;
     public AudioClip deathClip;
+    public AudioClip introClip;
+    public AudioClip exitClip;
 
     private AudioSource sfxSource;
     private Rigidbody rb;
@@ -68,6 +73,7 @@ public class Character : MonoBehaviour
     private static readonly int PARAM_DODGE           = Animator.StringToHash("Dodge");
     private static readonly int PARAM_HURT            = Animator.StringToHash("Hurt");
     private static readonly int PARAM_DEATH           = Animator.StringToHash("Death");
+    private static readonly int PARAM_EXIT            = Animator.StringToHash("Exit");
     private static readonly int STATE_BASE_ATTACK_GROUND_1 = Animator.StringToHash("Base Layer.BaseAttackGround1");
     private static readonly int STATE_BASE_ATTACK_GROUND_2 = Animator.StringToHash("Base Layer.BaseAttackGround2");
     private static readonly int STATE_BASE_ATTACK_AIR      = Animator.StringToHash("Base Layer.BaseAttackAir");
@@ -88,6 +94,7 @@ public class Character : MonoBehaviour
     private Coroutine hitFlashRoutine;
     private Coroutine timedInvulnerabilityRoutine;
     private Coroutine hurtRecoveryRoutine;
+    private Coroutine dodgeRoutine;
 
     public void SetOwner(Player player) { owner = player; }
 
@@ -139,7 +146,7 @@ public class Character : MonoBehaviour
 
     public virtual void Jump()
     {
-        if (isDead || isKnockbackControlLocked) return;
+        if (isDead || isKnockbackControlLocked || isAttacking || isDodging || isHurt || isLanding) return;
 
         if (isGrounded || jumpsRemaining > 0)
         {
@@ -170,7 +177,7 @@ public class Character : MonoBehaviour
     {
         if (isDead || animator == null) return;
 
-        if (isAttacking)
+        if (isAttacking || isDodging || isHurt || isLanding)
         {
             queuedAttack = QueuedAttackType.Attack1;
             return;
@@ -183,7 +190,7 @@ public class Character : MonoBehaviour
     {
         if (isDead || animator == null) return;
 
-        if (isAttacking)
+        if (isAttacking || isDodging || isHurt || isLanding)
         {
             queuedAttack = QueuedAttackType.Attack2;
             return;
@@ -204,6 +211,8 @@ public class Character : MonoBehaviour
 
         queuedAttack = QueuedAttackType.None;
         isAttacking = false;
+        isDodging = false;
+        isHurt = true;
         isKnockbackTrajectoryActive = true;
         isKnockbackControlLocked = true;
         DeactivateAllHitboxes();
@@ -225,6 +234,15 @@ public class Character : MonoBehaviour
                 animator.speed = clipLen / hurtDuration;
             }
         }
+        if (hurtRecoveryRoutine != null) StopCoroutine(hurtRecoveryRoutine);
+        hurtRecoveryRoutine = StartCoroutine(EndHurtAfter(hurtDuration));
+    }
+
+    private IEnumerator EndHurtAfter(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        isHurt = false;
+        hurtRecoveryRoutine = null;
     }
 
     public float GetDamageReceived()
@@ -257,14 +275,25 @@ public class Character : MonoBehaviour
 
     public virtual void Dodge()
     {
-        if (isDead || animator == null) return;
+        if (isDead || animator == null || isAttacking || isDodging || isHurt || isLanding) return;
 
         queuedAttack = QueuedAttackType.None;
         isAttacking = false;
+        isDodging = true;
         DeactivateAllHitboxes();
         ClearAllTriggers();
         animator.SetTrigger(PARAM_DODGE);
-        StartTimedInvulnerability(GetDodgeInvulnerabilityDuration());
+        float d = GetDodgeInvulnerabilityDuration();
+        StartTimedInvulnerability(d);
+        if (dodgeRoutine != null) StopCoroutine(dodgeRoutine);
+        dodgeRoutine = StartCoroutine(EndDodgeAfter(d));
+    }
+
+    private IEnumerator EndDodgeAfter(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        isDodging = false;
+        dodgeRoutine = null;
     }
 
     private void ClearAllTriggers()
@@ -357,6 +386,8 @@ private IEnumerator HitFlashCoroutine()
     {
         UpdateKnockbackState();
         UpdateAttackState();
+        UpdateDodgeState();
+        UpdateHurtState();
         UpdateLandingState();
 
         if (Time.time - lastAttackTime > comboResetTime)
@@ -447,6 +478,9 @@ private IEnumerator HitFlashCoroutine()
         CancelTimedInvulnerability();
         queuedAttack = QueuedAttackType.None;
         isAttacking = false;
+        isDodging = false;
+        isHurt = false;
+        isLanding = false;
         isInvulnerable = true;
         moveInput = Vector2.zero;
         if (rb != null)
@@ -493,6 +527,9 @@ private IEnumerator HitFlashCoroutine()
         isGrounded = true;
         jumpsRemaining = 2;
         isAttacking = false;
+        isDodging = false;
+        isHurt = false;
+        isLanding = false;
         queuedAttack = QueuedAttackType.None;
         isInvulnerable = true;
         damageReceived = 0;
@@ -596,9 +633,9 @@ private IEnumerator HitFlashCoroutine()
     {
         if (isKnockbackControlLocked) return;
 
-        ReproduceAttack1Clip();
         lastAttackTime = Time.time;
         isAttacking = true;
+        ReproduceAttack1Clip();
         queuedAttack = QueuedAttackType.None;
         DeactivateAllHitboxes();
         ClearAllTriggers();
@@ -619,9 +656,9 @@ private IEnumerator HitFlashCoroutine()
     {
         if (isKnockbackControlLocked) return;
 
-        ReproduceAttack2Clip();
         lastAttackTime = Time.time;
         isAttacking = true;
+        ReproduceAttack2Clip();
         queuedAttack = QueuedAttackType.None;
         DeactivateAllHitboxes();
         ClearAllTriggers();
@@ -671,6 +708,46 @@ private IEnumerator HitFlashCoroutine()
         }
     }
 
+    private void UpdateDodgeState()
+    {
+        if (animator == null || !isDodging) return;
+
+        AnimatorStateInfo currentState = animator.GetCurrentAnimatorStateInfo(0);
+        bool isDodgeAnimActive = currentState.fullPathHash == Animator.StringToHash("Base Layer.GroundDodge")
+            || currentState.fullPathHash == Animator.StringToHash("Base Layer.AirDodge");
+
+        if (!isDodgeAnimActive && animator.IsInTransition(0))
+        {
+            AnimatorStateInfo nextState = animator.GetNextAnimatorStateInfo(0);
+            isDodgeAnimActive = nextState.fullPathHash == Animator.StringToHash("Base Layer.GroundDodge")
+                || nextState.fullPathHash == Animator.StringToHash("Base Layer.AirDodge");
+        }
+
+        if (!isDodgeAnimActive)
+        {
+            isDodging = false;
+        }
+    }
+
+    private void UpdateHurtState()
+    {
+        if (animator == null || !isHurt) return;
+
+        AnimatorStateInfo currentState = animator.GetCurrentAnimatorStateInfo(0);
+        bool isHurtAnimActive = currentState.fullPathHash == Animator.StringToHash("Base Layer.Hurt");
+
+        if (!isHurtAnimActive && animator.IsInTransition(0))
+        {
+            AnimatorStateInfo nextState = animator.GetNextAnimatorStateInfo(0);
+            isHurtAnimActive = nextState.fullPathHash == Animator.StringToHash("Base Layer.Hurt");
+        }
+
+        if (!isHurtAnimActive)
+        {
+            isHurt = false;
+        }
+    }
+
     private static bool IsAttackState(AnimatorStateInfo stateInfo)
     {
         int stateHash = stateInfo.fullPathHash;
@@ -684,21 +761,47 @@ private IEnumerator HitFlashCoroutine()
 
     private void UpdateLandingState()
     {
-        if (animator == null || !animator.GetBool(PARAM_NEEDS_LANDING)) return;
+        if (animator == null) return;
 
+        bool needsLanding = animator.GetBool(PARAM_NEEDS_LANDING);
         AnimatorStateInfo currentState = animator.GetCurrentAnimatorStateInfo(0);
-        if (currentState.fullPathHash == STATE_LANDING)
+        bool isLandingAnimActive = currentState.fullPathHash == STATE_LANDING;
+        isLanding = needsLanding || isLandingAnimActive;
+
+        // If we are currently in the landing animation, clear the animator flag
+        // and the landing state so inputs are accepted after landing finishes.
+        if (isLandingAnimActive)
         {
-            animator.SetBool(PARAM_NEEDS_LANDING, false);
+            if (animator.GetBool(PARAM_NEEDS_LANDING))
+            {
+                animator.SetBool(PARAM_NEEDS_LANDING, false);
+            }
+            isLanding = false;
             return;
         }
 
-        if (!animator.IsInTransition(0)) return;
+        if (!animator.IsInTransition(0))
+        {
+            if (!needsLanding && !isLandingAnimActive)
+            {
+                isLanding = false;
+            }
+            return;
+        }
 
         AnimatorStateInfo nextState = animator.GetNextAnimatorStateInfo(0);
         if (nextState.fullPathHash == STATE_LANDING)
         {
-            animator.SetBool(PARAM_NEEDS_LANDING, false);
+            // About to enter landing state: clear the flag so it doesn't block actions.
+            if (animator.GetBool(PARAM_NEEDS_LANDING))
+            {
+                animator.SetBool(PARAM_NEEDS_LANDING, false);
+            }
+            isLanding = false;
+        }
+        else if (!needsLanding && !isLandingAnimActive)
+        {
+            isLanding = false;
         }
     }
 
@@ -777,6 +880,7 @@ private IEnumerator HitFlashCoroutine()
         jumpsRemaining = 2;
         isKnockbackTrajectoryActive = false;
         isKnockbackControlLocked = false;
+        isLanding = false;
 
         if (animator != null)
         {
@@ -789,6 +893,8 @@ private IEnumerator HitFlashCoroutine()
     public void ReproduceAttack2Clip() { if (attack2Clip != null) sfxSource.PlayOneShot(attack2Clip); }
     public void ReproduceHurtClip()    { if (hurtClip    != null) sfxSource.PlayOneShot(hurtClip); }
     public void ReproduceDeathClip()   { if (deathClip   != null) sfxSource.PlayOneShot(deathClip); }
+    public void ReproduceIntroClip()   { if (introClip   != null) sfxSource.PlayOneShot(introClip); }
+    public void ReproduceExitClip()    { if (exitClip    != null) sfxSource.PlayOneShot(exitClip); }
 
     public void PlayIntroAnimation()
     {
@@ -799,5 +905,56 @@ private IEnumerator HitFlashCoroutine()
 
         ClearAllTriggers();
         animator.SetTrigger(PARAM_INTRO);
+        ReproduceIntroClip();
+    }
+
+    public void EnableCombatConstraints()
+    {
+        if (rb == null)
+        {
+            return;
+        }
+
+        rb.useGravity = true;
+        rb.constraints = defaultConstraints;
+    }
+
+    public void DisableConstraintsForExit()
+    {
+        if (rb == null)
+        {
+            return;
+        }
+
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.useGravity = false;
+        rb.constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezePositionZ;
+    }
+
+    public void SetForcedRotation(Quaternion rotation)
+    {
+        desiredRotation = rotation;
+
+        if (rb != null)
+        {
+            rb.MoveRotation(desiredRotation);
+        }
+        else
+        {
+            transform.rotation = desiredRotation;
+        }
+    }
+
+    public void PlayExitAnimation()
+    {
+        if (animator == null || !HasAnimatorTrigger(PARAM_EXIT))
+        {
+            return;
+        }
+
+        ClearAllTriggers();
+        animator.SetTrigger(PARAM_EXIT);
+        ReproduceExitClip();
     }
 }

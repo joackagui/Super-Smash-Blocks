@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 public class UIManager : MonoBehaviour
 {
@@ -33,6 +34,11 @@ public class UIManager : MonoBehaviour
     [Header("Player Hearts")]
     [SerializeField] private RawImage[] player1Hearts;
     [SerializeField] private RawImage[] player2Hearts;
+
+    [Header("Pause UI")]
+    [SerializeField] private TextMeshProUGUI pauseText;
+    [SerializeField] private RawImage player1border;
+    [SerializeField] private RawImage player2border;
 
     [Header("Icon Images")]
     [SerializeField] private Texture batmanImage;
@@ -164,6 +170,59 @@ public class UIManager : MonoBehaviour
 
         ApplySingleCharacterImage(player1CharacterImage, GameManager.Instance.GetPlayer1Selection());
         ApplySingleCharacterImage(player2CharacterImage, GameManager.Instance.GetPlayer2Selection());
+    }
+
+    public void HidePlayerCharacterImages()
+    {
+        if (player1CharacterImage != null)
+        {
+            player1CharacterImage.gameObject.SetActive(false);
+        }
+
+        if (player2CharacterImage != null)
+        {
+            player2CharacterImage.gameObject.SetActive(false);
+        }
+    }
+
+    public void HidePlayerHearts()
+    {
+        HideHearts(player1Hearts);
+        HideHearts(player2Hearts);
+    }
+
+    public void HidePauseAndBorders()
+    {
+        if (pauseText != null)
+        {
+            pauseText.gameObject.SetActive(false);
+        }
+
+        if (player1border != null)
+        {
+            player1border.gameObject.SetActive(false);
+        }
+
+        if (player2border != null)
+        {
+            player2border.gameObject.SetActive(false);
+        }
+    }
+
+    private static void HideHearts(RawImage[] hearts)
+    {
+        if (hearts == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < hearts.Length; i++)
+        {
+            if (hearts[i] != null)
+            {
+                hearts[i].gameObject.SetActive(false);
+            }
+        }
     }
 
     private void ApplySingleCharacterImage(RawImage target, string selection)
