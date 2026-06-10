@@ -50,6 +50,28 @@
                 },
                 {
                     "name": "",
+                    "id": "2f174559-7cc0-44e6-b971-808e63c4f9bd",
+                    "path": "<DualShockGamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Return",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "84d753c1-9bf8-4e56-a093-c4f06c3d8c58",
+                    "path": "<Gamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Return",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "f1440eff-f032-4ee9-b04d-53b2c921f258",
                     "path": "<Keyboard>/enter",
                     "interactions": "",
@@ -63,6 +85,28 @@
                     "name": "",
                     "id": "90d405de-362f-408a-91d8-4f8a671eb035",
                     "path": "<DualSenseGamepadHID>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Next",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f6200875-1e10-4cce-8d5d-8af0dd22f591",
+                    "path": "<DualShockGamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Next",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c5479597-6414-46cc-a0cd-677eedd1da81",
+                    "path": "<Gamepad>/buttonSouth",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
